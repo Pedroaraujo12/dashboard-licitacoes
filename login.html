@@ -37,6 +37,8 @@
                 ENTRAR NO SISTEMA
             </button>
             
+            <div id="errorMessage" class="hidden mt-4 p-3 bg-red-100 text-red-700 text-xs rounded-lg text-center font-bold"></div>
+            
             <p class="text-center text-xs text-slate-400">
                 Acesso exclusivo para Pastores e Gestores autorizados.
             </p>
@@ -50,34 +52,43 @@
 
         const form = document.getElementById('loginForm');
         const loginBtn = document.getElementById('loginBtn');
+        const errorDiv = document.getElementById('errorMessage');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             loginBtn.disabled = true;
-            loginBtn.innerHTML = 'Autenticando...';
+            loginBtn.innerHTML = 'Verificando...';
+            errorDiv.classList.add('hidden');
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
 
-            if (error) {
-                alert('Acesso negado: ' + error.message);
+                if (error) {
+                    errorDiv.innerText = 'Erro: ' + error.message;
+                    errorDiv.classList.remove('hidden');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'ENTRAR NO SISTEMA';
+                } else {
+                    console.log("Login bem sucedido, redirecionando...");
+                    window.location.assign('admin.html');
+                }
+            } catch (err) {
+                errorDiv.innerText = 'Erro inesperado no sistema.';
+                errorDiv.classList.remove('hidden');
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = 'ENTRAR NO SISTEMA';
-            } else {
-                // Sucesso - O Supabase cuida do token no localStorage
-                window.location.href = 'admin.html';
             }
         });
 
-        // Verificar se já está logado
         async function checkSession() {
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) window.location.href = 'admin.html';
+            if (session) window.location.assign('admin.html');
         }
         checkSession();
     </script>
