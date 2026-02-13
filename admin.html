@@ -167,10 +167,18 @@
         }
 
         async function fetchPosts() {
-            const { data } = await sb.from('estudos_messages').select('*').order('created_at', { ascending: false });
-            if (!data) return;
+            const { data, error } = await sb.from('estudos_mensagens').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error("Erro posts:", error);
+                return;
+            }
             allPosts = data;
-            document.getElementById('postsList').innerHTML = data.map(p => `
+            const list = document.getElementById('postsList');
+            if (!data || data.length === 0) {
+                list.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-slate-400">Nenhum conteúdo publicado.</td></tr>';
+                return;
+            }
+            list.innerHTML = data.map(p => `
                 <tr class="hover:bg-blue-50/30">
                     <td class="px-8 py-5 font-bold text-slate-800">${p.titulo}</td>
                     <td class="px-8 py-5 text-xs uppercase font-black text-blue-400">${p.categoria}</td>
@@ -180,20 +188,12 @@
             `).join('');
         }
 
-        document.getElementById('postForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const post = Object.fromEntries(formData.entries());
-            const { error } = await sb.from('estudos_mensagens').insert([post]);
-            if (error) alert("Erro ao publicar: " + error.message);
-            else { alert("Publicado com sucesso!"); closePostModal(); fetchPosts(); }
-        });
-
-        function handleLogout() { sb.auth.signOut(); window.location.replace('login.html'); }
-        function openPostModal() { document.getElementById('postModal').classList.remove('hidden'); }
-        function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
-        function showDetails(id) { /* logic as before */ }
-        function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
+        async function deletePost(id) {
+            if(!confirm("Deseja realmente excluir esta publicação?")) return;
+            const { error } = await sb.from('estudos_mensagens').delete().eq('id', id);
+            if (error) alert("Erro ao excluir: " + error.message);
+            else fetchPosts();
+        }
         
         init();
     </script>
