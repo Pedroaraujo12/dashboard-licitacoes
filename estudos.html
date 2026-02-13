@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensagens e Estudos | Novo Viver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-royal { background-color: #1e3a8a; }
+        .text-gold { color: #d4af37; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-royal rounded-lg flex items-center justify-center text-white font-bold text-sm">NV</div>
+                <span class="font-bold text-royal uppercase tracking-tight">Novo Viver</span>
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-sm font-medium hover:text-blue-600">Home</a>
+                <a href="estudos.html" class="text-sm font-bold text-blue-600">Estudos</a>
+                <a href="login.html" class="text-sm font-medium bg-slate-100 px-4 py-2 rounded-lg">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-royal py-16 px-4 text-center text-white">
+        <h1 class="text-4xl font-black mb-4">MENSAGENS E ESTUDOS</h1>
+        <p class="text-blue-200 max-w-2xl mx-auto">Edificação e conhecimento bíblico para o seu crescimento espiritual.</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-12 px-4">
+        
+        <!-- Categorias -->
+        <div class="flex flex-wrap justify-center gap-3 mb-12" id="categoryFilters">
+            <button onclick="filterContent('Todos')" class="px-6 py-2 rounded-full bg-white border border-slate-200 shadow-sm font-bold text-xs hover:bg-royal hover:text-white transition">TODOS</button>
+            <button onclick="filterContent('Sermão')" class="px-6 py-2 rounded-full bg-white border border-slate-200 shadow-sm font-bold text-xs hover:bg-royal hover:text-white transition">SERMÕES</button>
+            <button onclick="filterContent('Estudo Bíblico')" class="px-6 py-2 rounded-full bg-white border border-slate-200 shadow-sm font-bold text-xs hover:bg-royal hover:text-white transition">ESTUDOS</button>
+            <button onclick="filterContent('Devocional')" class="px-6 py-2 rounded-full bg-white border border-slate-200 shadow-sm font-bold text-xs hover:bg-royal hover:text-white transition">DEVOCIONAIS</button>
+            <button onclick="filterContent('Blog')" class="px-6 py-2 rounded-full bg-white border border-slate-200 shadow-sm font-bold text-xs hover:bg-royal hover:text-white transition">BLOG</button>
+        </div>
+
+        <!-- Lista de Posts -->
+        <div id="postsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="col-span-full text-center p-20 text-slate-400">Carregando conteúdos...</div>
+        </div>
+    </main>
+
+    <!-- Modal Leitura -->
+    <div id="readModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-[100] overflow-y-auto p-4">
+        <div class="bg-white rounded-3xl max-w-3xl mx-auto my-10 p-10 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 text-3xl">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allPosts = [];
+
+        async function fetchPosts() {
+            const { data, error } = await sb.from('estudos_mensagens').select('*').order('created_at', { ascending: false });
+            if (error) return;
+            allPosts = data;
+            renderPosts(data);
+        }
+
+        function renderPosts(posts) {
+            const list = document.getElementById('postsList');
+            if (posts.length === 0) {
+                list.innerHTML = '<div class="col-span-full text-center p-20 text-slate-400">Nenhum conteúdo publicado ainda.</div>';
+                return;
+            }
+            list.innerHTML = posts.map(p => `
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl transition group">
+                    <div class="p-8">
+                        <span class="text-[10px] font-black bg-blue-100 text-royal px-3 py-1 rounded-full uppercase mb-4 inline-block tracking-widest">${p.categoria}</span>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition">${p.titulo}</h3>
+                        <p class="text-slate-500 text-sm line-clamp-3 mb-6">${p.conteudo}</p>
+                        <div class="flex justify-between items-center pt-6 border-t border-slate-50">
+                            <span class="text-xs font-bold text-slate-400 uppercase">${p.autor}</span>
+                            <button onclick="readFull('${p.id}')" class="text-blue-600 font-black text-xs uppercase tracking-widest hover:underline">Ler Agora &rarr;</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterContent(cat) {
+            if (cat === 'Todos') return renderPosts(allPosts);
+            renderPosts(allPosts.filter(p => p.categoria === cat));
+        }
+
+        function readFull(id) {
+            const p = allPosts.find(x => x.id === id);
+            const modal = document.getElementById('readModal');
+            const content = document.getElementById('modalContent');
+            content.innerHTML = `
+                <span class="text-xs font-black text-blue-600 uppercase tracking-widest">${p.categoria}</span>
+                <h2 class="text-4xl font-black text-slate-800 mt-2 mb-4 uppercase leading-tight">${p.titulo}</h2>
+                <div class="flex items-center gap-2 mb-8 pb-8 border-b text-slate-400 text-sm">
+                    <span class="font-bold uppercase">${p.autor}</span> &bull; 
+                    <span>${new Date(p.created_at).toLocaleDateString()}</span>
+                </div>
+                <div class="prose prose-blue max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap">${p.conteudo}</div>
+            `;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('readModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        fetchPosts();
+    </script>
+</body>
+</html>
