@@ -183,9 +183,32 @@
                     <td class="px-8 py-5 font-bold text-slate-800">${p.titulo}</td>
                     <td class="px-8 py-5 text-xs uppercase font-black text-blue-400">${p.categoria}</td>
                     <td class="px-8 py-5 text-xs text-slate-400">${new Date(p.created_at).toLocaleDateString()}</td>
-                    <td class="px-8 py-5 text-right"><button onclick="deletePost('${p.id}')" class="text-red-500 hover:text-red-700 font-bold text-[10px] uppercase">Excluir</button></td>
+                    <td class="px-8 py-5 text-right flex justify-end gap-2">
+                        <button onclick="showPostDetails('${p.id}')" class="text-blue-600 hover:text-blue-800 font-bold text-[10px] uppercase border border-blue-200 px-2 py-1 rounded">Ver Texto</button>
+                        <button onclick="deletePost('${p.id}')" class="text-red-500 hover:text-red-700 font-bold text-[10px] uppercase">Excluir</button>
+                    </td>
                 </tr>
             `).join('');
+        }
+
+        function showPostDetails(id) {
+            const p = allPosts.find(x => x.id === id);
+            const modal = document.getElementById('detailsModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <div class="col-span-2 space-y-4">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Título</p>
+                        <p class="font-bold text-slate-700">${p.titulo}</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Conteúdo</p>
+                        <div class="text-slate-700 whitespace-pre-wrap leading-relaxed">${p.conteudo}</div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
         }
 
         async function deletePost(id) {
