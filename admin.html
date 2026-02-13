@@ -6,131 +6,125 @@
     <title>Painel Ministerial | Novo Viver</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .bg-royal { background-color: #1e3a8a; }
         .text-royal { color: #1e3a8a; }
-        .active-tab { border-bottom: 3px solid #d4af37; color: #d4af37 !important; }
+        .active-tab { background-color: rgba(255,255,255,0.2); border-bottom: 3px solid #d4af37; color: #fff !important; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50 min-h-screen pb-20 md:pb-0">
 
     <div id="loadingOverlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
         <div class="text-center">
-            <div class="w-12 h-12 border-4 border-royal border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-slate-500 font-medium text-sm uppercase tracking-widest">Sincronizando...</p>
+            <div class="w-10 h-10 border-4 border-royal border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-slate-400 text-xs font-black uppercase tracking-widest">Sincronizando...</p>
         </div>
     </div>
 
+    <!-- Top Navbar -->
     <nav class="bg-royal text-white p-4 shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <a href="index.html" class="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition">
-                    <svg class="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                </a>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight uppercase tracking-tighter">Painel Ministerial</h1>
-                    <p class="text-[10px] text-blue-300 uppercase font-bold" id="userRoleDisplay">Verificando...</p>
+                <a href="index.html" class="p-2 bg-white/10 rounded-lg"><svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></a>
+                <div class="hidden sm:block">
+                    <h1 class="font-black text-sm uppercase tracking-tighter">Painel Ministerial</h1>
+                    <p class="text-[10px] text-blue-300 uppercase font-black" id="userRoleDisplay">Acesso...</p>
                 </div>
             </div>
-            <div class="flex gap-4">
-                <div class="hidden md:flex bg-white/10 p-1 rounded-xl">
-                    <button onclick="switchTab('membros')" id="tab-membros" class="px-6 py-2 rounded-lg text-xs font-bold uppercase transition active-tab">Membros</button>
-                    <button onclick="switchTab('conteudo')" id="tab-conteudo" class="px-6 py-2 rounded-lg text-xs font-bold uppercase transition">Conteúdo</button>
-                </div>
-                <button onclick="handleLogout()" class="text-xs bg-red-500/20 hover:bg-red-500 px-3 py-2 rounded-lg transition font-bold uppercase tracking-widest text-white">Sair</button>
+            
+            <!-- Desktop Tabs -->
+            <div class="hidden md:flex bg-black/20 p-1 rounded-xl gap-1">
+                <button onclick="switchTab('membros')" id="tab-membros-dt" class="px-6 py-2 rounded-lg text-xs font-bold uppercase transition active-tab">Membros</button>
+                <button onclick="switchTab('conteudo')" id="tab-conteudo-dt" class="px-6 py-2 rounded-lg text-xs font-bold uppercase transition">Conteúdo</button>
             </div>
+
+            <button onclick="handleLogout()" class="text-[10px] bg-red-500/20 hover:bg-red-500 px-3 py-2 rounded-lg transition font-black uppercase tracking-widest">Sair</button>
         </div>
     </nav>
 
+    <!-- Mobile Bottom Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex justify-around p-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('membros')" id="tab-membros-mb" class="flex flex-col items-center gap-1 p-2 text-royal font-bold">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span class="text-[10px] uppercase">Membros</span>
+        </button>
+        <button onclick="switchTab('conteudo')" id="tab-conteudo-mb" class="flex flex-col items-center gap-1 p-2 text-slate-400 font-bold">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v12a2 2 0 01-2 2zM12 11l2 2m-2 0l-2-2m2 2v4"/></svg>
+            <span class="text-[10px] uppercase">Conteúdo</span>
+        </button>
+    </div>
+
     <!-- Seção Membros -->
-    <main id="section-membros" class="max-w-7xl mx-auto py-8 px-4">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-            <div>
-                <h2 class="text-3xl font-extrabold text-slate-800 uppercase tracking-tight">Gestão de Membros</h2>
-                <p class="text-slate-500">Consulta e acompanhamento da base</p>
-            </div>
+    <main id="section-membros" class="max-w-7xl mx-auto py-6 px-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">Membros</h2>
             <div class="flex gap-2">
-                <button id="btnExport" onclick="exportToCSV()" class="hidden bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">📥 Exportar</button>
-                <button onclick="fetchMembers()" class="bg-white border text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm">🔄 Atualizar</button>
+                <button id="btnExport" onclick="exportToCSV()" class="hidden bg-emerald-600 text-white p-2.5 rounded-xl font-bold text-xs shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M16 10l-4 4m0 0l-4-4m4 4V4"/></svg></button>
+                <button onclick="fetchMembers()" class="bg-white border text-slate-700 p-2.5 rounded-xl font-bold text-xs shadow-sm uppercase tracking-widest">🔄</button>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 border border-slate-100">
-            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nome..." class="w-full bg-slate-50 border rounded-xl p-3 outline-none">
-            <select id="filterMinisterio" onchange="filterTable()" class="w-full bg-slate-50 border rounded-xl p-3 outline-none font-medium">
-                <option value="">Todos Ministérios</option>
-                <option value="Pastoral">Pastoral</option><option value="Ensino">Ensino</option><option value="Louvor">Louvor</option>
-                <option value="Infantil">Infantil</option><option value="Midia">Mídia</option><option value="Acolhimento">Acolhimento</option>
-            </select>
-            <div class="text-right">
-                <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Total de Membros</p>
-                <p id="memberCount" class="text-3xl font-black text-royal">0</p>
+        <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 flex flex-col gap-4 border border-slate-100">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nome..." class="w-full bg-slate-50 border rounded-xl p-3 outline-none text-sm">
+            <div class="flex justify-between items-center">
+                <select id="filterMinisterio" onchange="filterTable()" class="bg-slate-50 border rounded-xl p-2 outline-none text-xs font-bold uppercase tracking-widest">
+                    <option value="">Filtrar Ministério</option>
+                    <option value="Pastoral">Pastoral</option><option value="Ensino">Ensino</option><option value="Louvor">Louvor</option><option value="Infantil">Infantil</option>
+                </select>
+                <div class="text-right"><p id="memberCount" class="text-2xl font-black text-royal leading-none">0</p><p class="text-[8px] text-slate-400 uppercase font-black tracking-widest">Membros</p></div>
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-sm overflow-hidden border border-slate-100">
-            <div class="overflow-x-auto">
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
+            <div id="membersListMobile" class="md:hidden divide-y divide-slate-100"></div>
+            <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead>
-                        <tr class="bg-slate-50/50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            <th class="px-8 py-5">Nome</th>
-                            <th class="px-8 py-5">WhatsApp</th>
-                            <th class="px-8 py-5 text-center">Ministério</th>
-                            <th class="px-8 py-5 text-right">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="membersList" class="divide-y divide-slate-50"></tbody>
+                    <thead class="bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest"><th class="px-6 py-4">Membro</th><th class="px-6 py-4">Contato</th><th class="px-6 py-4">Ministério</th><th class="px-6 py-4 text-right">Ação</th></thead>
+                    <tbody id="membersListDesktop" class="divide-y divide-slate-50"></tbody>
                 </table>
             </div>
         </div>
     </main>
 
     <!-- Seção Conteúdo -->
-    <main id="section-conteudo" class="max-w-7xl mx-auto py-8 px-4 hidden">
-        <div class="flex justify-between items-end mb-8">
-            <div><h2 class="text-3xl font-extrabold text-slate-800 uppercase tracking-tight">Mensagens</h2><p class="text-slate-500">Gestão de publicações</p></div>
-            <button onclick="openPostModal()" class="bg-royal text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-blue-900 transition">📝 Nova Publicação</button>
+    <main id="section-conteudo" class="max-w-7xl mx-auto py-6 px-4 hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">Conteúdo</h2>
+            <button onclick="openPostModal()" class="bg-royal text-white px-4 py-2.5 rounded-xl font-black text-[10px] shadow-lg uppercase tracking-widest">📝 Novo</button>
         </div>
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div id="postsListMobile" class="md:hidden space-y-4"></div>
+        <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <table class="w-full text-left">
-                <thead>
-                    <tr class="bg-slate-50/50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        <th class="px-8 py-5">Título</th>
-                        <th class="px-8 py-5">Categoria</th>
-                        <th class="px-8 py-5 text-right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="postsList" class="divide-y divide-slate-50"></tbody>
+                <thead class="bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest"><th class="px-6 py-4">Título</th><th class="px-6 py-4">Categoria</th><th class="px-6 py-4 text-right">Ações</th></thead>
+                <tbody id="postsListDesktop" class="divide-y divide-slate-50"></tbody>
             </table>
         </div>
     </main>
 
-    <!-- Modais -->
-    <div id="detailsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[100]">
-        <div class="bg-white rounded-[2.5rem] max-w-2xl w-full p-10 shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 text-3xl font-light">&times;</button>
-            <h2 class="text-2xl font-black text-royal uppercase tracking-tight mb-8">Detalhes</h2>
-            <div id="modalContent" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    <!-- Modais Adaptados -->
+    <div id="detailsModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden flex items-end md:items-center justify-center p-0 md:p-4 z-[100]">
+        <div class="bg-white rounded-t-[2rem] md:rounded-[2.5rem] w-full max-w-2xl p-8 md:p-10 shadow-2xl relative animate-in fade-in slide-in-from-bottom-10 duration-300">
+            <button onclick="closeModal()" class="absolute top-4 right-4 md:top-6 md:right-6 text-slate-300 text-2xl">&times;</button>
+            <div id="modalContent" class="space-y-4 pt-4"></div>
+            <button onclick="closeModal()" class="w-full mt-8 py-4 bg-slate-100 rounded-2xl font-bold md:hidden">Fechar</button>
         </div>
     </div>
 
-    <div id="postModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[100]">
-        <div class="bg-white rounded-[2.5rem] max-w-4xl w-full p-10 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <h2 class="text-2xl font-black text-royal mb-6">NOVA PUBLICAÇÃO</h2>
-            <form id="postForm" class="space-y-6">
-                <input type="text" name="titulo" placeholder="Título" required class="w-full bg-slate-50 border p-4 rounded-2xl outline-none">
-                <div class="grid grid-cols-2 gap-4">
-                    <select name="categoria" required class="bg-slate-50 border p-4 rounded-2xl outline-none">
-                        <option value="Sermão">Sermão</option><option value="Estudo Bíblico">Estudo Bíblico</option><option value="Devocional">Devocional</option><option value="Blog">Blog</option>
-                    </select>
-                    <input type="text" name="autor" placeholder="Autor" required class="bg-slate-50 border p-4 rounded-2xl outline-none">
+    <div id="postModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-[100] p-0 md:p-4">
+        <div class="bg-white w-full h-full md:h-auto md:max-w-4xl mx-auto md:rounded-[2.5rem] p-8 overflow-y-auto">
+            <h2 class="text-xl font-black text-royal uppercase mb-6 tracking-widest text-center md:text-left">Publicar Mensagem</h2>
+            <form id="postForm" class="space-y-4">
+                <input type="text" name="titulo" placeholder="Título" required class="w-full bg-slate-50 border p-4 rounded-xl outline-none text-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <select name="categoria" required class="bg-slate-50 border p-4 rounded-xl outline-none text-sm font-bold uppercase"><option value="Sermão">Sermão</option><option value="Devocional">Devocional</option><option value="Estudo Bíblico">Estudo</option><option value="Blog">Blog</option></select>
+                    <input type="text" name="autor" placeholder="Autor" required class="bg-slate-50 border p-4 rounded-xl outline-none text-sm">
                 </div>
-                <textarea name="conteudo" placeholder="Conteúdo..." rows="8" required class="w-full bg-slate-50 border p-4 rounded-2xl outline-none"></textarea>
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="closePostModal()" class="px-8 py-4 bg-slate-100 rounded-2xl font-bold">Cancelar</button>
-                    <button type="submit" class="px-8 py-4 bg-royal text-white rounded-2xl font-bold">PUBLICAR</button>
+                <textarea name="conteudo" placeholder="Mensagem..." rows="10" required class="w-full bg-slate-50 border p-4 rounded-xl outline-none text-sm"></textarea>
+                <div class="flex flex-col md:flex-row gap-2">
+                    <button type="submit" class="w-full md:w-auto bg-royal text-white px-10 py-4 rounded-xl font-black uppercase tracking-widest text-xs order-1 md:order-2">Publicar Agora</button>
+                    <button type="button" onclick="closePostModal()" class="w-full md:w-auto bg-slate-100 text-slate-500 px-10 py-4 rounded-xl font-bold uppercase tracking-widest text-xs order-2 md:order-1">Cancelar</button>
                 </div>
             </form>
         </div>
@@ -147,13 +141,11 @@
         async function init() {
             const { data: { session } } = await sb.auth.getSession();
             if (!session) { window.location.replace('login.html'); return; }
-
             const { data: profile } = await sb.from('perfis_admin').select('nivel').eq('id', session.user.id).single();
-            if (!profile) { alert("Acesso restrito."); await sb.auth.signOut(); window.location.replace('login.html'); return; }
+            if (!profile) { await sb.auth.signOut(); window.location.replace('login.html'); return; }
 
-            document.getElementById('userRoleDisplay').innerText = `Acesso: ${profile.nivel}`;
+            document.getElementById('userRoleDisplay').innerText = `Admin: ${profile.nivel}`;
             if (profile.nivel === 'Gestor') document.getElementById('btnExport').classList.remove('hidden');
-            
             document.getElementById('loadingOverlay').classList.add('hidden');
             fetchMembers(); fetchPosts();
         }
@@ -166,12 +158,25 @@
         }
 
         function renderMembers(data) {
-            document.getElementById('membersList').innerHTML = data.map(m => `
+            const mobile = document.getElementById('membersListMobile');
+            const desktop = document.getElementById('membersListDesktop');
+            
+            mobile.innerHTML = data.map(m => `
+                <div class="p-6 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-slate-800 uppercase tracking-tight">${m.nome_completo}</p>
+                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">${m.ministerio_interesse || 'Geral'}</p>
+                    </div>
+                    <button onclick="showDetails('${m.id}')" class="bg-royal text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Ver</button>
+                </div>
+            `).join('');
+
+            desktop.innerHTML = data.map(m => `
                 <tr class="hover:bg-blue-50/30">
-                    <td class="px-8 py-5 font-bold text-slate-700">${m.nome_completo}</td>
-                    <td class="px-8 py-5 text-blue-600 font-bold">${m.telefone_principal}</td>
-                    <td class="px-8 py-5 text-center"><span class="bg-blue-100 text-royal px-3 py-1 rounded-full text-[10px] font-black uppercase">${m.ministerio_interesse || 'Geral'}</span></td>
-                    <td class="px-8 py-5 text-right"><button onclick="showDetails('${m.id}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest">Ver</button></td>
+                    <td class="px-6 py-4 font-bold text-slate-700">${m.nome_completo}</td>
+                    <td class="px-6 py-4 font-black text-blue-600 text-xs">${m.telefone_principal}</td>
+                    <td class="px-6 py-4 text-center"><span class="bg-blue-100 text-royal px-3 py-1 rounded-full text-[10px] font-black uppercase">${m.ministerio_interesse || 'Geral'}</span></td>
+                    <td class="px-6 py-4 text-right"><button onclick="showDetails('${m.id}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest">Ficha</button></td>
                 </tr>
             `).join('');
         }
@@ -179,24 +184,28 @@
         async function fetchPosts() {
             const { data } = await sb.from('estudos_mensagens').select('*').order('created_at', { ascending: false });
             allPosts = data || [];
-            document.getElementById('postsList').innerHTML = allPosts.map(p => `
-                <tr class="hover:bg-blue-50/30">
-                    <td class="px-8 py-5 font-bold text-slate-800">${p.titulo}</td>
-                    <td class="px-8 py-5 text-[10px] font-black text-blue-400 uppercase tracking-widest">${p.categoria}</td>
-                    <td class="px-8 py-5 text-right flex justify-end gap-2">
-                        <button onclick="showPost('${p.id}')" class="text-blue-600 font-black text-[10px] uppercase border border-blue-100 px-3 py-1 rounded-lg">Ver Texto</button>
-                        <button onclick="deletePost('${p.id}')" class="text-red-500 font-black text-[10px] uppercase">Excluir</button>
-                    </td>
-                </tr>
+            document.getElementById('postsListMobile').innerHTML = allPosts.map(p => `
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 flex justify-between items-center">
+                    <div class="w-3/4"><p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">${p.categoria}</p><p class="font-bold text-slate-800 line-clamp-1">${p.titulo}</p></div>
+                    <button onclick="showPost('${p.id}')" class="p-2 text-blue-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                </div>
+            `).join('');
+            document.getElementById('postsListDesktop').innerHTML = allPosts.map(p => `
+                <tr class="hover:bg-blue-50/30"><td class="px-6 py-4 font-bold text-slate-800">${p.titulo}</td><td class="px-6 py-4 font-black text-xs text-blue-400 uppercase">${p.categoria}</td><td class="px-6 py-4 text-right flex justify-end gap-2"><button onclick="showPost('${p.id}')" class="text-blue-600 font-black text-[10px] uppercase border border-blue-100 px-3 py-1 rounded-lg">Ver</button><button onclick="deletePost('${p.id}')" class="text-red-500 font-black text-[10px] uppercase border border-red-50 px-3 py-1 rounded-lg">Excluir</button></td></tr>
             `).join('');
         }
 
         function showDetails(id) {
             const m = allMembers.find(x => x.id === id);
             document.getElementById('modalContent').innerHTML = `
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase">Perfil</p><p class="font-bold">${m.perfil || '-'}</p></div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase">Nascimento</p><p class="font-bold">${m.data_nascimento || '-'}</p></div>
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 md:col-span-2"><p class="text-[10px] font-black text-slate-400 uppercase">Ministério</p><p class="font-bold">${m.ministerio_interesse || 'Geral'}</p></div>
+                <h3 class="text-xl font-black text-royal uppercase tracking-tighter">${m.nome_completo}</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">WhatsApp</p><p class="font-bold text-blue-600">${m.telefone_principal}</p></div>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Nascimento</p><p class="font-bold">${m.data_nascimento || '-'}</p></div>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Perfil</p><p class="font-bold uppercase text-[10px]">${m.perfil || 'Membro'}</p></div>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Ministério</p><p class="font-bold uppercase text-[10px]">${m.ministerio_interesse || 'Geral'}</p></div>
+                </div>
+                <div class="flex gap-2 mt-4"><a href="https://wa.me/${m.telefone_principal.replace(/\D/g,'')}" target="_blank" class="flex-1 bg-green-600 text-white text-center py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg">Abrir WhatsApp</a></div>
             `;
             document.getElementById('detailsModal').classList.remove('hidden');
         }
@@ -204,24 +213,49 @@
         function showPost(id) {
             const p = allPosts.find(x => x.id === id);
             document.getElementById('modalContent').innerHTML = `
-                <div class="col-span-2 space-y-4">
-                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                        <p class="text-[10px] font-black text-blue-600 uppercase mb-2">${p.categoria} | Por ${p.autor}</p>
-                        <h3 class="text-2xl font-black text-royal mb-4">${p.titulo}</h3>
-                        <div class="text-slate-700 whitespace-pre-wrap leading-relaxed">${p.conteudo}</div>
-                    </div>
-                </div>
+                <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest">${p.categoria} | Por ${p.autor}</p>
+                <h3 class="text-2xl font-black text-royal uppercase tracking-tighter mb-4">${p.titulo}</h3>
+                <div class="text-slate-700 whitespace-pre-wrap leading-relaxed text-sm md:text-base border-t pt-6">${p.conteudo}</div>
             `;
             document.getElementById('detailsModal').classList.remove('hidden');
         }
 
+        function switchTab(tab) {
+            document.getElementById('section-membros').classList.toggle('hidden', tab !== 'membros');
+            document.getElementById('section-conteudo').classList.toggle('hidden', tab !== 'conteudo');
+            
+            // Tab visual states
+            const activeClass = ['active-tab', 'text-white'];
+            const inactiveClass = ['text-slate-400', 'bg-transparent'];
+            
+            ['dt', 'mb'].forEach(device => {
+                const tm = document.getElementById(`tab-membros-${device}`);
+                const tc = document.getElementById(`tab-conteudo-${device}`);
+                if(tab === 'membros') {
+                    tm.classList.add(...activeClass); tm.classList.remove(...inactiveClass);
+                    tc.classList.add(...inactiveClass); tc.classList.remove(...activeClass);
+                } else {
+                    tc.classList.add(...activeClass); tc.classList.remove(...inactiveClass);
+                    tm.classList.add(...inactiveClass); tm.classList.remove(...activeClass);
+                }
+            });
+        }
+
+        function handleLogout() { sb.auth.signOut(); window.location.replace('login.html'); }
+        function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
+        function openPostModal() { document.getElementById('postModal').classList.remove('hidden'); }
+        function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
+
         document.getElementById('postForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true; btn.innerHTML = 'Publicando...';
             const formData = new FormData(e.target);
             const post = Object.fromEntries(formData.entries());
             const { error } = await sb.from('estudos_mensagens').insert([post]);
             if (error) alert("Erro: " + error.message);
-            else { alert("Publicado!"); closePostModal(); fetchPosts(); }
+            else { alert("Sucesso!"); closePostModal(); fetchPosts(); }
+            btn.disabled = false; btn.innerHTML = 'Publicar Agora';
         });
 
         async function deletePost(id) {
@@ -233,21 +267,9 @@
         function filterTable() {
             const s = document.getElementById('searchInput').value.toLowerCase();
             const m = document.getElementById('filterMinisterio').value;
-            renderMembers(allMembers.filter(x => x.nome_completo.toLowerCase().includes(s) && (m === "" || x.ministerio_interesse === m)));
+            const filtered = allMembers.filter(x => x.nome_completo.toLowerCase().includes(s) && (m === "" || x.ministerio_interesse === m));
+            renderMembers(filtered);
         }
-
-        function switchTab(tab) {
-            document.getElementById('section-membros').classList.toggle('hidden', tab !== 'membros');
-            document.getElementById('section-conteudo').classList.toggle('hidden', tab !== 'conteudo');
-            document.getElementById('tab-membros').classList.toggle('active-tab', tab === 'membros');
-            document.getElementById('tab-conteudo').classList.toggle('active-tab', tab === 'conteudo');
-        }
-
-        function handleLogout() { sb.auth.signOut(); window.location.replace('login.html'); }
-        function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
-        function openPostModal() { document.getElementById('postModal').classList.remove('hidden'); }
-        function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
-        function exportToCSV() { /* export logic */ }
 
         init();
     </script>
