@@ -169,19 +169,26 @@
         }
 
         async function fetchMembers() {
+            const countEl = document.getElementById('memberCount');
+            const originalCount = countEl.innerText;
+            countEl.innerText = "...";
+
             const { data, error } = await sb
                 .from('membros_novo_viver')
                 .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) {
-                alert("Erro ao buscar dados: " + error.message);
+                console.error("Erro Supabase:", error);
+                alert("Erro ao buscar dados: " + error.message + "\n\nVerifique se você rodou o comando SQL no Supabase para adicionar a coluna 'perfil'.");
+                countEl.innerText = originalCount;
                 return;
             }
 
+            console.log("Dados recebidos:", data);
             allMembers = data;
             renderTable(data);
-            document.getElementById('memberCount').innerText = data.length;
+            countEl.innerText = data.length;
         }
 
         function renderTable(members) {
