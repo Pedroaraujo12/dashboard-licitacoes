@@ -3,92 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo | Ministério Profético Novo Viver</title>
+    <title>Painel Ministerial | Novo Viver</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .bg-church { background-color: #0f172a; }
-        .text-gold { color: #d4af37; }
-        .border-gold { border-color: #d4af37; }
+        .bg-royal { background-color: #1e3a8a; }
+        .text-royal { color: #1e3a8a; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-slate-50 min-h-screen hidden" id="adminContent">
 
-    <!-- Nav -->
-    <nav class="bg-church text-white p-4 shadow-md">
+    <!-- Navbar -->
+    <nav class="bg-royal text-white p-4 shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-gold">Admin Novo Viver</h1>
-            <div class="space-x-4">
-                <span id="memberCount" class="bg-gold text-church px-3 py-1 rounded-full text-xs font-bold">Carregando...</span>
-                <button onclick="fetchMembers()" class="text-sm hover:text-gold transition">🔄 Atualizar</button>
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-white/10 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight uppercase tracking-tighter">Painel Ministerial</h1>
+                    <p class="text-[10px] text-blue-300 uppercase font-bold" id="userRoleDisplay">Carregando Nível...</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="handleLogout()" class="text-xs bg-red-500/20 hover:bg-red-500 px-3 py-2 rounded-lg transition font-bold uppercase tracking-widest">Sair</button>
             </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto py-8 px-4">
         
-        <!-- Filtros e Busca -->
-        <div class="bg-white p-6 rounded-xl shadow-sm mb-8 grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200">
+        <!-- Header Info -->
+        <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
             <div>
-                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Buscar por Nome</label>
-                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Digite um nome..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none">
+                <h2 class="text-3xl font-extrabold text-slate-800">Membros Cadastrados</h2>
+                <p class="text-slate-500">Gestão e consulta de dados ministeriais</p>
             </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Filtrar por Ministério</label>
-                <select id="filterMinisterio" onchange="filterTable()" class="w-full p-2 border border-gray-300 rounded-lg bg-white">
-                    <option value="">Todos os Departamentos</option>
-                    <option value="Louvor">Louvor / Música</option>
-                    <option value="Infantil">Ministério Infantil</option>
-                    <option value="Jovens">Jovens / Adolescentes</option>
-                    <option value="Acolhimento">Acolhimento / Recepção</option>
-                    <option value="Midia">Mídia / Comunicação</option>
-                    <option value="Intercessão">Intercessão / Oração</option>
-                    <option value="Social">Ação Social</option>
-                </select>
-            </div>
-            <div class="flex items-end">
-                <button onclick="exportToCSV()" class="w-full bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 font-semibold text-sm shadow-sm transition">📥 Exportar CSV (Excel)</button>
+            <div class="flex gap-2">
+                <div id="gestorActions" class="hidden">
+                    <button onclick="exportToCSV()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl hover:bg-emerald-700 font-bold text-sm shadow-sm transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M16 10l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Exportar Base
+                    </button>
+                </div>
+                <button onclick="fetchMembers()" class="bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl hover:bg-slate-50 font-bold text-sm shadow-sm transition">
+                    🔄 Atualizar Dados
+                </button>
             </div>
         </div>
 
-        <!-- Tabela -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+        <!-- Filtros -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 border border-slate-100">
+            <div class="space-y-1">
+                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Buscar por Nome</label>
+                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Pesquisar..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <div class="space-y-1">
+                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Filtrar Departamento</label>
+                <select id="filterMinisterio" onchange="filterTable()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">Todos</option>
+                    <option value="Louvor">Louvor</option>
+                    <option value="Infantil">Infantil</option>
+                    <option value="Midia">Mídia</option>
+                    <option value="Acolhimento">Acolhimento</option>
+                    <option value="Social">Social</option>
+                </select>
+            </div>
+            <div class="flex items-center justify-center md:justify-end">
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Total de Registros</p>
+                    <p id="memberCount" class="text-3xl font-black text-royal">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Estilo Fornecedores -->
+        <div class="bg-white rounded-3xl shadow-sm overflow-hidden border border-slate-100">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse" id="membersTable">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Nome</th>
-                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">WhatsApp</th>
-                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Interesse</th>
-                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Cadastro</th>
-                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Ações</th>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Membro</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contato</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Ministério</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Cadastro</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="membersList" class="divide-y divide-gray-200">
-                        <!-- Gerado via JS -->
+                    <tbody id="membersList" class="divide-y divide-slate-50">
+                        <!-- JS -->
                     </tbody>
                 </table>
             </div>
-            <div id="loadingState" class="p-10 text-center text-gray-500">
-                Carregando registros...
+            <div id="loadingState" class="p-20 text-center text-slate-400 font-medium">
+                Sincronizando com banco de dados ministerial...
             </div>
         </div>
     </main>
 
     <!-- Modal Detalhes -->
-    <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-church">Detalhes do Membro</h2>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <div id="detailsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[100]">
+        <div class="bg-white rounded-[2.5rem] max-w-2xl w-full p-10 shadow-2xl transform transition-all">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-2xl font-black text-royal uppercase tracking-tight">Ficha do Membro</h2>
+                    <p class="text-slate-400 text-sm">Dados completos para acompanhamento pastoral</p>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center hover:bg-slate-200 transition text-2xl font-light">&times;</button>
             </div>
-            <div id="modalContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <!-- Conteúdo via JS -->
+            <div id="modalContent" class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8 text-sm">
+                <!-- JS -->
             </div>
-            <div class="mt-8 text-right">
-                <button onclick="closeModal()" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300">Fechar</button>
+            <div class="mt-10 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-8 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition">Fechar</button>
             </div>
         </div>
     </div>
@@ -99,6 +128,44 @@
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let allMembers = [];
+        let userRole = 'Visitante';
+
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Buscar nível de acesso na tabela perfis_admin
+            const { data: profile, error } = await supabase
+                .from('perfis_admin')
+                .select('nivel')
+                .eq('id', session.user.id)
+                .single();
+
+            if (error || !profile) {
+                alert('Você não tem perfil administrativo vinculado.');
+                await supabase.auth.signOut();
+                window.location.href = 'login.html';
+                return;
+            }
+
+            userRole = profile.nivel;
+            document.getElementById('userRoleDisplay').innerText = `Acesso Nível: ${userRole}`;
+            document.getElementById('adminContent').classList.remove('hidden');
+
+            if (userRole === 'Gestor') {
+                document.getElementById('gestorActions').classList.remove('hidden');
+            }
+
+            fetchMembers();
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        }
 
         async function fetchMembers() {
             document.getElementById('loadingState').classList.remove('hidden');
@@ -107,32 +174,34 @@
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error(error);
-                alert('Erro ao carregar membros.');
-                return;
-            }
+            if (error) return;
 
             allMembers = data;
             renderTable(data);
-            document.getElementById('memberCount').innerText = `${data.length} Membros`;
+            document.getElementById('memberCount').innerText = data.length;
             document.getElementById('loadingState').classList.add('hidden');
         }
 
         function renderTable(members) {
             const list = document.getElementById('membersList');
             list.innerHTML = members.map(m => `
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 font-semibold text-gray-800">${m.nome_completo}</td>
-                    <td class="px-6 py-4">
-                        <a href="https://wa.me/${m.telefone_principal.replace(/\D/g,'')}" target="_blank" class="text-blue-600 hover:underline flex items-center">
+                <tr class="hover:bg-blue-50/30 transition group">
+                    <td class="px-8 py-5">
+                        <p class="font-bold text-slate-800">${m.nome_completo}</p>
+                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest">${m.perfil || 'Membro'}</p>
+                    </td>
+                    <td class="px-8 py-5">
+                        <a href="https://wa.me/${m.telefone_principal.replace(/\D/g,'')}" target="_blank" class="text-blue-600 font-bold hover:text-blue-800 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.319 1.592 5.548 0 10.058-4.51 10.06-10.059 0-2.689-1.046-5.217-2.946-7.117s-4.429-2.945-7.119-2.945c-5.548 0-10.059 4.51-10.061 10.059-.001 2.01.543 3.511 1.537 5.144l-.992 3.623 3.719-.975zm11.367-7.405c-.183-.091-1.083-.534-1.251-.595s-.289-.091-.411.091c-.122.183-.473.595-.58.716s-.214.137-.396.046c-.183-.091-.771-.284-1.47-.905-.544-.486-.911-1.085-1.018-1.267s-.011-.281.08-.372c.082-.081.183-.214.274-.32s.122-.183.183-.305.03-.229-.015-.32-.411-1.006-.564-1.372c-.149-.359-.299-.31-.411-.316s-.229-.006-.351-.006c-.122 0-.32.046-.488.229s-.64.625-.64 1.524c0 .899.656 1.768.747 1.89s1.292 1.971 3.129 2.762c.437.187.777.299 1.043.384.44.14.84.121 1.155.074.351-.052 1.083-.442 1.236-.869.153-.427.153-.793.107-.869s-.183-.122-.366-.213z"/></svg>
                             ${m.telefone_principal}
                         </a>
                     </td>
-                    <td class="px-6 py-4"><span class="bg-gold/20 text-gold-800 px-2 py-1 rounded text-xs font-bold">${m.ministerio_interesse || 'Geral'}</span></td>
-                    <td class="px-6 py-4 text-gray-500 text-xs">${new Date(m.created_at).toLocaleDateString()}</td>
-                    <td class="px-6 py-4">
-                        <button onclick="showDetails('${m.id}')" class="text-church font-bold text-xs hover:text-gold transition uppercase tracking-wider">Ver Ficha</button>
+                    <td class="px-8 py-5 text-center">
+                        <span class="bg-blue-100 text-royal px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">${m.ministerio_interesse || 'Geral'}</span>
+                    </td>
+                    <td class="px-8 py-5 text-slate-500 text-xs font-medium">${new Date(m.created_at).toLocaleDateString()}</td>
+                    <td class="px-8 py-5 text-right">
+                        <button onclick="showDetails('${m.id}')" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-royal transition shadow-sm">Ver Ficha</button>
                     </td>
                 </tr>
             `).join('');
@@ -141,13 +210,11 @@
         function filterTable() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const min = document.getElementById('filterMinisterio').value;
-            
             const filtered = allMembers.filter(m => {
                 const matchSearch = m.nome_completo.toLowerCase().includes(search);
                 const matchMin = min === "" || m.ministerio_interesse === min;
                 return matchSearch && matchMin;
             });
-            
             renderTable(filtered);
         }
 
@@ -157,39 +224,31 @@
             const content = document.getElementById('modalContent');
             
             content.innerHTML = `
-                <div class="p-2 border-b"><strong>Email:</strong> ${m.email || 'Não informado'}</div>
-                <div class="p-2 border-b"><strong>Nascimento:</strong> ${m.data_nascimento || '-'}</div>
-                <div class="p-2 border-b"><strong>Telefone 2:</strong> ${m.telefone_secundario || '-'}</div>
-                <div class="p-2 border-b"><strong>Conversão:</strong> ${m.data_conversao || '-'}</div>
-                <div class="p-2 border-b"><strong>Batismo:</strong> ${m.data_batismo || '-'}</div>
-                <div class="p-2 border-b"><strong>Cônjuge:</strong> ${m.nome_conjuge || '-'}</div>
-                <div class="col-span-2 p-2"><strong>Endereço:</strong> ${m.endereco_completo || 'Não informado'}</div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">E-mail</p><p class="font-bold text-slate-700">${m.email || '-'}</p></div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Nascimento</p><p class="font-bold text-slate-700">${m.data_nascimento || '-'}</p></div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Conversão</p><p class="font-bold text-slate-700">${m.data_conversao || '-'}</p></div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Batismo</p><p class="font-bold text-slate-700">${m.data_batismo || '-'}</p></div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 md:col-span-2"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Cônjuge</p><p class="font-bold text-slate-700">${m.nome_conjuge || '-'}</p></div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 md:col-span-2"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Endereço Completo</p><p class="font-bold text-slate-700">${m.endereco_completo || '-'}</p></div>
             `;
-            
             modal.classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('detailsModal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
 
         function exportToCSV() {
-            const rows = [
-                ["Nome", "WhatsApp", "Email", "Ministério", "Data Cadastro"]
-            ];
-            allMembers.forEach(m => {
-                rows.push([m.nome_completo, m.telefone_principal, m.email, m.ministerio_interesse, m.created_at]);
-            });
+            if(userRole !== 'Gestor') { alert('Apenas Gestores podem exportar a base.'); return; }
+            const rows = [["Nome", "WhatsApp", "Email", "Ministério", "Data Cadastro"]];
+            allMembers.forEach(m => rows.push([m.nome_completo, m.telefone_principal, m.email, m.ministerio_interesse, m.created_at]));
             let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
-            const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "membros_novo_viver.csv");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", "base_membros_novoviver.csv");
             document.body.appendChild(link);
             link.click();
         }
 
-        fetchMembers();
+        checkAuth();
     </script>
 </body>
 </html>
