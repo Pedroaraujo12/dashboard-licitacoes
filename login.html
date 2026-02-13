@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Administrativo | Novo Viver</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Versão estável e completa do Supabase via CDN -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -15,84 +16,89 @@
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
 
     <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
-        <div class="bg-royal p-8 text-center">
-            <h1 class="text-2xl font-bold text-white uppercase tracking-wider">Acesso Restrito</h1>
+        <div class="bg-royal p-8 text-center text-white">
+            <h1 class="text-2xl font-bold uppercase tracking-wider">Acesso Restrito</h1>
             <p class="text-blue-200 text-sm mt-1">Gestão Novo Viver</p>
         </div>
 
-        <form id="loginForm" class="p-8 space-y-6">
+        <div class="p-8 space-y-6">
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">E-mail</label>
-                <input type="email" id="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none">
+                <input type="email" id="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Senha</label>
-                <input type="password" id="password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none">
+                <input type="password" id="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none">
             </div>
             
-            <button type="submit" id="loginBtn" class="w-full bg-royal text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-900 transition-all">
+            <button onclick="fazerLogin()" id="loginBtn" class="w-full bg-royal text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-900 transition-all">
                 ENTRAR NO SISTEMA
             </button>
             
             <p class="text-center text-xs text-slate-400">
-                Acesso exclusivo para Pastores e Gestores.
+                Se o botão não responder, tente abrir em aba anônima.
             </p>
-        </form>
+        </div>
     </div>
 
     <script>
-        // Configurações diretas para evitar falhas de carregamento
+        // Configurações usando link alternativo
         const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
         
-        let supabase;
+        let sb;
         try {
-            supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log("Supabase inicializado.");
+            // Tentar inicializar com verificação de carregamento
+            if (typeof supabase === 'undefined') {
+                alert("O sistema de segurança não carregou. Por favor, desative bloqueadores de anúncio ou tente aba anônima.");
+            } else {
+                sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
         } catch (e) {
-            alert("Erro ao carregar o sistema de segurança. Verifique sua internet.");
+            console.error(e);
         }
 
-        const form = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
+        async function fazerLogin() {
+            const btn = document.getElementById('loginBtn');
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = 'Conectando...';
-
-            console.log("Tentando login para:", email);
-
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                console.error("Erro no login:", error.message);
-                alert("Falha no login: " + error.message);
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = 'ENTRAR NO SISTEMA';
-            } else {
-                console.log("Login OK! Redirecionando...");
-                // Usar location.replace para evitar que o usuário volte para o login
-                window.location.replace('admin.html');
+            if (!email || !password) {
+                alert("Por favor, preencha e-mail e senha.");
+                return;
             }
-        });
 
-        // Auto-login se já houver sessão ativa
-        async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                console.log("Sessão ativa encontrada. Redirecionando...");
-                window.location.replace('admin.html');
+            btn.disabled = true;
+            btn.innerHTML = 'Verificando...';
+
+            try {
+                const { data, error } = await sb.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) {
+                    alert("Erro: " + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = 'ENTRAR NO SISTEMA';
+                } else {
+                    window.location.replace('admin.html');
+                }
+            } catch (err) {
+                alert("Erro técnico ao conectar. Tente novamente.");
+                btn.disabled = false;
+                btn.innerHTML = 'ENTRAR NO SISTEMA';
             }
         }
-        checkSession();
+
+        async function checkSession() {
+            if (!sb) return;
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) window.location.replace('admin.html');
+        }
+        
+        // Pequeno atraso para garantir carregamento do script
+        setTimeout(checkSession, 500);
     </script>
 </body>
 </html>
