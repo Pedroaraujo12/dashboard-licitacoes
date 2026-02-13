@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo | Ministério Profético Novo Viver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-church { background-color: #0f172a; }
+        .text-gold { color: #d4af37; }
+        .border-gold { border-color: #d4af37; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Nav -->
+    <nav class="bg-church text-white p-4 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gold">Admin Novo Viver</h1>
+            <div class="space-x-4">
+                <span id="memberCount" class="bg-gold text-church px-3 py-1 rounded-full text-xs font-bold">Carregando...</span>
+                <button onclick="fetchMembers()" class="text-sm hover:text-gold transition">🔄 Atualizar</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-8 px-4">
+        
+        <!-- Filtros e Busca -->
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-8 grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Buscar por Nome</label>
+                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Digite um nome..." class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Filtrar por Ministério</label>
+                <select id="filterMinisterio" onchange="filterTable()" class="w-full p-2 border border-gray-300 rounded-lg bg-white">
+                    <option value="">Todos os Departamentos</option>
+                    <option value="Louvor">Louvor / Música</option>
+                    <option value="Infantil">Ministério Infantil</option>
+                    <option value="Jovens">Jovens / Adolescentes</option>
+                    <option value="Acolhimento">Acolhimento / Recepção</option>
+                    <option value="Midia">Mídia / Comunicação</option>
+                    <option value="Intercessão">Intercessão / Oração</option>
+                    <option value="Social">Ação Social</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button onclick="exportToCSV()" class="w-full bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 font-semibold text-sm shadow-sm transition">📥 Exportar CSV (Excel)</button>
+            </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="membersTable">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Nome</th>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">WhatsApp</th>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Interesse</th>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Cadastro</th>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersList" class="divide-y divide-gray-200">
+                        <!-- Gerado via JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="loadingState" class="p-10 text-center text-gray-500">
+                Carregando registros...
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Detalhes -->
+    <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-church">Detalhes do Membro</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <div id="modalContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <!-- Conteúdo via JS -->
+            </div>
+            <div class="mt-8 text-right">
+                <button onclick="closeModal()" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allMembers = [];
+
+        async function fetchMembers() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            const { data, error } = await supabase
+                .from('membros_novo_viver')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                alert('Erro ao carregar membros.');
+                return;
+            }
+
+            allMembers = data;
+            renderTable(data);
+            document.getElementById('memberCount').innerText = `${data.length} Membros`;
+            document.getElementById('loadingState').classList.add('hidden');
+        }
+
+        function renderTable(members) {
+            const list = document.getElementById('membersList');
+            list.innerHTML = members.map(m => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 font-semibold text-gray-800">${m.nome_completo}</td>
+                    <td class="px-6 py-4">
+                        <a href="https://wa.me/${m.telefone_principal.replace(/\D/g,'')}" target="_blank" class="text-blue-600 hover:underline flex items-center">
+                            ${m.telefone_principal}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4"><span class="bg-gold/20 text-gold-800 px-2 py-1 rounded text-xs font-bold">${m.ministerio_interesse || 'Geral'}</span></td>
+                    <td class="px-6 py-4 text-gray-500 text-xs">${new Date(m.created_at).toLocaleDateString()}</td>
+                    <td class="px-6 py-4">
+                        <button onclick="showDetails('${m.id}')" class="text-church font-bold text-xs hover:text-gold transition uppercase tracking-wider">Ver Ficha</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterTable() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const min = document.getElementById('filterMinisterio').value;
+            
+            const filtered = allMembers.filter(m => {
+                const matchSearch = m.nome_completo.toLowerCase().includes(search);
+                const matchMin = min === "" || m.ministerio_interesse === min;
+                return matchSearch && matchMin;
+            });
+            
+            renderTable(filtered);
+        }
+
+        function showDetails(id) {
+            const m = allMembers.find(member => member.id === id);
+            const modal = document.getElementById('detailsModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <div class="p-2 border-b"><strong>Email:</strong> ${m.email || 'Não informado'}</div>
+                <div class="p-2 border-b"><strong>Nascimento:</strong> ${m.data_nascimento || '-'}</div>
+                <div class="p-2 border-b"><strong>Telefone 2:</strong> ${m.telefone_secundario || '-'}</div>
+                <div class="p-2 border-b"><strong>Conversão:</strong> ${m.data_conversao || '-'}</div>
+                <div class="p-2 border-b"><strong>Batismo:</strong> ${m.data_batismo || '-'}</div>
+                <div class="p-2 border-b"><strong>Cônjuge:</strong> ${m.nome_conjuge || '-'}</div>
+                <div class="col-span-2 p-2"><strong>Endereço:</strong> ${m.endereco_completo || 'Não informado'}</div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+
+        function exportToCSV() {
+            const rows = [
+                ["Nome", "WhatsApp", "Email", "Ministério", "Data Cadastro"]
+            ];
+            allMembers.forEach(m => {
+                rows.push([m.nome_completo, m.telefone_principal, m.email, m.ministerio_interesse, m.created_at]);
+            });
+            let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "membros_novo_viver.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+
+        fetchMembers();
+    </script>
+</body>
+</html>
