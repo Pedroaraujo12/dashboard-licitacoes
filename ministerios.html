@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Páginas dos Ministérios | Novo Viver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-royal { background-color: #1e3a8a; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-royal rounded-lg flex items-center justify-center text-white font-bold">NV</div>
+                <span class="font-bold text-royal uppercase tracking-tight">Novo Viver</span>
+            </a>
+            <div class="flex space-x-6">
+                <a href="index.html" class="text-sm font-medium hover:text-blue-600">Home</a>
+                <a href="estudos.html" class="text-sm font-medium hover:text-blue-600">Estudos</a>
+                <a href="ministerios.html" class="text-sm font-bold text-blue-600 underline">Ministérios</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-royal py-16 px-4 text-center text-white">
+        <h1 class="text-4xl font-black mb-4 uppercase tracking-tighter">Nossos Ministérios</h1>
+        <p class="text-blue-200 max-w-2xl mx-auto">Diversas frentes de serviço para edificação do corpo de Cristo.</p>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-12 px-4">
+        <div id="gridMinisterios" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Gerado via JS -->
+        </div>
+    </main>
+
+    <!-- Modal Dinâmico do Ministério -->
+    <div id="minModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md hidden z-[100] overflow-y-auto p-4">
+        <div class="bg-white rounded-[2.5rem] max-w-3xl mx-auto my-10 p-10 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 text-3xl">&times;</button>
+            <div id="modalContent">
+                <h2 id="minTitle" class="text-3xl font-black text-royal mb-4 uppercase"></h2>
+                <div class="bg-blue-50 p-6 rounded-2xl mb-8">
+                    <h3 class="text-xs font-black text-blue-600 uppercase tracking-widest mb-2">Visão do Ministério</h3>
+                    <p id="minDesc" class="text-slate-600 leading-relaxed"></p>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Ações Recentes e Estudos</h3>
+                    <div id="minPosts" class="space-y-3">
+                        <p class="text-slate-400 text-sm italic">Nenhum estudo publicado especificamente para esta área ainda.</p>
+                    </div>
+                </div>
+                <div class="mt-10 pt-10 border-t flex justify-center">
+                    <a href="index.html#cadastro" class="bg-royal text-white px-10 py-4 rounded-2xl font-bold hover:bg-blue-900 transition shadow-lg">QUERO SERVIR NESTE MINISTÉRIO</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ministerios = [
+            { id: 'Acolhimento', nome: 'Acolhimento', desc: 'Receber com amor e excelência todos os que chegam à nossa casa.' },
+            { id: 'Social', nome: 'Ação Social', desc: 'Levar o pão e a palavra aos que mais precisam em nossa comunidade.' },
+            { id: 'Cura', nome: 'Cura e Libertação', desc: 'Ministração de restauração emocional e espiritual através do poder de Deus.' },
+            { id: 'Intercessao', nome: 'Intercessão', desc: 'A base de tudo. Orar sem cessar pelo ministério e pelas famílias.' },
+            { id: 'Ensino', nome: 'Ensino e Discipulado', desc: 'Capacitar os santos para a obra do ministério através da Palavra.' },
+            { id: 'Missoes', nome: 'Missões', desc: 'Expandir o Reino de Deus além de nossas fronteiras locais.' },
+            { id: 'Casais', nome: 'Ministério de Casais', desc: 'Fortalecer a aliança matrimonial sob os princípios bíblicos.' },
+            { id: 'Homens', nome: 'Homens de Honra', desc: 'Desenvolver a masculinidade bíblica e o papel do homem na família.' },
+            { id: 'Infantil', nome: 'Ministério Infantil', desc: 'Educar nossas crianças no caminho que devem andar.' },
+            { id: 'Jovens', nome: 'Jovens e Adolescentes', desc: 'Uma geração apaixonada por Deus e conectada ao seu propósito.' },
+            { id: 'Comunicacao', nome: 'Comunicação e Mídia', desc: 'Transmitir a mensagem do Reino através de todas as plataformas digitais.' },
+            { id: 'Louvor', nome: 'Louvor e Adoração', desc: 'Conduzir a igreja a um lugar de adoração profunda diante do Pai.' }
+        ];
+
+        function renderMinisterios() {
+            const grid = document.getElementById('gridMinisterios');
+            grid.innerHTML = ministerios.map(m => `
+                <div onclick="openMin('${m.id}')" class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 cursor-pointer hover:shadow-xl hover:border-blue-200 transition group">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-blue-600 transition uppercase">${m.nome}</h3>
+                    <p class="text-slate-500 text-sm line-clamp-2">${m.desc}</p>
+                    <div class="mt-6 flex items-center text-blue-600 text-xs font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition">
+                        Conhecer mais &rarr;
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openMin(id) {
+            const m = ministerios.find(x => x.id === id);
+            document.getElementById('minTitle').innerText = m.nome;
+            document.getElementById('minDesc').innerText = m.desc;
+            document.getElementById('minModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('minModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        renderMinisterios();
+    </script>
+</body>
+</html>
