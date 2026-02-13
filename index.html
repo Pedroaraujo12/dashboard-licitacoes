@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Membros | Ministério Profético Novo Viver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-church { background-color: #0f172a; }
+        .text-gold { color: #d4af37; }
+        .btn-gold { background-color: #d4af37; color: #0f172a; }
+        .btn-gold:hover { background-color: #b8962e; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-church text-white py-12 px-4 text-center shadow-lg">
+        <h1 class="text-3xl md:text-5xl font-bold text-gold mb-2">Ministério Profético Novo Viver</h1>
+        <p class="text-lg opacity-90">Sua jornada de fé e propósito começa aqui.</p>
+    </header>
+
+    <main class="max-w-4xl mx-auto py-10 px-4">
+        
+        <!-- Formulário Card -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-gray-100">
+            <h2 class="text-2xl font-semibold mb-6 border-b pb-2">Ficha de Cadastro de Membro</h2>
+            
+            <form id="cadastroForm" class="space-y-6">
+                <!-- Seção 1: Pessoal -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nome Completo *</label>
+                        <input type="text" name="nome_completo" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Data de Nascimento</label>
+                        <input type="date" name="data_nascimento" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border">
+                    </div>
+                </div>
+
+                <!-- Seção 2: Contato -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Telefone Principal (WhatsApp) *</label>
+                        <input type="tel" name="telefone_principal" placeholder="(00) 00000-0000" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">E-mail</label>
+                        <input type="email" name="email" placeholder="exemplo@email.com" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border">
+                    </div>
+                </div>
+
+                <!-- Seção 3: Endereço -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Endereço Completo</label>
+                    <input type="text" name="endereco_completo" placeholder="Rua, número, bairro, cidade" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border">
+                </div>
+
+                <!-- Seção 4: Vida Cristã -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Data de Conversão</label>
+                        <input type="date" name="data_conversao" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Data de Batismo</label>
+                        <input type="date" name="data_batismo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nome do Cônjuge (se aplicável)</label>
+                        <input type="text" name="nome_conjuge" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ministério de Interesse</label>
+                        <select name="ministerio_interesse" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gold focus:ring-gold p-2 border bg-white">
+                            <option value="">Selecione uma área...</option>
+                            <option value="Louvor">Louvor / Música</option>
+                            <option value="Infantil">Ministério Infantil</option>
+                            <option value="Jovens">Jovens / Adolescentes</option>
+                            <option value="Acolhimento">Acolhimento / Recepção</option>
+                            <option value="Midia">Mídia / Comunicação</option>
+                            <option value="Intercessão">Intercessão / Oração</option>
+                            <option value="Social">Ação Social</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="submitBtn" class="w-full btn-gold font-bold py-4 rounded-lg shadow-lg transition duration-300 transform hover:scale-[1.01] flex justify-center items-center">
+                        CONCLUIR MEU CADASTRO
+                    </button>
+                </div>
+            </form>
+
+            <div id="successMessage" class="hidden text-center py-10">
+                <div class="text-6xl mb-4">🙌</div>
+                <h2 class="text-3xl font-bold text-church mb-2">Bem-vindo à Família!</h2>
+                <p class="text-gray-600 mb-6">Seu cadastro foi realizado com sucesso. Em breve entraremos em contato.</p>
+                <button onclick="location.reload()" class="text-gold font-semibold underline">Realizar novo cadastro</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-10 text-gray-500 text-sm">
+        &copy; 2026 Ministério Profético Novo Viver. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const form = document.getElementById('cadastroForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Enviando...';
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Limpar strings vazias para o Supabase não dar erro em datas
+            for (let key in data) {
+                if (data[key] === "") data[key] = null;
+            }
+
+            const { error } = await supabase
+                .from('membros_novo_viver')
+                .insert([data]);
+
+            if (error) {
+                alert('Erro ao enviar cadastro: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'CONCLUIR MEU CADASTRO';
+            } else {
+                form.classList.add('hidden');
+                successMessage.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
