@@ -32,8 +32,8 @@
     <div class="flex flex-col xl:flex-row gap-8">
         <aside class="w-full xl:w-80 space-y-6">
             <div class="sidebar-card text-center"><p class="indicator-label">Ano Realização</p><p class="text-5xl font-black text-white">2026</p></div>
-            <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400">Total de Processos</p><p id="totalProcessos" class="text-4xl font-black text-white">0</p></div>
-            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase">Total Estimado</p><p id="vlrEstimadoTotal" class="text-2xl font-black text-white">R$ 0,00</p></div>
+            <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400 font-bold uppercase">Total de Processos</p><p id="totalProcessos" class="text-4xl font-black text-white">0</p></div>
+            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase">Total Estimado</p><p id="vlrEstimadoTotal" class="text-2xl font-black text-white text-emerald-400">R$ 0,00</p></div>
             <div class="sidebar-card bg-emerald-900/20"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-2xl font-black text-emerald-400">R$ 0,00</p></div>
         </aside>
 
@@ -52,8 +52,8 @@
                 <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Detalhamento dos Processos</h3></div>
                 <div class="overflow-x-auto max-h-[450px]">
                     <table class="w-full text-left text-xs border-collapse">
-                        <thead class="sticky top-0 bg-[#111827] z-10 shadow-sm"><tr class="text-slate-500 font-black uppercase border-b border-slate-800"><th class="px-6 py-4">Processo</th><th class="px-6 py-4">Objeto</th><th class="px-6 py-4 text-center text-slate-400">Modalidade</th><th class="px-6 py-4 text-center text-slate-400">Status</th><th class="px-6 py-4 text-right">Valor Estimado</th><th class="px-6 py-4 text-right text-slate-400">Ação</th></tr></thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-800/40"></tbody>
+                        <thead class="sticky top-0 bg-[#111827] z-10 shadow-sm"><tr class="text-slate-500 font-black uppercase border-b border-slate-800"><th class="px-6 py-4">Processo</th><th class="px-6 py-4">Objeto</th><th class="px-6 py-4 text-center">Modalidade</th><th class="px-6 py-4 text-center">Status</th><th class="px-6 py-4 text-right">Valor Estimado</th><th class="px-6 py-4 text-right">Ação</th></tr></thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-800/40 text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
@@ -118,19 +118,31 @@
             fill('f-demandante', getUnique('demandante'));
         }
 
+        function cleanVal(v) {
+            if (!v) return 0;
+            if (typeof v === 'number') return v;
+            return parseFloat(String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+        }
+
+        function formatBRL(v) {
+            return cleanVal(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'});
+        }
+
         function applyFilters() {
-            const idSel = document.getElementById('f-processo').value;
-            const objSel = document.getElementById('f-objeto').value;
-            const coordSel = document.getElementById('f-coordenacao').value;
-            const modSel = document.getElementById('f-modalidade').value;
-            const demSel = document.getElementById('f-demandante').value;
+            const f = {
+                id: document.getElementById('f-processo').value,
+                obj: document.getElementById('f-objeto').value,
+                coord: document.getElementById('f-coordenacao').value,
+                mod: document.getElementById('f-modalidade').value,
+                dem: document.getElementById('f-demandante').value
+            };
 
             const filtered = rawData.filter(i => {
-                const matchId = (idSel === 'Todos' || String(i.id_processo) === idSel);
-                const matchObj = (objSel === 'Todos' || i.objeto_resumido === objSel);
-                const matchCoord = (coordSel === 'Todos' || i.coordenacao === coordSel);
-                const matchMod = (modSel === 'Todos' || i.modalidade === modSel);
-                const matchDem = (demSel === 'Todos' || i.demandante === demSel);
+                const matchId = (f.id === 'Todos' || String(i.id_processo) === f.id);
+                const matchObj = (f.obj === 'Todos' || i.objeto_resumido === f.obj);
+                const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
+                const matchMod = (f.mod === 'Todos' || i.modalidade === f.mod);
+                const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
                 return matchId && matchObj && matchCoord && matchMod && matchDem;
             });
             updateView(filtered);
@@ -138,10 +150,12 @@
 
         function updateView(data) {
             document.getElementById('totalProcessos').innerText = data.length;
-            const sumEstimado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_estimado_anual) || 0), 0);
-            const sumHomologado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_homologado) || 0), 0);
-            document.getElementById('vlrEstimadoTotal').innerText = sumEstimado.toLocaleString('pt-br', {style:'currency', currency:'BRL'});
-            document.getElementById('vlrEconomizado').innerText = (sumEstimado - sumHomologado).toLocaleString('pt-br', {style:'currency', currency:'BRL'});
+            
+            const sumEstimado = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
+            const sumHomologado = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
+            
+            document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEstimado);
+            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEstimado - sumHomologado);
 
             const tableBody = document.getElementById('tableBody');
             if (data.length === 0) {
@@ -153,7 +167,7 @@
                         <td class="px-6 py-4 font-medium text-slate-200 text-[11px] leading-tight max-w-xs">${i.objeto_resumido || '-'}</td>
                         <td class="px-6 py-4 text-center"><span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold text-slate-400">${i.modalidade || '-'}</span></td>
                         <td class="px-6 py-4 text-center text-amber-400 font-black text-[10px] uppercase">${i.status || '-'}</td>
-                        <td class="px-6 py-4 text-right font-black text-slate-300">${(parseFloat(i.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</td>
+                        <td class="px-6 py-4 text-right font-black text-slate-300">${formatBRL(i.vlr_estimado_anual)}</td>
                         <td class="px-6 py-4 text-right">
                             <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition">Detalhes</button>
                         </td>
@@ -193,14 +207,11 @@
             if (!item) return;
             const modal = document.getElementById('modalDetalhes');
             document.getElementById('modalContent').innerHTML = `
-                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700">
-                    <p class="indicator-label mb-2 text-blue-400">Objeto Completo</p>
-                    <p class="font-bold text-slate-100 text-base leading-snug uppercase tracking-tight">${item.objeto_resumido}</p>
-                </div>
+                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-2 text-blue-400">Objeto Completo</p><p class="font-bold text-slate-100 text-base leading-snug uppercase tracking-tight">${item.objeto_resumido}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Processo</p><p class="font-black text-white text-lg">${item.id_processo}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Status</p><p class="font-black text-amber-400 uppercase">${item.status}</p></div>
-                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Estimado</p><p class="font-black text-white">${(parseFloat(item.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</p></div>
-                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Homologado</p><p class="font-black text-emerald-400">${(parseFloat(item.vlr_homologado) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</p></div>
+                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Estimado</p><p class="font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
+                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Homologado</p><p class="font-black text-emerald-400">${formatBRL(item.vlr_homologado)}</p></div>
                 <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-2 text-slate-500">Observações</p><p class="text-xs text-slate-400 italic">${item.observacoes || 'Sem observações.'}</p></div>
             `;
             modal.classList.remove('hidden');
