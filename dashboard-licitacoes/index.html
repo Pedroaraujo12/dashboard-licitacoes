@@ -40,8 +40,8 @@
         <aside class="w-full xl:w-80 grid grid-cols-2 xl:flex xl:flex-col gap-4">
             <div class="sidebar-card text-center col-span-2 xl:col-span-1"><p class="indicator-label">Ano Realização</p><p class="text-4xl xl:text-5xl font-black text-white">2026</p></div>
             <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400 font-bold uppercase">Processos</p><p id="totalProcessos" class="text-3xl xl:text-4xl font-black text-white">0</p></div>
-            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase text-[9px]">Total Estimado</p><p id="vlrEstimadoTotal" class="text-lg xl:text-2xl font-black text-white text-emerald-400 truncate">R$ 0,00</p></div>
-            <div class="sidebar-card bg-emerald-900/20 col-span-2 xl:col-span-1"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-xl xl:text-2xl font-black text-emerald-400">R$ 0,00</p></div>
+            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase text-[9px]">Total Estimado</p><p id="vlrEstimadoTotal" class="text-lg xl:text-2xl font-black text-white text-emerald-400 truncate">R$ 0,00</p><p id="extensoEstimado" class="text-[9px] text-slate-500 mt-1 italic leading-tight"></p></div>
+            <div class="sidebar-card bg-emerald-900/20 col-span-2 xl:col-span-1"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-xl xl:text-2xl font-black text-emerald-400">R$ 0,00</p><p id="extensoEconomizado" class="text-[9px] text-emerald-600/60 mt-1 italic leading-tight"></p></div>
         </aside>
 
         <main class="flex-1 space-y-6">
@@ -228,10 +228,12 @@
             
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEstimado);
             document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEstimado);
+            document.getElementById('extensoEstimado').innerText = valorPorExtenso(sumEstimado);
             
             const economizado = sumEstimado - sumHomologado;
             document.getElementById('vlrEconomizado').innerText = formatBRL(economizado);
             document.getElementById('vlrEconomizado').title = valorPorExtenso(economizado);
+            document.getElementById('extensoEconomizado').innerText = valorPorExtenso(economizado);
 
             const tableBody = document.getElementById('tableBody');
             if (data.length === 0) {
