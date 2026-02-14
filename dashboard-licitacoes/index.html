@@ -13,72 +13,79 @@
         .sidebar-card { background-color: #1e293b; border-radius: 0.75rem; padding: 1.25rem; border: 1px solid #334155; }
         .indicator-label { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .indicator-value { font-size: 1.5rem; font-weight: 900; }
-        .chart-container { background-color: #111827; border-radius: 1rem; padding: 1.5rem; height: 320px; position: relative; border: 1px solid #1f2937; }
+        .chart-container { background-color: #111827; border-radius: 1rem; padding: 1.5rem; min-height: 320px; height: auto; position: relative; border: 1px solid #1f2937; }
         .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: #e5e7eb; width: 100%; cursor: pointer; }
         .chart-title { font-size: 0.8rem; font-weight: 800; margin-bottom: 1.25rem; color: #facc15; text-transform: uppercase; }
         .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); }
+        
+        @media (max-width: 768px) {
+            .indicator-value { font-size: 1.25rem; }
+            .sidebar-card { padding: 1rem; }
+            .chart-container { min-height: 250px; }
+            .table-container { max-height: 350px; }
+        }
     </style>
 </head>
-<body class="p-4 md:p-6 overflow-x-hidden min-h-screen">
+<body class="p-2 md:p-6 overflow-x-hidden min-h-screen">
 
-    <header class="flex flex-col lg:flex-row justify-between items-center mb-8 px-4 gap-4 border-b border-slate-800 pb-6 text-white">
-        <div class="flex items-center gap-4">
-            <div class="bg-blue-600 p-2.5 rounded-xl"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
-            <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight">AgSUS - Coordenação de Contratações e Serviços - CCS - Rio doce</h1>
+    <header class="flex flex-col lg:flex-row justify-between items-center mb-6 px-2 gap-4 border-b border-slate-800 pb-6 text-white text-center lg:text-left">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-xl shrink-0"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+            <h1 class="text-lg md:text-2xl font-black uppercase tracking-tight leading-tight">AgSUS - CCS - Rio doce</h1>
         </div>
-        <button onclick="window.location.reload()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-700 transition">🔄 Limpar Filtros</button>
+        <button onclick="window.location.reload()" class="w-full lg:w-auto bg-slate-800 text-white px-4 py-2.5 rounded-lg text-xs font-bold hover:bg-slate-700 transition">🔄 Limpar Filtros</button>
     </header>
 
-    <div class="flex flex-col xl:flex-row gap-8">
-        <aside class="w-full xl:w-80 space-y-6">
-            <div class="sidebar-card text-center"><p class="indicator-label">Ano Realização</p><p class="text-5xl font-black text-white">2026</p></div>
-            <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400 font-bold uppercase">Total de Processos</p><p id="totalProcessos" class="text-4xl font-black text-white">0</p></div>
-            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase">Total Estimado</p><p id="vlrEstimadoTotal" class="text-2xl font-black text-white text-emerald-400">R$ 0,00</p></div>
-            <div class="sidebar-card bg-emerald-900/20"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-2xl font-black text-emerald-400">R$ 0,00</p></div>
+    <div class="flex flex-col xl:flex-row gap-6">
+        <aside class="w-full xl:w-80 grid grid-cols-2 xl:flex xl:flex-col gap-4">
+            <div class="sidebar-card text-center col-span-2 xl:col-span-1"><p class="indicator-label">Ano Realização</p><p class="text-4xl xl:text-5xl font-black text-white">2026</p></div>
+            <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400 font-bold uppercase">Processos</p><p id="totalProcessos" class="text-3xl xl:text-4xl font-black text-white">0</p></div>
+            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase text-[9px]">Total Estimado</p><p id="vlrEstimadoTotal" class="text-lg xl:text-2xl font-black text-white text-emerald-400 truncate">R$ 0,00</p></div>
+            <div class="sidebar-card bg-emerald-900/20 col-span-2 xl:col-span-1"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-xl xl:text-2xl font-black text-emerald-400">R$ 0,00</p></div>
         </aside>
 
-        <main class="flex-1 space-y-8">
+        <main class="flex-1 space-y-6">
             <!-- Filtros -->
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800 shadow-inner">
-                <div class="space-y-1.5"><label class="indicator-label text-[9px]">ID Processo</label><select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
-                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Objeto</label><select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
-                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Coordenação</label><select class="filter-select" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
-                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Modalidade</label><select class="filter-select" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
-                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Demandante</label><select class="filter-select" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 bg-slate-900/40 p-4 rounded-2xl border border-slate-800 shadow-inner">
+                <div class="space-y-1.5"><label class="indicator-label text-[8px]">ID</label><select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[8px]">Objeto</label><select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[8px]">Coord</label><select class="filter-select" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[8px]">Modalidade</label><select class="filter-select" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
+                <div class="space-y-1.5 col-span-2 md:col-span-1"><label class="indicator-label text-[8px]">Demandante</label><select class="filter-select" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
             </div>
 
             <!-- Tabela Detalhamento -->
             <div class="bg-slate-900/30 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-                <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Detalhamento dos Processos</h3></div>
-                <div class="overflow-x-auto max-h-[450px]">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead class="sticky top-0 bg-[#111827] z-10 shadow-sm"><tr class="text-slate-500 font-black uppercase border-b border-slate-800"><th class="px-6 py-4">Processo</th><th class="px-6 py-4">Objeto</th><th class="px-6 py-4 text-center">Modalidade</th><th class="px-6 py-4 text-center">Status</th><th class="px-6 py-4 text-right">Valor Estimado</th><th class="px-6 py-4 text-right">Ação</th></tr></thead>
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center"><h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Detalhamento</h3></div>
+                <div class="overflow-x-auto max-h-[400px] table-container">
+                    <table class="w-full text-left text-[10px] border-collapse min-w-[600px]">
+                        <thead class="sticky top-0 bg-[#111827] z-10 shadow-sm"><tr class="text-slate-500 font-black uppercase border-b border-slate-800"><th class="px-4 py-3">Processo</th><th class="px-4 py-3">Objeto</th><th class="px-4 py-3 text-center">Status</th><th class="px-4 py-3 text-right">Estimado</th><th class="px-4 py-3 text-right">Ação</th></tr></thead>
                         <tbody id="tableBody" class="divide-y divide-slate-800/40 text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="chart-container"><p class="chart-title">Modalidades</p><canvas id="chartModalidade"></canvas></div>
                 <div class="chart-container"><p class="chart-title">Distribuição por Status</p><canvas id="chartStatus"></canvas></div>
             </div>
 
-            <footer class="pt-8 flex justify-between text-slate-500 text-[10px] font-black uppercase tracking-wider">
-                <span>Fonte: Sistema CCS-RD | Responsável: Pedro Araújo da Silva</span>
+            <footer class="pt-6 flex flex-col md:flex-row justify-between gap-2 text-slate-500 text-[9px] font-black uppercase tracking-wider text-center md:text-left">
+                <span>Fonte: Sistema CCS-RD | Responsável: Pedro Araújo</span>
                 <span id="lastUpdate">Sincronizando...</span>
             </footer>
         </main>
     </div>
 
     <!-- Modal Detalhes -->
-    <div id="modalDetalhes" class="fixed inset-0 modal-overlay hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] w-full max-w-2xl rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
-            <div class="bg-blue-600 px-6 py-5 flex justify-between items-center text-white">
-                <h2 class="text-lg font-black uppercase tracking-tighter">Ficha Detalhada</h2>
-                <button onclick="closeModal()" class="text-3xl hover:text-red-300 transition">&times;</button>
+    <div id="modalDetalhes" class="fixed inset-0 modal-overlay hidden z-[100] flex items-center justify-center p-2">
+        <div class="bg-[#1e293b] w-full max-w-2xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
+            <div class="bg-blue-600 px-5 py-4 flex justify-between items-center text-white shrink-0">
+                <h2 class="text-base font-black uppercase tracking-tighter">Ficha Detalhada</h2>
+                <button onclick="closeModal()" class="text-2xl leading-none">&times;</button>
             </div>
-            <div id="modalContent" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"></div>
-            <div class="bg-slate-900/50 px-8 py-5 text-right"><button onclick="closeModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] transition">Fechar</button></div>
+            <div id="modalContent" class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs overflow-y-auto"></div>
+            <div class="bg-slate-900/50 px-5 py-4 text-right shrink-0"><button onclick="closeModal()" class="w-full md:w-auto bg-slate-700 text-white px-6 py-2.5 rounded-lg font-black uppercase tracking-widest text-[10px]">Fechar</button></div>
         </div>
     </div>
 
@@ -134,7 +141,7 @@
             
             const unidades = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
             const dezenas = ['', 'dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
-            const especiais = ['dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
+            const especiais = ['dez', 'onze', 'doze', 'treze', 'quaturze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
             const centenas = ['', 'cem', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
 
             const formatarGrupo = (n) => {
@@ -228,19 +235,18 @@
 
             const tableBody = document.getElementById('tableBody');
             if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-slate-600 uppercase font-black tracking-widest text-[10px]">Nenhum registro encontrado</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-600 uppercase font-black tracking-widest text-[10px]">Nenhum registro encontrado</td></tr>';
             } else {
                 tableBody.innerHTML = data.map(i => `
                     <tr class="hover:bg-blue-500/10 transition group">
-                        <td class="px-6 py-4 font-black text-blue-400 text-[10px] uppercase">
+                        <td class="px-4 py-3 font-black text-blue-400 text-[9px] uppercase">
                             ${i.processo_link ? `<a href="${i.processo_link}" target="_blank" class="hover:underline flex items-center gap-1">${i.id_processo} <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : (i.id_processo || '-')}
                         </td>
-                        <td class="px-6 py-4 font-medium text-slate-200 text-[11px] leading-tight max-w-xs">${i.objeto_resumido || '-'}</td>
-                        <td class="px-6 py-4 text-center"><span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold text-slate-400">${i.modalidade || '-'}</span></td>
-                        <td class="px-6 py-4 text-center text-amber-400 font-black text-[10px] uppercase">${i.status || '-'}</td>
-                        <td class="px-6 py-4 text-right font-black text-slate-300">${formatBRL(i.vlr_estimado_anual)}</td>
-                        <td class="px-6 py-4 text-right">
-                            <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition">Detalhes</button>
+                        <td class="px-4 py-3 font-medium text-slate-200 text-[10px] leading-tight max-w-[150px] md:max-w-xs truncate md:whitespace-normal">${i.objeto_resumido || '-'}</td>
+                        <td class="px-4 py-3 text-center text-amber-400 font-black text-[9px] uppercase">${i.status || '-'}</td>
+                        <td class="px-4 py-3 text-right font-black text-slate-300 text-[9px]">${formatBRL(i.vlr_estimado_anual)}</td>
+                        <td class="px-4 py-3 text-right">
+                            <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter transition">Ver</button>
                         </td>
                     </tr>
                 `).join('');
@@ -266,8 +272,8 @@
                     maintainAspectRatio: false, 
                     plugins: { legend: { display: false } },
                     scales: { 
-                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 9 } } },
-                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 9 } } }
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 8 } } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 8 } } }
                     }
                 }
             });
@@ -278,12 +284,12 @@
             if (!item) return;
             const modal = document.getElementById('modalDetalhes');
             document.getElementById('modalContent').innerHTML = `
-                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-2 text-blue-400">Objeto Completo</p><p class="font-bold text-slate-100 text-base leading-snug uppercase tracking-tight">${item.objeto_resumido}</p></div>
-                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Processo</p><p class="font-black text-white text-lg">${item.id_processo}</p></div>
-                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Status</p><p class="font-black text-amber-400 uppercase">${item.status}</p></div>
-                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Estimado</p><p class="font-black text-white" title="${valorPorExtenso(cleanVal(item.vlr_estimado_anual))}">${formatBRL(item.vlr_estimado_anual)}</p><p class="text-[9px] text-slate-500 mt-1 italic">${valorPorExtenso(cleanVal(item.vlr_estimado_anual))}</p></div>
-                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Homologado</p><p class="font-black text-emerald-400" title="${valorPorExtenso(cleanVal(item.vlr_homologado))}">${formatBRL(item.vlr_homologado)}</p><p class="text-[9px] text-slate-500 mt-1 italic">${valorPorExtenso(cleanVal(item.vlr_homologado))}</p></div>
-                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-2 text-slate-500">Observações</p><p class="text-xs text-slate-400 italic">${item.observacoes || 'Sem observações.'}</p></div>
+                <div class="col-span-1 md:col-span-2 p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-2 text-blue-400">Objeto Completo</p><p class="font-bold text-slate-100 text-sm leading-snug uppercase tracking-tight">${item.objeto_resumido}</p></div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-1">Processo</p><p class="font-black text-white text-base">${item.id_processo}</p></div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-1">Status</p><p class="font-black text-amber-400 uppercase">${item.status}</p></div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-1">Valor Estimado</p><p class="font-black text-white" title="${valorPorExtenso(cleanVal(item.vlr_estimado_anual))}">${formatBRL(item.vlr_estimado_anual)}</p><p class="text-[8px] text-slate-500 mt-1 italic">${valorPorExtenso(cleanVal(item.vlr_estimado_anual))}</p></div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-1">Valor Homologado</p><p class="font-black text-emerald-400" title="${valorPorExtenso(cleanVal(item.vlr_homologado))}">${formatBRL(item.vlr_homologado)}</p><p class="text-[8px] text-slate-500 mt-1 italic">${valorPorExtenso(cleanVal(item.vlr_homologado))}</p></div>
+                <div class="col-span-1 md:col-span-2 p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-2 text-slate-500">Observações</p><p class="text-[10px] text-slate-400 italic">${item.observacoes || 'Sem observações.'}</p></div>
             `;
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
