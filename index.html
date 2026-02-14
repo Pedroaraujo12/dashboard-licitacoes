@@ -88,7 +88,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="chart-container"><p class="chart-title">Modalidades</p><canvas id="chartModalidade"></canvas></div>
-                <div class="chart-container"><p class="chart-title">Status/Fase</p><canvas id="chartFase"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Status</p><canvas id="chartStatus"></canvas></div>
             </div>
 
             <footer class="pt-8 flex justify-between text-slate-500 text-[10px] font-black uppercase">
@@ -166,10 +166,10 @@
         function renderCharts(data) {
             const countBy = (key) => data.reduce((acc, i) => { acc[i[key] || 'N/I'] = (acc[i[key] || 'N/I'] || 0) + 1; return acc; }, {});
             const mod = countBy('modalidade');
-            const fase = countBy('fase_atual');
+            const sit = countBy('status');
 
             draw('chartModalidade', 'bar', Object.keys(mod), Object.values(mod), '#3b82f6', true);
-            draw('chartFase', 'bar', Object.keys(fase), Object.values(fase), '#2dd4bf', false);
+            draw('chartStatus', 'bar', Object.keys(sit), Object.values(sit), '#2dd4bf', false);
         }
 
         function draw(id, type, labels, values, color, horizontal = false) {
