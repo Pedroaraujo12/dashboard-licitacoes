@@ -163,7 +163,9 @@
             } else {
                 tableBody.innerHTML = data.map(i => `
                     <tr class="hover:bg-blue-500/10 transition group">
-                        <td class="px-6 py-4 font-black text-blue-400 text-[10px] uppercase">${i.id_processo || '-'}</td>
+                        <td class="px-6 py-4 font-black text-blue-400 text-[10px] uppercase">
+                            ${i.processo_link ? `<a href="${i.processo_link}" target="_blank" class="hover:underline flex items-center gap-1">${i.id_processo} <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : (i.id_processo || '-')}
+                        </td>
                         <td class="px-6 py-4 font-medium text-slate-200 text-[11px] leading-tight max-w-xs">${i.objeto_resumido || '-'}</td>
                         <td class="px-6 py-4 text-center"><span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold text-slate-400">${i.modalidade || '-'}</span></td>
                         <td class="px-6 py-4 text-center text-amber-400 font-black text-[10px] uppercase">${i.status || '-'}</td>
