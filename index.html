@@ -16,82 +16,41 @@
         .chart-container { background-color: #111827; border-radius: 1rem; padding: 1.5rem; height: 320px; position: relative; border: 1px solid #1f2937; }
         .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: #e5e7eb; width: 100%; }
         .chart-title { font-size: 0.8rem; font-weight: 800; margin-bottom: 1.25rem; color: #facc15; text-transform: uppercase; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); }
     </style>
 </head>
 <body class="p-4 md:p-6 overflow-x-hidden min-h-screen">
 
     <header class="flex flex-col lg:flex-row justify-between items-center mb-8 px-4 gap-4 border-b border-slate-800 pb-6">
         <div class="flex items-center gap-4">
-            <div class="bg-blue-600 p-2.5 rounded-xl">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            </div>
-            <div>
-                <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight">AgSUS - CCS - RIO DOCE</h1>
-            </div>
+            <div class="bg-blue-600 p-2.5 rounded-xl"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+            <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-white">AgSUS - CCS - RIO DOCE</h1>
         </div>
-        <button onclick="window.location.reload()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold">🔄 Limpar Filtros</button>
+        <button onclick="window.location.reload()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-700 transition">🔄 Limpar Filtros</button>
     </header>
 
     <div class="flex flex-col xl:flex-row gap-8">
         <aside class="w-full xl:w-80 space-y-6">
-            <div class="sidebar-card text-center">
-                <p class="indicator-label">Ano Realização</p>
-                <p class="text-5xl font-black">2026</p>
-            </div>
-            <div class="sidebar-card bg-blue-900/20">
-                <p class="indicator-label text-blue-400">Total de Processos</p>
-                <p id="totalProcessos" class="text-4xl font-black">0</p>
-            </div>
-            <div class="sidebar-card bg-emerald-900/20">
-                <p class="indicator-label text-emerald-400 font-bold">Total Economizado</p>
-                <p id="vlrEconomizado" class="text-2xl font-black text-emerald-400">R$ 0,00</p>
-            </div>
-            <div class="sidebar-card bg-slate-800/50">
-                <p class="indicator-label text-slate-400 font-bold">Total Estimado</p>
-                <p id="vlrEstimadoTotal" class="text-2xl font-black text-white">R$ 0,00</p>
-            </div>
+            <div class="sidebar-card text-center"><p class="indicator-label">Ano Realização</p><p class="text-5xl font-black">2026</p></div>
+            <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400">Total de Processos</p><p id="totalProcessos" class="text-4xl font-black">0</p></div>
+            <div class="sidebar-card bg-emerald-900/20"><p class="indicator-label text-emerald-400 font-bold">Total Economizado</p><p id="vlrEconomizado" class="text-2xl font-black text-emerald-400">R$ 0,00</p></div>
+            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold">Total Estimado</p><p id="vlrEstimadoTotal" class="text-2xl font-black text-white">R$ 0,00</p></div>
         </aside>
 
         <main class="flex-1 space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-                <div class="space-y-1.5">
-                    <label class="indicator-label text-[9px]">ID Processo</label>
-                    <select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos</option></select>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="indicator-label text-[9px]">Objeto</label>
-                    <select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos</option></select>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="indicator-label text-[9px]">Coordenação</label>
-                    <select class="filter-select" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas</option></select>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="indicator-label text-[9px]">Modalidade</label>
-                    <select class="filter-select" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas</option></select>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="indicator-label text-[9px]">Demandante</label>
-                    <select class="filter-select" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos</option></select>
-                </div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">ID Processo</label><select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Objeto</label><select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Coordenação</label><select class="filter-select" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Modalidade</label><select class="filter-select" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Demandante</label><select class="filter-select" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
             </div>
 
             <div class="bg-slate-900/20 rounded-2xl border border-slate-800 overflow-hidden shadow-sm">
-                <div class="p-5 border-b border-slate-800 flex justify-between items-center">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Detalhamento dos Processos Selecionados</h3>
-                </div>
+                <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Detalhamento</h3></div>
                 <div class="overflow-x-auto max-h-[400px]">
                     <table class="w-full text-left text-xs border-collapse">
-                        <thead class="sticky top-0 bg-slate-900 z-10">
-                            <tr class="text-slate-500 font-bold uppercase border-b border-slate-800">
-                                <th class="px-6 py-4">ID</th>
-                                <th class="px-6 py-4">Objeto</th>
-                                <th class="px-6 py-4">Modalidade</th>
-                                <th class="px-6 py-4">Situação</th>
-                                <th class="px-6 py-4">Valor Estimado</th>
-                                <th class="px-6 py-4 text-right">Ação</th>
-                            </tr>
-                        </thead>
+                        <thead class="sticky top-0 bg-slate-900 z-10"><tr class="text-slate-500 font-bold uppercase border-b border-slate-800"><th class="px-6 py-4">ID</th><th class="px-6 py-4">Objeto</th><th class="px-6 py-4 text-center">Modalidade</th><th class="px-6 py-4 text-center">Status</th><th class="px-6 py-4 text-right">Valor Estimado</th><th class="px-6 py-4 text-right">Ação</th></tr></thead>
                         <tbody id="tableBody" class="divide-y divide-slate-800/50"></tbody>
                     </table>
                 </div>
@@ -109,6 +68,20 @@
         </main>
     </div>
 
+    <!-- Modal Detalhes -->
+    <div id="modalDetalhes" class="fixed inset-0 modal-overlay hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] w-full max-w-2xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-lg font-black uppercase tracking-tighter text-white">Ficha Detalhada do Processo</h2>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="modalContent" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"></div>
+            <div class="bg-slate-900/50 px-6 py-4 text-right">
+                <button onclick="closeModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-bold transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
@@ -118,7 +91,7 @@
         let rawData = [];
 
         async function init() {
-            const { data, error } = await sb.from('licitacoes').select('*');
+            const { data, error } = await sb.from('licitacoes').select('*').order('created_at', { ascending: false });
             if (error) return;
             rawData = data;
             document.getElementById('lastUpdate').innerText = "Última Sincronização: " + new Date().toLocaleString('pt-br');
@@ -126,6 +99,7 @@
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(Boolean))].sort();
             const fill = (id, items) => {
                 const el = document.getElementById(id);
+                el.innerHTML = '<option value="Todos">Todos</option>';
                 items.forEach(v => { el.innerHTML += `<option value="${v}">${v}</option>`; });
             };
 
@@ -159,33 +133,78 @@
 
         function updateView(data) {
             document.getElementById('totalProcessos').innerText = data.length;
-            
             const sumEstimado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_estimado_anual) || 0), 0);
             const sumHomologado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_homologado) || 0), 0);
-            
             document.getElementById('vlrEstimadoTotal').innerText = sumEstimado.toLocaleString('pt-br', {style:'currency', currency:'BRL'});
             document.getElementById('vlrEconomizado').innerText = (sumEstimado - sumHomologado).toLocaleString('pt-br', {style:'currency', currency:'BRL'});
 
             document.getElementById('tableBody').innerHTML = data.map(i => `
                 <tr class="hover:bg-blue-500/5 transition">
-                    <td class="px-6 py-4 font-black text-blue-400">${i.id_processo}</td>
-                    <td class="px-6 py-4">${i.objeto_resumido}</td>
-                    <td class="px-6 py-4">${i.modalidade}</td>
-                    <td class="px-6 py-4 text-amber-400">${i.status}</td>
-                    <td class="px-6 py-4 font-bold">${(parseFloat(i.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</td>
-                    <td class="px-6 py-4 text-right"><button class="bg-slate-700 px-2 py-1 rounded text-[10px]">DETALHES</button></td>
+                    <td class="px-6 py-4 font-black text-blue-400">${i.id_processo || '-'}</td>
+                    <td class="px-6 py-4 font-medium">${i.objeto_resumido || '-'}</td>
+                    <td class="px-6 py-4 text-center"><span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold">${i.modalidade || '-'}</span></td>
+                    <td class="px-6 py-4 text-center text-amber-400 font-bold">${i.status || '-'}</td>
+                    <td class="px-6 py-4 text-right font-bold">${(parseFloat(i.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-3 py-1 rounded text-[10px] font-bold transition">DETALHES</button>
+                    </td>
                 </tr>
             `).join('');
 
             renderCharts(data);
         }
 
+        function showDetails(idProcesso) {
+            const item = rawData.find(i => i.id_processo === idProcesso);
+            if (!item) return;
+
+            const modal = document.getElementById('modalDetalhes');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <div class="col-span-1 md:col-span-2 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <p class="indicator-label mb-1 text-blue-400">Objeto Completo</p>
+                    <p class="font-bold text-slate-200 leading-relaxed">${item.objeto_resumido || '-'}</p>
+                </div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <p class="indicator-label mb-1">ID Processo</p>
+                    <p class="font-black text-white">${item.id_processo || '-'}</p>
+                </div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <p class="indicator-label mb-1">Status / Fase</p>
+                    <p class="font-bold text-amber-400 uppercase text-xs">${item.status || '-'} / ${item.fase_atual || '-'}</p>
+                </div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <p class="indicator-label mb-1">Demandante</p>
+                    <p class="font-bold text-slate-200">${item.demandante || '-'}</p>
+                </div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <p class="indicator-label mb-1">Valor Estimado</p>
+                    <p class="font-bold text-white">${(parseFloat(item.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</p>
+                </div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <p class="indicator-label mb-1">Valor Homologado</p>
+                    <p class="font-bold text-emerald-400">${(parseFloat(item.vlr_homologado) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</p>
+                </div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700 md:col-span-2">
+                    <p class="indicator-label mb-1 text-slate-400">Observações</p>
+                    <p class="text-xs text-slate-400 italic">${item.observacoes || 'Nenhuma observação registrada.'}</p>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modalDetalhes').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
         function renderCharts(data) {
             const countBy = (key) => data.reduce((acc, i) => { acc[i[key] || 'N/I'] = (acc[i[key] || 'N/I'] || 0) + 1; return acc; }, {});
-            const mod = countBy('modalidade');
-            const sit = countBy('status');
-            draw('chartModalidade', 'bar', Object.keys(mod), Object.values(mod), '#3b82f6', true);
-            draw('chartStatus', 'bar', Object.keys(sit), Object.values(sit), '#2dd4bf', false);
+            draw('chartModalidade', 'bar', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), '#3b82f6', true);
+            draw('chartStatus', 'bar', Object.keys(countBy('status')), Object.values(countBy('status')), '#2dd4bf', false);
         }
 
         function draw(id, type, labels, values, color, horizontal = false) {
