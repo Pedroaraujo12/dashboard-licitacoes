@@ -130,7 +130,7 @@
         }
 
         function valorPorExtenso(valor) {
-            if (valor === 0) return 'zero';
+            if (valor === 0) return 'Zero';
             
             const unidades = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
             const dezenas = ['', 'dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
@@ -155,39 +155,42 @@
                         s += dezenas[d];
                         if (u > 0) s += ' e ';
                     }
-                    if (u > 0 || (c === 0 && d === 0)) s += unidades[u];
+                    if (u > 0) s += unidades[u];
                 }
                 return s;
             };
 
-            let [reais, centavos] = String(valor.toFixed(2)).split('.').map(Number);
+            let v = Math.abs(valor);
+            let reais = Math.floor(v);
+            let centavos = Math.round((v - reais) * 100);
             let partes = [];
 
             if (reais > 0) {
-                const milhoes = Math.floor(reais / 1000000);
+                const trilhoes = Math.floor(reais / 1000000000000);
+                const bilhoes = Math.floor((reais % 1000000000000) / 1000000000);
+                const milhoes = Math.floor((reais % 1000000000) / 1000000);
                 const milhares = Math.floor((reais % 1000000) / 1000);
                 const resto = reais % 1000;
 
-                if (milhoes > 0) {
-                    partes.push(formatarGrupo(milhoes) + (milhoes === 1 ? ' milhão' : ' milhões'));
-                }
-                if (milhares > 0) {
-                    partes.push(formatarGrupo(milhares) + ' mil');
-                }
-                if (resto > 0 || partes.length === 0) {
-                    partes.push(formatarGrupo(resto));
-                }
-            }
+                if (trilhoes > 0) partes.push(formatarGrupo(trilhoes) + (trilhoes === 1 ? ' trilhão' : ' trilhões'));
+                if (bilhoes > 0) partes.push(formatarGrupo(bilhoes) + (bilhoes === 1 ? ' bilhão' : ' bilhões'));
+                if (milhoes > 0) partes.push(formatarGrupo(milhoes) + (milhoes === 1 ? ' milhão' : ' milhões'));
+                if (milhares > 0) partes.push(formatarGrupo(milhares) + ' mil');
+                if (resto > 0) partes.push(formatarGrupo(resto));
 
-            let texto = partes.join(', ').replace(/, ([^,]*)$/, ' e $1');
-            if (reais > 0) texto += (reais === 1 ? ' real' : ' reais');
+                let textoReais = partes.join(', ').replace(/, ([^,]*)$/, ' e $1');
+                if (reais === 1) textoReais += ' real';
+                else if (reais % 1000000 === 0 && reais > 0) textoReais += ' de reais';
+                else textoReais += ' reais';
+                partes = [textoReais];
+            }
 
             if (centavos > 0) {
-                if (reais > 0) texto += ' e ';
-                texto += formatarGrupo(centavos) + (centavos === 1 ? ' centavo' : ' centavos');
+                partes.push(formatarGrupo(centavos) + (centavos === 1 ? ' centavo' : ' centavos'));
             }
 
-            return texto.charAt(0).toUpperCase() + texto.slice(1);
+            let resultado = partes.join(' e ');
+            return resultado.charAt(0).toUpperCase() + resultado.slice(1);
         }
 
         function applyFilters() {
