@@ -14,17 +14,17 @@
         .indicator-label { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .indicator-value { font-size: 1.5rem; font-weight: 900; }
         .chart-container { background-color: #111827; border-radius: 0.75rem; padding: 1.5rem; height: 300px; position: relative; }
-        .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.375rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #e5e7eb; }
+        .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.375rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #e5e7eb; width: 100%; }
         .chart-title { font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: #facc15; text-transform: uppercase; }
     </style>
 </head>
 <body class="p-4 overflow-x-hidden">
 
     <!-- Top Header -->
-    <header class="flex justify-between items-center mb-6 px-4">
+    <header class="flex flex-col md:flex-row justify-between items-center mb-6 px-4 gap-4">
         <div class="flex items-center gap-4">
             <h1 class="text-xl md:text-2xl font-black tracking-tighter uppercase border-r pr-4 border-slate-700">AgSUS - COORDENAÇÃO DE CONTRATAÇÕES E SERVIÇOS - RIO DOCE</h1>
-            <span class="text-slate-400 font-bold text-sm">Licitação (Resumo)</span>
+            <span class="text-slate-400 font-bold text-sm hidden sm:inline">Licitação (Resumo)</span>
         </div>
         <div class="flex gap-2">
             <button onclick="window.location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-xs font-bold transition">🔄 Limpar filtros</button>
@@ -37,7 +37,7 @@
         <aside class="w-full lg:w-1/4 space-y-4">
             <div class="sidebar-card text-center py-6">
                 <p class="indicator-label">Ano Realização</p>
-                <p class="text-4xl font-black text-white">2026</p>
+                <p id="displayAno" class="text-4xl font-black text-white">2026</p>
             </div>
 
             <!-- Produtividade -->
@@ -55,7 +55,7 @@
                 <div class="flex justify-around mt-4">
                     <div><p class="indicator-label">Licitados</p><p id="licitadosItens" class="indicator-value">0</p></div>
                     <div><p class="indicator-label">Cancelados</p><p id="canceladosItens" class="indicator-value">0</p></div>
-                    <div><p class="indicator-label">Percentual</p><p id="percentualEfetividade" class="indicator-value text-red-400">0%</p></div>
+                    <div><p class="indicator-label text-red-400">Taxa</p><p id="percentualEfetividade" class="indicator-value text-red-400">0%</p></div>
                 </div>
             </div>
 
@@ -82,28 +82,28 @@
             <!-- Filters Row -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
                 <div class="flex flex-col gap-1">
-                    <label class="indicator-label">Processo</label>
-                    <select class="filter-select" id="f-processo"><option>Todos</option></select>
+                    <label class="indicator-label">ID Processo</label>
+                    <select class="filter-select" id="f-processo" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="indicator-label">Objeto</label>
-                    <select class="filter-select" id="f-objeto"><option>Todos</option></select>
+                    <select class="filter-select" id="f-objeto" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="indicator-label">Modalidade</label>
-                    <select class="filter-select" id="f-modalidade"><option>Todos</option></select>
+                    <select class="filter-select" id="f-modalidade" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="indicator-label">Situação</label>
-                    <select class="filter-select" id="f-situacao"><option>Todos</option></select>
+                    <select class="filter-select" id="f-situacao" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
                 </div>
                 <div class="flex flex-col gap-1">
-                    <label class="indicator-label">Pregoeiro</label>
-                    <select class="filter-select" id="f-pregoeiro"><option>Todos</option></select>
+                    <label class="indicator-label">Responsável</label>
+                    <select class="filter-select" id="f-pregoeiro" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="indicator-label">Ano</label>
-                    <select class="filter-select" id="f-ano"><option>2026</option></select>
+                    <select class="filter-select" id="f-ano" onchange="handleFilterChange()"><option value="Todos">Todos</option><option value="2026">2026</option></select>
                 </div>
             </div>
 
@@ -130,6 +130,7 @@
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let charts = {};
+        let rawData = [];
 
         async function init() {
             document.getElementById('lastUpdate').innerText = "Atualizado em: " + new Date().toLocaleString();
@@ -140,6 +141,61 @@
             const { data, error } = await sb.from('licitacoes').select('*');
             if (error) { console.error(error); return; }
 
+            rawData = data;
+            populateFilters(data);
+            updateDashboard(data);
+        }
+
+        function populateFilters(data) {
+            const getUnique = (arr, key) => [...new Set(arr.map(i => i[key]).filter(Boolean))].sort();
+
+            const fillSelect = (id, values) => {
+                const select = document.getElementById(id);
+                // Keep only "Todos"
+                select.innerHTML = '<option value="Todos">Todos</option>';
+                values.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v;
+                    opt.innerText = v;
+                    select.appendChild(opt);
+                });
+            };
+
+            fillSelect('f-processo', getUnique(data, 'id_processo'));
+            fillSelect('f-objeto', getUnique(data, 'objeto'));
+            fillSelect('f-modalidade', getUnique(data, 'modalidade'));
+            fillSelect('f-situacao', getUnique(data, 'situacao'));
+            fillSelect('f-pregoeiro', getUnique(data, 'responsavel'));
+            
+            const anos = getUnique(data.map(i => ({ano: new Date(i.created_at).getFullYear()})), 'ano');
+            fillSelect('f-ano', anos);
+        }
+
+        function handleFilterChange() {
+            const filters = {
+                id_processo: document.getElementById('f-processo').value,
+                objeto: document.getElementById('f-objeto').value,
+                modalidade: document.getElementById('f-modalidade').value,
+                situacao: document.getElementById('f-situacao').value,
+                responsavel: document.getElementById('f-pregoeiro').value,
+                ano: document.getElementById('f-ano').value
+            };
+
+            const filteredData = rawData.filter(i => {
+                const itemAno = new Date(i.created_at).getFullYear().toString();
+                return (filters.id_processo === 'Todos' || i.id_processo === filters.id_processo) &&
+                       (filters.objeto === 'Todos' || i.objeto === filters.objeto) &&
+                       (filters.modalidade === 'Todos' || i.modalidade === filters.modalidade) &&
+                       (filters.situacao === 'Todos' || i.situacao === filters.situacao) &&
+                       (filters.responsavel === 'Todos' || i.responsavel === filters.responsavel) &&
+                       (filters.ano === 'Todos' || itemAno === filters.ano);
+            });
+
+            updateDashboard(filteredData);
+            if (filters.ano !== 'Todos') document.getElementById('displayAno').innerText = filters.ano;
+        }
+
+        function updateDashboard(data) {
             updateIndicators(data);
             renderAllCharts(data);
         }
@@ -149,27 +205,31 @@
             const concluidos = data.filter(i => i.situacao === 'Homologado' || i.situacao === 'Concluído').length;
             const estimado = data.reduce((acc, i) => acc + (parseFloat(i.valor_estimado) || 0), 0);
             const homologado = data.reduce((acc, i) => acc + (parseFloat(i.valor_homologado) || 0), 0);
+            const economizado = estimado - homologado;
 
             document.getElementById('totalProcessos').innerText = total;
             document.getElementById('concluidosProcessos').innerText = concluidos;
             document.getElementById('vlrEstimado').innerText = estimado.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
             document.getElementById('vlrHomologado').innerText = homologado.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
-            document.getElementById('vlrEconomizado').innerText = (estimado - homologado).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+            document.getElementById('vlrEconomizado').innerText = economizado.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
             
-            document.getElementById('licitadosItens').innerText = data.reduce((acc, i) => acc + (parseInt(i.itens_licitados) || 0), 0);
-            document.getElementById('canceladosItens').innerText = data.reduce((acc, i) => acc + (parseInt(i.itens_cancelados) || 0), 0);
-            document.getElementById('percentualEfetividade').innerText = "94,2%";
+            const licitados = data.reduce((acc, i) => acc + (parseInt(i.itens_licitados) || 0), 0);
+            const cancelados = data.reduce((acc, i) => acc + (parseInt(i.itens_cancelados) || 0), 0);
+            document.getElementById('licitadosItens').innerText = licitados;
+            document.getElementById('canceladosItens').innerText = cancelados;
+            
+            const taxa = licitados > 0 ? ((licitados / (licitados + cancelados)) * 100).toFixed(1) : 0;
+            document.getElementById('percentualEfetividade').innerText = taxa + "%";
         }
 
         function renderAllCharts(data) {
-            // Helper for frequency counting
             const count = (arr, key) => arr.reduce((acc, i) => { acc[i[key] || 'Outros'] = (acc[i[key] || 'Outros'] || 0) + 1; return acc; }, {});
 
             // 1. Modalidade
             const modData = count(data, 'modalidade');
             createChart('chartModalidade', 'bar', Object.keys(modData), Object.values(modData), '#3b82f6', true);
 
-            // 2. Tipo (Placeholder logic)
+            // 2. Tipo (Placeholder logic as requested style)
             createChart('chartTipo', 'bar', ['Tradicional', 'Construção', 'Cotação', 'SRP'], [15, 8, 22, 10], '#60a5fa');
 
             // 3. Situação
@@ -184,11 +244,11 @@
             const uniData = count(data, 'unidade_requisitante');
             createChart('chartUnidade', 'bar', Object.keys(uniData), Object.values(uniData), '#facc15', true);
 
-            // 6. Tempo (Placeholder)
+            // 6. Tempo
             createChart('chartTempo', 'bar', ['30 Dias', '60 Dias', '90 Dias', '120 Dias'], [10, 25, 40, 15], '#f43f5e', true);
 
-            // Histórico (Sidebar)
-            createChart('chartHistorico', 'line', ['2023', '2024', '2025', '2026'], [45, 67, 89, totalProcessos.innerText], '#3b82f6');
+            // Histórico
+            createChart('chartHistorico', 'line', ['2023', '2024', '2025', '2026'], [45, 67, 89, rawData.length], '#3b82f6');
         }
 
         function createChart(id, type, labels, values, color, horizontal = false) {
