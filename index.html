@@ -169,7 +169,7 @@
             const fase = countBy('fase_atual');
 
             draw('chartModalidade', 'bar', Object.keys(mod), Object.values(mod), '#3b82f6', true);
-            draw('chartFase', 'bar', Object.keys(fase), Object.values(fase), '#2dd4bf', true);
+            draw('chartFase', 'bar', Object.keys(fase), Object.values(fase), '#2dd4bf', false);
         }
 
         function draw(id, type, labels, values, color, horizontal = false) {
