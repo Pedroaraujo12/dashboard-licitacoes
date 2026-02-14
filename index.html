@@ -115,6 +115,10 @@
             if (error) return;
             rawData = data;
             
+            // Cálculo do Total Geral (sempre fixo no topo da barra lateral se desejar, mas aqui faremos dinâmico ao carregar)
+            const totalGeralEstimado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_estimado_anual) || 0), 0);
+            console.log("Total Geral Estimado:", totalGeralEstimado);
+
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(Boolean))].sort();
             const fill = (id, items) => {
                 const el = document.getElementById(id);
