@@ -9,15 +9,27 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #0b1120; color: white; }
+        body { font-family: 'Roboto', sans-serif; background-color: #0b1120; color: white; -webkit-font-smoothing: antialiased; }
         .sidebar-card { background-color: #1e293b; border-radius: 0.75rem; padding: 1.25rem; border: 1px solid #334155; }
         .indicator-label { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .indicator-value { font-size: 1.5rem; font-weight: 900; }
-        .chart-container { background-color: #111827; border-radius: 1rem; padding: 1.5rem; min-height: 320px; height: auto; position: relative; border: 1px solid #1f2937; }
-        .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: #e5e7eb; width: 100%; cursor: pointer; }
+        .chart-container { background-color: #111827; border-radius: 1rem; padding: 1rem; min-height: 280px; height: auto; position: relative; border: 1px solid #1f2937; }
+        .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: #e5e7eb; width: 100%; cursor: pointer; -webkit-appearance: none; }
         .chart-title { font-size: 0.8rem; font-weight: 800; margin-bottom: 1.25rem; color: #facc15; text-transform: uppercase; }
-        .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
         
+        .valor-extenso-label {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #10b981 !important;
+            font-size: 10px !important;
+            font-style: italic;
+            margin-top: 4px;
+            line-height: 1.2;
+            min-height: 1.2em;
+        }
+
         @media (max-width: 768px) {
             .indicator-value { font-size: 1.25rem; }
             .sidebar-card { padding: 1rem; }
@@ -41,8 +53,8 @@
         <aside class="w-full xl:w-80 grid grid-cols-2 xl:flex xl:flex-col gap-4">
             <div class="sidebar-card text-center col-span-2 xl:col-span-1"><p class="indicator-label">Ano Realização</p><p class="text-4xl xl:text-5xl font-black text-white">2026</p></div>
             <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400 font-bold uppercase">Processos</p><p id="totalProcessos" class="text-3xl xl:text-4xl font-black text-white">0</p></div>
-            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase text-[9px]">Total Estimado</p><p id="vlrEstimadoTotal" class="text-lg xl:text-2xl font-black text-white text-emerald-400 truncate">R$ 0,00</p><p id="extensoEstimado" class="text-[9px] text-slate-500 mt-1 italic leading-tight"></p></div>
-            <div class="sidebar-card bg-emerald-900/20 col-span-2 xl:col-span-1"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-xl xl:text-2xl font-black text-emerald-400">R$ 0,00</p><p id="extensoEconomizado" class="text-[9px] text-emerald-600/60 mt-1 italic leading-tight"></p></div>
+            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase text-[9px]">Total Estimado</p><p id="vlrEstimadoTotal" class="text-lg xl:text-2xl font-black text-white text-emerald-400 truncate">R$ 0,00</p><div id="extensoEstimado" class="valor-extenso-label"></div></div>
+            <div class="sidebar-card bg-emerald-900/20 col-span-2 xl:col-span-1"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-xl xl:text-2xl font-black text-emerald-400">R$ 0,00</p><div id="extensoEconomizado" class="valor-extenso-label"></div></div>
         </aside>
 
         <main class="flex-1 space-y-6">
@@ -150,7 +162,7 @@
             
             const unidades = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
             const dezenas = ['', 'dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
-            const especiais = ['dez', 'onze', 'doze', 'treze', 'quaturze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
+            const especiais = ['dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
             const centenas = ['', 'cem', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
 
             const formatarGrupo = (n) => {
@@ -239,13 +251,13 @@
             const extEstimado = valorPorExtenso(sumEstimado);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEstimado);
             document.getElementById('vlrEstimadoTotal').title = extEstimado;
-            document.getElementById('extensoEstimado').innerText = extEstimado;
+            document.getElementById('extensoEstimado').innerHTML = extEstimado;
             
             const economizado = sumEstimado - sumHomologado;
             const extEconomizado = valorPorExtenso(economizado);
             document.getElementById('vlrEconomizado').innerText = formatBRL(economizado);
             document.getElementById('vlrEconomizado').title = extEconomizado;
-            document.getElementById('extensoEconomizado').innerText = extEconomizado;
+            document.getElementById('extensoEconomizado').innerHTML = extEconomizado;
 
             const tableBody = document.getElementById('tableBody');
             if (data.length === 0) {
