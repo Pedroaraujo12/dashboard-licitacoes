@@ -43,17 +43,16 @@
                 <p id="totalProcessos" class="text-4xl font-black">0</p>
             </div>
             <div class="sidebar-card bg-emerald-900/20">
-                <p class="indicator-label text-emerald-400">Total Economizado</p>
+                <p class="indicator-label text-emerald-400 font-bold">Total Economizado</p>
                 <p id="vlrEconomizado" class="text-2xl font-black text-emerald-400">R$ 0,00</p>
             </div>
             <div class="sidebar-card bg-slate-800/50">
-                <p class="indicator-label text-slate-400">Total Estimado</p>
+                <p class="indicator-label text-slate-400 font-bold">Total Estimado</p>
                 <p id="vlrEstimadoTotal" class="text-2xl font-black text-white">R$ 0,00</p>
             </div>
         </aside>
 
         <main class="flex-1 space-y-8">
-            <!-- Filtros com mapeamento correto da planilha -->
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
                 <div class="space-y-1.5">
                     <label class="indicator-label text-[9px]">ID Processo</label>
@@ -77,15 +76,23 @@
                 </div>
             </div>
 
-            <!-- Tabela de Detalhamento -->
-            <div class="bg-slate-900/20 rounded-2xl border border-slate-800 overflow-hidden">
-                <div class="p-5 border-b border-slate-800"><h3 class="text-xs font-black uppercase text-slate-400">Detalhamento</h3></div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-900">
-                            <tr class="text-slate-500 font-bold uppercase"><th class="px-6 py-4">Processo</th><th class="px-6 py-4">Objeto</th><th class="px-6 py-4">Fase</th><th class="px-6 py-4 text-right">Valor Estimado</th></tr>
+            <div class="bg-slate-900/20 rounded-2xl border border-slate-800 overflow-hidden shadow-sm">
+                <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Detalhamento dos Processos Selecionados</h3>
+                </div>
+                <div class="overflow-x-auto max-h-[400px]">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="sticky top-0 bg-slate-900 z-10">
+                            <tr class="text-slate-500 font-bold uppercase border-b border-slate-800">
+                                <th class="px-6 py-4">ID</th>
+                                <th class="px-6 py-4">Objeto</th>
+                                <th class="px-6 py-4">Modalidade</th>
+                                <th class="px-6 py-4">Situação</th>
+                                <th class="px-6 py-4">Valor Estimado</th>
+                                <th class="px-6 py-4 text-right">Ação</th>
+                            </tr>
                         </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-800"></tbody>
+                        <tbody id="tableBody" class="divide-y divide-slate-800/50"></tbody>
                     </table>
                 </div>
             </div>
@@ -114,11 +121,8 @@
             const { data, error } = await sb.from('licitacoes').select('*');
             if (error) return;
             rawData = data;
+            document.getElementById('lastUpdate').innerText = "Última Sincronização: " + new Date().toLocaleString('pt-br');
             
-            // Cálculo do Total Geral (sempre fixo no topo da barra lateral se desejar, mas aqui faremos dinâmico ao carregar)
-            const totalGeralEstimado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_estimado_anual) || 0), 0);
-            console.log("Total Geral Estimado:", totalGeralEstimado);
-
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(Boolean))].sort();
             const fill = (id, items) => {
                 const el = document.getElementById(id);
@@ -155,17 +159,21 @@
 
         function updateView(data) {
             document.getElementById('totalProcessos').innerText = data.length;
-            const estimado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_estimado_anual) || 0), 0);
-            const homologado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_homologado) || 0), 0);
-            document.getElementById('vlrEconomizado').innerText = (estimado - homologado).toLocaleString('pt-br', {style:'currency', currency:'BRL'});
-            document.getElementById('vlrEstimadoTotal').innerText = estimado.toLocaleString('pt-br', {style:'currency', currency:'BRL'});
+            
+            const sumEstimado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_estimado_anual) || 0), 0);
+            const sumHomologado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_homologado) || 0), 0);
+            
+            document.getElementById('vlrEstimadoTotal').innerText = sumEstimado.toLocaleString('pt-br', {style:'currency', currency:'BRL'});
+            document.getElementById('vlrEconomizado').innerText = (sumEstimado - sumHomologado).toLocaleString('pt-br', {style:'currency', currency:'BRL'});
 
             document.getElementById('tableBody').innerHTML = data.map(i => `
-                <tr class="hover:bg-blue-500/5">
+                <tr class="hover:bg-blue-500/5 transition">
                     <td class="px-6 py-4 font-black text-blue-400">${i.id_processo}</td>
                     <td class="px-6 py-4">${i.objeto_resumido}</td>
-                    <td class="px-6 py-4 text-amber-400">${i.fase_atual}</td>
-                    <td class="px-6 py-4 text-right font-bold">${(parseFloat(i.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</td>
+                    <td class="px-6 py-4">${i.modalidade}</td>
+                    <td class="px-6 py-4 text-amber-400">${i.status}</td>
+                    <td class="px-6 py-4 font-bold">${(parseFloat(i.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</td>
+                    <td class="px-6 py-4 text-right"><button class="bg-slate-700 px-2 py-1 rounded text-[10px]">DETALHES</button></td>
                 </tr>
             `).join('');
 
@@ -176,7 +184,6 @@
             const countBy = (key) => data.reduce((acc, i) => { acc[i[key] || 'N/I'] = (acc[i[key] || 'N/I'] || 0) + 1; return acc; }, {});
             const mod = countBy('modalidade');
             const sit = countBy('status');
-
             draw('chartModalidade', 'bar', Object.keys(mod), Object.values(mod), '#3b82f6', true);
             draw('chartStatus', 'bar', Object.keys(sit), Object.values(sit), '#2dd4bf', false);
         }
@@ -186,12 +193,7 @@
             charts[id] = new Chart(document.getElementById(id), {
                 type: type,
                 data: { labels: labels, datasets: [{ data: values, backgroundColor: color }] },
-                options: { 
-                    indexAxis: horizontal ? 'y' : 'x', 
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: type === 'doughnut', labels: { color: '#94a3b8' } } },
-                    scales: type !== 'doughnut' ? { x: { ticks: { color: '#64748b' } }, y: { ticks: { color: '#64748b' } } } : {}
-                }
+                options: { indexAxis: horizontal ? 'y' : 'x', maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
