@@ -248,16 +248,22 @@
             const sumEstimado = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
             const sumHomologado = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
             
+            console.log("Calculated sums:", sumEstimado, sumHomologado);
+            
             const extEstimado = valorPorExtenso(sumEstimado);
+            console.log("Extenso Estimado:", extEstimado);
+            
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEstimado);
             document.getElementById('vlrEstimadoTotal').title = extEstimado;
-            document.getElementById('extensoEstimado').innerHTML = extEstimado;
+            document.getElementById('extensoEstimado').innerHTML = '<span>' + extEstimado + '</span>';
             
             const economizado = sumEstimado - sumHomologado;
             const extEconomizado = valorPorExtenso(economizado);
+            console.log("Extenso Economizado:", extEconomizado);
+            
             document.getElementById('vlrEconomizado').innerText = formatBRL(economizado);
             document.getElementById('vlrEconomizado').title = extEconomizado;
-            document.getElementById('extensoEconomizado').innerHTML = extEconomizado;
+            document.getElementById('extensoEconomizado').innerHTML = '<span>' + extEconomizado + '</span>';
 
             const tableBody = document.getElementById('tableBody');
             if (data.length === 0) {
