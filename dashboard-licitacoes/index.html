@@ -32,6 +32,7 @@
         <div class="flex items-center gap-3">
             <div class="bg-blue-600 p-2 rounded-xl shrink-0"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
             <h1 class="text-lg md:text-2xl font-black uppercase tracking-tight leading-tight">AgSUS - CCS - Rio doce</h1>
+            <span id="debug-info" class="text-[8px] text-red-500 font-mono ml-2"></span>
         </div>
         <button onclick="window.location.reload()" class="w-full lg:w-auto bg-slate-800 text-white px-4 py-2.5 rounded-lg text-xs font-bold hover:bg-slate-700 transition">🔄 Limpar Filtros</button>
     </header>
@@ -98,14 +99,22 @@
         let rawData = [];
 
         async function init() {
-            const { data, error } = await sb.from('licitacoes').select('*');
-            if (error) { console.error("Erro Supabase:", error); return; }
-            
-            rawData = data || [];
-            document.getElementById('lastUpdate').innerText = "Última Sincronização: " + new Date().toLocaleString('pt-br');
-            
-            populateFilters(rawData);
-            updateView(rawData);
+            try {
+                const { data, error } = await sb.from('licitacoes').select('*');
+                if (error) { 
+                    console.error("Erro Supabase:", error); 
+                    document.getElementById('debug-info').innerText = "Erro DB: " + error.message;
+                    return; 
+                }
+                
+                rawData = data || [];
+                document.getElementById('lastUpdate').innerText = "Última Sincronização: " + new Date().toLocaleString('pt-br');
+                
+                populateFilters(rawData);
+                updateView(rawData);
+            } catch (e) {
+                document.getElementById('debug-info').innerText = "Erro Crítico: " + e.message;
+            }
         }
 
         function populateFilters(data) {
@@ -221,25 +230,30 @@
         }
 
         function updateView(data) {
+            console.log("Updating view with data length:", data.length);
             document.getElementById('totalProcessos').innerText = data.length;
             
             const sumEstimado = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
             const sumHomologado = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
             
+            const extEstimado = valorPorExtenso(sumEstimado);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEstimado);
-            document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEstimado);
-            document.getElementById('extensoEstimado').innerText = valorPorExtenso(sumEstimado);
+            document.getElementById('vlrEstimadoTotal').title = extEstimado;
+            document.getElementById('extensoEstimado').innerText = extEstimado;
             
             const economizado = sumEstimado - sumHomologado;
+            const extEconomizado = valorPorExtenso(economizado);
             document.getElementById('vlrEconomizado').innerText = formatBRL(economizado);
-            document.getElementById('vlrEconomizado').title = valorPorExtenso(economizado);
-            document.getElementById('extensoEconomizado').innerText = valorPorExtenso(economizado);
+            document.getElementById('vlrEconomizado').title = extEconomizado;
+            document.getElementById('extensoEconomizado').innerText = extEconomizado;
 
             const tableBody = document.getElementById('tableBody');
             if (data.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-600 uppercase font-black tracking-widest text-[10px]">Nenhum registro encontrado</td></tr>';
             } else {
-                tableBody.innerHTML = data.map(i => `
+                tableBody.innerHTML = data.map(i => {
+                    const vEstimado = cleanVal(i.vlr_estimado_anual);
+                    return `
                     <tr class="hover:bg-blue-500/10 transition group">
                         <td class="px-4 py-3 font-black text-blue-400 text-[9px] uppercase">
                             ${i.processo_link ? `<a href="${i.processo_link}" target="_blank" class="hover:underline flex items-center gap-1">${i.id_processo} <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : (i.id_processo || '-')}
@@ -251,7 +265,7 @@
                             <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter transition">Ver</button>
                         </td>
                     </tr>
-                `).join('');
+                `}).join('');
             }
             renderCharts(data);
         }
