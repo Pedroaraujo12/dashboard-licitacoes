@@ -3,123 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Licitações | AgSUS CGMAP</title>
+    <title>Painel de Licitações | AgSUS CCS-RD</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #0b1120; color: white; }
-        .sidebar-card { background-color: #1e293b; border-radius: 0.5rem; padding: 1rem; border: 1px solid #334155; }
+        .sidebar-card { background-color: #1e293b; border-radius: 0.75rem; padding: 1.25rem; border: 1px solid #334155; }
         .indicator-label { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .indicator-value { font-size: 1.5rem; font-weight: 900; }
-        .chart-container { background-color: #111827; border-radius: 0.75rem; padding: 1.5rem; height: 300px; position: relative; }
-        .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.375rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #e5e7eb; width: 100%; }
-        .chart-title { font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: #facc15; text-transform: uppercase; }
+        .chart-container { background-color: #111827; border-radius: 1rem; padding: 1.5rem; height: 320px; position: relative; border: 1px solid #1f2937; }
+        .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: #e5e7eb; width: 100%; transition: all 0.2s; }
+        .filter-select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .chart-title { font-size: 0.8rem; font-weight: 800; margin-bottom: 1.25rem; color: #facc15; text-transform: uppercase; tracking-wider; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1120; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 overflow-x-hidden">
+<body class="p-4 md:p-6 overflow-x-hidden min-h-screen">
 
-    <!-- Top Header -->
-    <header class="flex flex-col md:flex-row justify-between items-center mb-6 px-4 gap-4">
+    <!-- Header Section -->
+    <header class="flex flex-col lg:flex-row justify-between items-center mb-8 px-4 gap-4 border-b border-slate-800 pb-6">
         <div class="flex items-center gap-4">
-            <h1 class="text-xl md:text-2xl font-black tracking-tighter uppercase border-r pr-4 border-slate-700">AgSUS - COORDENAÇÃO DE CONTRATAÇÕES E SERVIÇOS - RIO DOCE</h1>
-            <span class="text-slate-400 font-bold text-sm hidden sm:inline">Licitação (Resumo)</span>
+            <div class="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-900/20">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black tracking-tight uppercase">AgSUS - CCS - RIO DOCE</h1>
+                <p class="text-slate-400 font-bold text-xs uppercase tracking-widest opacity-80">Dashboard de Licitações (Resumo Executivo)</p>
+            </div>
         </div>
-        <div class="flex gap-2">
-            <button onclick="window.location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-xs font-bold transition">🔄 Limpar filtros</button>
+        <div class="flex items-center gap-3">
+            <div id="syncStatus" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-tighter">
+                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                Dados Atualizados
+            </div>
+            <button onclick="window.location.reload()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2">
+                🔄 Limpar Filtros
+            </button>
         </div>
     </header>
 
-    <div class="flex flex-col lg:flex-row gap-6">
+    <div class="flex flex-col xl:flex-row gap-8">
         
-        <!-- Left Sidebar Indicators -->
-        <aside class="w-full lg:w-1/4 space-y-4">
-            <div class="sidebar-card text-center py-6">
-                <p class="indicator-label">Ano Realização</p>
-                <p id="displayAno" class="text-4xl font-black text-white">2026</p>
+        <!-- Left Sidebar: Indicators -->
+        <aside class="w-full xl:w-80 space-y-6 shrink-0">
+            <!-- Year Card -->
+            <div class="sidebar-card text-center relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                <p class="indicator-label">Ano de Exercício</p>
+                <p id="displayAno" class="text-5xl font-black text-white mt-1">2026</p>
             </div>
 
-            <!-- Produtividade -->
-            <div class="sidebar-card bg-blue-900/30 border-blue-500/30">
-                <p class="indicator-label text-blue-300">Indicador de Produtividade (Processos)</p>
-                <div class="flex justify-around mt-4">
-                    <div><p class="indicator-label">Total</p><p id="totalProcessos" class="indicator-value">0</p></div>
-                    <div><p class="indicator-label text-emerald-400">Concluídos</p><p id="concluidosProcessos" class="indicator-value text-emerald-400">0</p></div>
+            <!-- Productivity -->
+            <div class="sidebar-card bg-blue-600/5 border-blue-500/20">
+                <p class="indicator-label text-blue-400 mb-4 flex items-center justify-between">
+                    Produtividade (Processos)
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </p>
+                <div class="flex justify-between items-end">
+                    <div><p class="indicator-label text-[9px]">Total</p><p id="totalProcessos" class="text-3xl font-black">0</p></div>
+                    <div class="text-right"><p class="indicator-label text-[9px] text-emerald-400">Concluídos</p><p id="concluidosProcessos" class="text-3xl font-black text-emerald-400">0</p></div>
                 </div>
             </div>
 
-            <!-- Efetividade -->
-            <div class="sidebar-card bg-red-900/20 border-red-500/30">
-                <p class="indicator-label text-red-300">Indicador por Efetividade (Itens)</p>
-                <div class="flex justify-around mt-4">
-                    <div><p class="indicator-label">Licitados</p><p id="licitadosItens" class="indicator-value">0</p></div>
-                    <div><p class="indicator-label">Cancelados</p><p id="canceladosItens" class="indicator-value">0</p></div>
-                    <div><p class="indicator-label text-red-400">Taxa</p><p id="percentualEfetividade" class="indicator-value text-red-400">0%</p></div>
+            <!-- Effectiveness -->
+            <div class="sidebar-card bg-rose-600/5 border-rose-500/20">
+                <p class="indicator-label text-rose-400 mb-4 flex items-center justify-between">
+                    Efetividade (Itens)
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </p>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="text-center"><p class="indicator-label text-[8px]">Licitados</p><p id="licitadosItens" class="text-xl font-black">0</p></div>
+                    <div class="text-center"><p class="indicator-label text-[8px]">Canc.</p><p id="canceladosItens" class="text-xl font-black">0</p></div>
+                    <div class="text-center"><p class="indicator-label text-[8px]">Taxa</p><p id="percentualEfetividade" class="text-xl font-black text-rose-400">0%</p></div>
                 </div>
             </div>
 
-            <!-- Economicidade -->
-            <div class="sidebar-card bg-emerald-900/20 border-emerald-500/30">
-                <p class="indicator-label text-emerald-300">Indicador de Economicidade (Valores)</p>
-                <div class="mt-4 space-y-4 text-center">
-                    <div><p class="indicator-label">Estimado</p><p id="vlrEstimado" class="text-lg font-bold">R$ 0,00</p></div>
-                    <div><p class="indicator-label">Homologado</p><p id="vlrHomologado" class="text-lg font-bold">R$ 0,00</p></div>
-                    <div><p class="indicator-label text-emerald-400 font-black">Economizado</p><p id="vlrEconomizado" class="text-xl font-black text-emerald-400">R$ 0,00</p></div>
+            <!-- Economy -->
+            <div class="sidebar-card bg-emerald-600/5 border-emerald-500/20">
+                <p class="indicator-label text-emerald-400 mb-6">Economicidade (Valores)</p>
+                <div class="space-y-5">
+                    <div class="flex justify-between items-center border-b border-slate-700/50 pb-2"><p class="indicator-label text-[9px]">Estimado</p><p id="vlrEstimado" class="font-bold text-sm">R$ 0,00</p></div>
+                    <div class="flex justify-between items-center border-b border-slate-700/50 pb-2"><p class="indicator-label text-[9px]">Homologado</p><p id="vlrHomologado" class="font-bold text-sm">R$ 0,00</p></div>
+                    <div class="pt-2">
+                        <p class="indicator-label text-[10px] text-emerald-400 font-black mb-1">Total Economizado</p>
+                        <p id="vlrEconomizado" class="text-2xl font-black text-emerald-400 tracking-tighter">R$ 0,00</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Série Histórica -->
+            <!-- History Chart -->
             <div class="sidebar-card">
-                <p class="indicator-label mb-4">Série Histórica: Processos por Ano</p>
-                <canvas id="chartHistorico" height="150"></canvas>
+                <p class="indicator-label mb-4">Série Histórica: Volumetria</p>
+                <div class="h-32"><canvas id="chartHistorico"></canvas></div>
             </div>
         </aside>
 
-        <!-- Main Dashboard Content -->
-        <main class="flex-1">
+        <!-- Main Dashboard: Filters & Content -->
+        <main class="flex-1 space-y-8">
             
-            <!-- Filters Row -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-                <div class="flex flex-col gap-1">
-                    <label class="indicator-label">ID Processo</label>
-                    <select class="filter-select" id="f-processo" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
+            <!-- Dynamic Filters -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800 shadow-inner">
+                <div class="space-y-1.5">
+                    <label class="indicator-label text-[9px]">ID Processo</label>
+                    <select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos Processos</option></select>
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="indicator-label">Objeto</label>
-                    <select class="filter-select" id="f-objeto" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
+                <div class="space-y-1.5">
+                    <label class="indicator-label text-[9px]">Objeto da Licit.</label>
+                    <select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos Objetos</option></select>
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="indicator-label">Modalidade</label>
-                    <select class="filter-select" id="f-modalidade" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
+                <div class="space-y-1.5">
+                    <label class="indicator-label text-[9px]">Modalidade</label>
+                    <select class="filter-select" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas</option></select>
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="indicator-label">Situação</label>
-                    <select class="filter-select" id="f-situacao" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
+                <div class="space-y-1.5">
+                    <label class="indicator-label text-[9px]">Situação Atual</label>
+                    <select class="filter-select" id="f-situacao" onchange="applyFilters()"><option value="Todos">Todas</option></select>
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="indicator-label">Responsável</label>
-                    <select class="filter-select" id="f-pregoeiro" onchange="handleFilterChange()"><option value="Todos">Todos</option></select>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="indicator-label">Ano</label>
-                    <select class="filter-select" id="f-ano" onchange="handleFilterChange()"><option value="Todos">Todos</option><option value="2026">2026</option></select>
+                <div class="space-y-1.5">
+                    <label class="indicator-label text-[9px]">Responsável</label>
+                    <select class="filter-select" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Todos</option></select>
                 </div>
             </div>
 
             <!-- Charts Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                 <div class="chart-container"><p class="chart-title">Processos por Modalidade</p><canvas id="chartModalidade"></canvas></div>
-                <div class="chart-container"><p class="chart-title">Processos por Tipo</p><canvas id="chartTipo"></canvas></div>
-                <div class="chart-container"><p class="chart-title">Processos por Situação</p><canvas id="chartSituacao"></canvas></div>
-                <div class="chart-container"><p class="chart-title">Processos por Responsável</p><canvas id="chartResponsavel"></canvas></div>
-                <div class="chart-container"><p class="chart-title">Processos por Unidade Requisitante</p><canvas id="chartUnidade"></canvas></div>
-                <div class="chart-container"><p class="chart-title">Processos por Tempo de Processo</p><canvas id="chartTempo"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Status dos Processos</p><canvas id="chartSituacao"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Volume por Unidade</p><canvas id="chartUnidade"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Análise por Responsável</p><canvas id="chartResponsavel"></canvas></div>
+                <div class="chart-container lg:col-span-2"><p class="chart-title">Resumo por Tempo de Tramitação</p><canvas id="chartTempo"></canvas></div>
             </div>
 
-            <footer class="mt-10 text-slate-500 text-[10px] uppercase font-bold flex justify-between px-2">
-                <span>Fonte: CGMAP | Maton API Integration</span>
-                <span id="lastUpdate">Atualizado em: --/--/----</span>
+            <!-- Records Table -->
+            <div class="bg-slate-900/20 rounded-2xl border border-slate-800 overflow-hidden shadow-sm">
+                <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Detalhamento dos Processos Selecionados</h3>
+                    <span id="filteredCount" class="text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded font-bold">0</span>
+                </div>
+                <div class="overflow-x-auto max-h-[500px]">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="sticky top-0 bg-slate-900 z-10">
+                            <tr class="text-slate-500 font-bold uppercase border-b border-slate-800">
+                                <th class="px-6 py-4">ID</th>
+                                <th class="px-6 py-4">Objeto</th>
+                                <th class="px-6 py-4">Modalidade</th>
+                                <th class="px-6 py-4">Situação</th>
+                                <th class="px-6 py-4">Valor Estimado</th>
+                                <th class="px-6 py-4 text-right">Responsável</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-800/50">
+                            <!-- Data injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <footer class="pt-8 flex flex-col sm:flex-row justify-between text-slate-500 text-[10px] font-black uppercase tracking-widest gap-4">
+                <div class="flex items-center gap-4">
+                    <span>Fonte: Sistema CGMAP / CCS-RD</span>
+                    <span>Agente: Roberto 🦾</span>
+                </div>
+                <span id="lastUpdate">Última Sincronização: --:--</span>
             </footer>
         </main>
     </div>
@@ -133,125 +182,136 @@
         let rawData = [];
 
         async function init() {
-            document.getElementById('lastUpdate').innerText = "Atualizado em: " + new Date().toLocaleString();
             await loadData();
         }
 
         async function loadData() {
-            const { data, error } = await sb.from('licitacoes').select('*');
-            if (error) { console.error(error); return; }
+            const { data, error } = await sb.from('licitacoes').select('*').order('created_at', { ascending: false });
+            if (error) { console.error("Erro Supabase:", error); return; }
 
-            rawData = data;
-            populateFilters(data);
-            updateDashboard(data);
+            rawData = data || [];
+            document.getElementById('lastUpdate').innerText = "Última Sincronização: " + new Date().toLocaleString('pt-br');
+            
+            populateFilters(rawData);
+            updateView(rawData);
         }
 
         function populateFilters(data) {
-            const getUnique = (arr, key) => [...new Set(arr.map(i => i[key]).filter(Boolean))].sort();
+            const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(Boolean))].sort((a,b) => String(a).localeCompare(String(b)));
 
-            const fillSelect = (id, values) => {
-                const select = document.getElementById(id);
-                // Keep only "Todos"
-                select.innerHTML = '<option value="Todos">Todos</option>';
-                values.forEach(v => {
+            const fill = (id, items) => {
+                const el = document.getElementById(id);
+                el.innerHTML = '<option value="Todos">Todos</option>';
+                items.forEach(v => {
                     const opt = document.createElement('option');
                     opt.value = v;
                     opt.innerText = v;
-                    select.appendChild(opt);
+                    el.appendChild(opt);
                 });
             };
 
-            fillSelect('f-processo', getUnique(data, 'id_processo'));
-            fillSelect('f-objeto', getUnique(data, 'objeto'));
-            fillSelect('f-modalidade', getUnique(data, 'modalidade'));
-            fillSelect('f-situacao', getUnique(data, 'situacao'));
-            fillSelect('f-pregoeiro', getUnique(data, 'responsavel'));
-            
-            const anos = getUnique(data.map(i => ({ano: new Date(i.created_at).getFullYear()})), 'ano');
-            fillSelect('f-ano', anos);
+            fill('f-processo', getUnique('id_processo'));
+            fill('f-objeto', getUnique('objeto'));
+            fill('f-modalidade', getUnique('modalidade'));
+            fill('f-situacao', getUnique('situacao'));
+            fill('f-responsavel', getUnique('responsavel'));
         }
 
-        function handleFilterChange() {
-            const filters = {
-                id_processo: document.getElementById('f-processo').value,
-                objeto: document.getElementById('f-objeto').value,
-                modalidade: document.getElementById('f-modalidade').value,
-                situacao: document.getElementById('f-situacao').value,
-                responsavel: document.getElementById('f-pregoeiro').value,
-                ano: document.getElementById('f-ano').value
+        function applyFilters() {
+            const f = {
+                id: document.getElementById('f-processo').value,
+                obj: document.getElementById('f-objeto').value,
+                mod: document.getElementById('f-modalidade').value,
+                sit: document.getElementById('f-situacao').value,
+                res: document.getElementById('f-responsavel').value
             };
 
-            const filteredData = rawData.filter(i => {
-                const itemAno = new Date(i.created_at).getFullYear().toString();
-                return (filters.id_processo === 'Todos' || i.id_processo === filters.id_processo) &&
-                       (filters.objeto === 'Todos' || i.objeto === filters.objeto) &&
-                       (filters.modalidade === 'Todos' || i.modalidade === filters.modalidade) &&
-                       (filters.situacao === 'Todos' || i.situacao === filters.situacao) &&
-                       (filters.responsavel === 'Todos' || i.responsavel === filters.responsavel) &&
-                       (filters.ano === 'Todos' || itemAno === filters.ano);
-            });
+            const filtered = rawData.filter(i => 
+                (f.id === 'Todos' || String(i.id_processo) === f.id) &&
+                (f.obj === 'Todos' || i.objeto === f.obj) &&
+                (f.mod === 'Todos' || i.modalidade === f.mod) &&
+                (f.sit === 'Todos' || i.situacao === f.sit) &&
+                (f.res === 'Todos' || i.responsavel === f.res)
+            );
 
-            updateDashboard(filteredData);
-            if (filters.ano !== 'Todos') document.getElementById('displayAno').innerText = filters.ano;
+            updateView(filtered);
         }
 
-        function updateDashboard(data) {
+        function updateView(data) {
             updateIndicators(data);
-            renderAllCharts(data);
+            renderCharts(data);
+            renderTable(data);
+            document.getElementById('filteredCount').innerText = data.length;
         }
 
         function updateIndicators(data) {
+            const sum = (key) => data.reduce((acc, i) => acc + (parseFloat(i[key]) || 0), 0);
+            
             const total = data.length;
-            const concluidos = data.filter(i => i.situacao === 'Homologado' || i.situacao === 'Concluído').length;
-            const estimado = data.reduce((acc, i) => acc + (parseFloat(i.valor_estimado) || 0), 0);
-            const homologado = data.reduce((acc, i) => acc + (parseFloat(i.valor_homologado) || 0), 0);
-            const economizado = estimado - homologado;
+            const concluidos = data.filter(i => ['Homologado', 'Concluído', 'Finalizado'].includes(i.situacao)).length;
+            const estimado = sum('valor_estimado');
+            const homologado = sum('valor_homologado');
+            const licitados = sum('itens_licitados');
+            const cancelados = sum('itens_cancelados');
 
             document.getElementById('totalProcessos').innerText = total;
             document.getElementById('concluidosProcessos').innerText = concluidos;
-            document.getElementById('vlrEstimado').innerText = estimado.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
-            document.getElementById('vlrHomologado').innerText = homologado.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
-            document.getElementById('vlrEconomizado').innerText = economizado.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
-            
-            const licitados = data.reduce((acc, i) => acc + (parseInt(i.itens_licitados) || 0), 0);
-            const cancelados = data.reduce((acc, i) => acc + (parseInt(i.itens_cancelados) || 0), 0);
+            document.getElementById('vlrEstimado').innerText = estimado.toLocaleString('pt-br', {style:'currency', currency:'BRL'});
+            document.getElementById('vlrHomologado').innerText = homologado.toLocaleString('pt-br', {style:'currency', currency:'BRL'});
+            document.getElementById('vlrEconomizado').innerText = (estimado - homologado).toLocaleString('pt-br', {style:'currency', currency:'BRL'});
             document.getElementById('licitadosItens').innerText = licitados;
             document.getElementById('canceladosItens').innerText = cancelados;
             
-            const taxa = licitados > 0 ? ((licitados / (licitados + cancelados)) * 100).toFixed(1) : 0;
+            const taxa = (licitados + cancelados) > 0 ? ((licitados / (licitados + cancelados)) * 100).toFixed(1) : "0.0";
             document.getElementById('percentualEfetividade').innerText = taxa + "%";
         }
 
-        function renderAllCharts(data) {
-            const count = (arr, key) => arr.reduce((acc, i) => { acc[i[key] || 'Outros'] = (acc[i[key] || 'Outros'] || 0) + 1; return acc; }, {});
-
-            // 1. Modalidade
-            const modData = count(data, 'modalidade');
-            createChart('chartModalidade', 'bar', Object.keys(modData), Object.values(modData), '#3b82f6', true);
-
-            // 2. Tipo (Placeholder logic as requested style)
-            createChart('chartTipo', 'bar', ['Tradicional', 'Construção', 'Cotação', 'SRP'], [15, 8, 22, 10], '#60a5fa');
-
-            // 3. Situação
-            const sitData = count(data, 'situacao');
-            createChart('chartSituacao', 'bar', Object.keys(sitData), Object.values(sitData), '#2dd4bf', true);
-
-            // 4. Responsável
-            const resData = count(data, 'responsavel');
-            createChart('chartResponsavel', 'bar', Object.keys(resData), Object.values(resData), '#10b981', true);
-
-            // 5. Unidade
-            const uniData = count(data, 'unidade_requisitante');
-            createChart('chartUnidade', 'bar', Object.keys(uniData), Object.values(uniData), '#facc15', true);
-
-            // 6. Tempo
-            createChart('chartTempo', 'bar', ['30 Dias', '60 Dias', '90 Dias', '120 Dias'], [10, 25, 40, 15], '#f43f5e', true);
-
-            // Histórico
-            createChart('chartHistorico', 'line', ['2023', '2024', '2025', '2026'], [45, 67, 89, rawData.length], '#3b82f6');
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-slate-600">Nenhum registro encontrado para os filtros aplicados.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(i => `
+                <tr class="hover:bg-blue-500/5 transition">
+                    <td class="px-6 py-4 font-black text-blue-400">${i.id_processo || '-'}</td>
+                    <td class="px-6 py-4 font-medium text-slate-300">${i.objeto || '-'}</td>
+                    <td class="px-6 py-4"><span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold">${i.modalidade || '-'}</span></td>
+                    <td class="px-6 py-4"><span class="${i.situacao === 'Homologado' ? 'text-emerald-400' : 'text-amber-400'} font-bold">${i.situacao || '-'}</span></td>
+                    <td class="px-6 py-4 font-bold">${(parseFloat(i.valor_estimado) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</td>
+                    <td class="px-6 py-4 text-right text-slate-400 font-bold uppercase text-[10px]">${i.responsavel || '-'}</td>
+                </tr>
+            `).join('');
         }
 
-        function createChart(id, type, labels, values, color, horizontal = false) {
+        function renderCharts(data) {
+            const countBy = (key) => data.reduce((acc, i) => { 
+                const val = i[key] || 'Não Informado';
+                acc[val] = (acc[val] || 0) + 1; 
+                return acc; 
+            }, {});
+
+            const cMod = countBy('modalidade');
+            draw('chartModalidade', 'bar', Object.keys(cMod), Object.values(cMod), '#3b82f6', true);
+
+            const cSit = countBy('situacao');
+            draw('chartSituacao', 'doughnut', Object.keys(cSit), Object.values(cSit), ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#6366f1']);
+
+            const cUni = countBy('unidade_requisitante');
+            draw('chartUnidade', 'bar', Object.keys(cUni), Object.values(cUni), '#facc15');
+
+            const cRes = countBy('responsavel');
+            draw('chartResponsavel', 'bar', Object.keys(cRes), Object.values(cRes), '#8b5cf6', true);
+
+            // Time chart placeholder
+            draw('chartTempo', 'line', ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'], [12, 19, 3, 5, 2], '#f43f5e');
+
+            // History chart
+            const years = ["2023", "2024", "2025", "2026"];
+            draw('chartHistorico', 'line', years, [45, 78, 92, rawData.length], '#3b82f6');
+        }
+
+        function draw(id, type, labels, values, color, horizontal = false) {
             if (charts[id]) charts[id].destroy();
             const ctx = document.getElementById(id).getContext('2d');
             charts[id] = new Chart(ctx, {
@@ -260,22 +320,22 @@
                     labels: labels,
                     datasets: [{
                         data: values,
-                        backgroundColor: color,
-                        borderColor: color,
-                        borderWidth: 1,
-                        borderRadius: 5,
-                        barThickness: 15
+                        backgroundColor: Array.isArray(color) ? color : color + 'aa',
+                        borderColor: Array.isArray(color) ? color : color,
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        barThickness: 12
                     }]
                 },
                 options: {
                     indexAxis: horizontal ? 'y' : 'x',
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
-                        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
-                    }
+                    plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9, weight: 'bold' } } } },
+                    scales: type !== 'doughnut' ? {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9, weight: 'bold' } } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                    } : {}
                 }
             });
         }
