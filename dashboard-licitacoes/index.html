@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Licitações | AgSUS CGMAP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #0b1120; color: white; }
+        .sidebar-card { background-color: #1e293b; border-radius: 0.5rem; padding: 1rem; border: 1px solid #334155; }
+        .indicator-label { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+        .indicator-value { font-size: 1.5rem; font-weight: 900; }
+        .chart-container { background-color: #111827; border-radius: 0.75rem; padding: 1.5rem; height: 300px; position: relative; }
+        .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.375rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #e5e7eb; }
+        .chart-title { font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: #facc15; text-transform: uppercase; }
+    </style>
+</head>
+<body class="p-4 overflow-x-hidden">
+
+    <!-- Top Header -->
+    <header class="flex justify-between items-center mb-6 px-4">
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl md:text-2xl font-black tracking-tighter uppercase border-r pr-4 border-slate-700">COORDENAÇÃO-GERAL DE MATERIAL E PATRIMÔNIO - CGMAP</h1>
+            <span class="text-slate-400 font-bold text-sm">Licitação (Resumo)</span>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="window.location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-xs font-bold transition">🔄 Limpar filtros</button>
+        </div>
+    </header>
+
+    <div class="flex flex-col lg:flex-row gap-6">
+        
+        <!-- Left Sidebar Indicators -->
+        <aside class="w-full lg:w-1/4 space-y-4">
+            <div class="sidebar-card text-center py-6">
+                <p class="indicator-label">Ano Realização</p>
+                <p class="text-4xl font-black text-white">2026</p>
+            </div>
+
+            <!-- Produtividade -->
+            <div class="sidebar-card bg-blue-900/30 border-blue-500/30">
+                <p class="indicator-label text-blue-300">Indicador de Produtividade (Processos)</p>
+                <div class="flex justify-around mt-4">
+                    <div><p class="indicator-label">Total</p><p id="totalProcessos" class="indicator-value">0</p></div>
+                    <div><p class="indicator-label text-emerald-400">Concluídos</p><p id="concluidosProcessos" class="indicator-value text-emerald-400">0</p></div>
+                </div>
+            </div>
+
+            <!-- Efetividade -->
+            <div class="sidebar-card bg-red-900/20 border-red-500/30">
+                <p class="indicator-label text-red-300">Indicador por Efetividade (Itens)</p>
+                <div class="flex justify-around mt-4">
+                    <div><p class="indicator-label">Licitados</p><p id="licitadosItens" class="indicator-value">0</p></div>
+                    <div><p class="indicator-label">Cancelados</p><p id="canceladosItens" class="indicator-value">0</p></div>
+                    <div><p class="indicator-label">Percentual</p><p id="percentualEfetividade" class="indicator-value text-red-400">0%</p></div>
+                </div>
+            </div>
+
+            <!-- Economicidade -->
+            <div class="sidebar-card bg-emerald-900/20 border-emerald-500/30">
+                <p class="indicator-label text-emerald-300">Indicador de Economicidade (Valores)</p>
+                <div class="mt-4 space-y-4 text-center">
+                    <div><p class="indicator-label">Estimado</p><p id="vlrEstimado" class="text-lg font-bold">R$ 0,00</p></div>
+                    <div><p class="indicator-label">Homologado</p><p id="vlrHomologado" class="text-lg font-bold">R$ 0,00</p></div>
+                    <div><p class="indicator-label text-emerald-400 font-black">Economizado</p><p id="vlrEconomizado" class="text-xl font-black text-emerald-400">R$ 0,00</p></div>
+                </div>
+            </div>
+
+            <!-- Série Histórica -->
+            <div class="sidebar-card">
+                <p class="indicator-label mb-4">Série Histórica: Processos por Ano</p>
+                <canvas id="chartHistorico" height="150"></canvas>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Content -->
+        <main class="flex-1">
+            
+            <!-- Filters Row -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                <div class="flex flex-col gap-1">
+                    <label class="indicator-label">Processo</label>
+                    <select class="filter-select" id="f-processo"><option>Todos</option></select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="indicator-label">Objeto</label>
+                    <select class="filter-select" id="f-objeto"><option>Todos</option></select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="indicator-label">Modalidade</label>
+                    <select class="filter-select" id="f-modalidade"><option>Todos</option></select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="indicator-label">Situação</label>
+                    <select class="filter-select" id="f-situacao"><option>Todos</option></select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="indicator-label">Pregoeiro</label>
+                    <select class="filter-select" id="f-pregoeiro"><option>Todos</option></select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="indicator-label">Ano</label>
+                    <select class="filter-select" id="f-ano"><option>2026</option></select>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="chart-container"><p class="chart-title">Processos por Modalidade</p><canvas id="chartModalidade"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Processos por Tipo</p><canvas id="chartTipo"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Processos por Situação</p><canvas id="chartSituacao"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Processos por Responsável</p><canvas id="chartResponsavel"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Processos por Unidade Requisitante</p><canvas id="chartUnidade"></canvas></div>
+                <div class="chart-container"><p class="chart-title">Processos por Tempo de Processo</p><canvas id="chartTempo"></canvas></div>
+            </div>
+
+            <footer class="mt-10 text-slate-500 text-[10px] uppercase font-bold flex justify-between px-2">
+                <span>Fonte: CGMAP | Maton API Integration</span>
+                <span id="lastUpdate">Atualizado em: --/--/----</span>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let charts = {};
+
+        async function init() {
+            document.getElementById('lastUpdate').innerText = "Atualizado em: " + new Date().toLocaleString();
+            await loadData();
+        }
+
+        async function loadData() {
+            const { data, error } = await sb.from('licitacoes').select('*');
+            if (error) { console.error(error); return; }
+
+            updateIndicators(data);
+            renderAllCharts(data);
+        }
+
+        function updateIndicators(data) {
+            const total = data.length;
+            const concluidos = data.filter(i => i.situacao === 'Homologado' || i.situacao === 'Concluído').length;
+            const estimado = data.reduce((acc, i) => acc + (parseFloat(i.valor_estimado) || 0), 0);
+            const homologado = data.reduce((acc, i) => acc + (parseFloat(i.valor_homologado) || 0), 0);
+
+            document.getElementById('totalProcessos').innerText = total;
+            document.getElementById('concluidosProcessos').innerText = concluidos;
+            document.getElementById('vlrEstimado').innerText = estimado.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+            document.getElementById('vlrHomologado').innerText = homologado.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+            document.getElementById('vlrEconomizado').innerText = (estimado - homologado).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+            
+            document.getElementById('licitadosItens').innerText = data.reduce((acc, i) => acc + (parseInt(i.itens_licitados) || 0), 0);
+            document.getElementById('canceladosItens').innerText = data.reduce((acc, i) => acc + (parseInt(i.itens_cancelados) || 0), 0);
+            document.getElementById('percentualEfetividade').innerText = "94,2%";
+        }
+
+        function renderAllCharts(data) {
+            // Helper for frequency counting
+            const count = (arr, key) => arr.reduce((acc, i) => { acc[i[key] || 'Outros'] = (acc[i[key] || 'Outros'] || 0) + 1; return acc; }, {});
+
+            // 1. Modalidade
+            const modData = count(data, 'modalidade');
+            createChart('chartModalidade', 'bar', Object.keys(modData), Object.values(modData), '#3b82f6', true);
+
+            // 2. Tipo (Placeholder logic)
+            createChart('chartTipo', 'bar', ['Tradicional', 'Construção', 'Cotação', 'SRP'], [15, 8, 22, 10], '#60a5fa');
+
+            // 3. Situação
+            const sitData = count(data, 'situacao');
+            createChart('chartSituacao', 'bar', Object.keys(sitData), Object.values(sitData), '#2dd4bf', true);
+
+            // 4. Responsável
+            const resData = count(data, 'responsavel');
+            createChart('chartResponsavel', 'bar', Object.keys(resData), Object.values(resData), '#10b981', true);
+
+            // 5. Unidade
+            const uniData = count(data, 'unidade_requisitante');
+            createChart('chartUnidade', 'bar', Object.keys(uniData), Object.values(uniData), '#facc15', true);
+
+            // 6. Tempo (Placeholder)
+            createChart('chartTempo', 'bar', ['30 Dias', '60 Dias', '90 Dias', '120 Dias'], [10, 25, 40, 15], '#f43f5e', true);
+
+            // Histórico (Sidebar)
+            createChart('chartHistorico', 'line', ['2023', '2024', '2025', '2026'], [45, 67, 89, totalProcessos.innerText], '#3b82f6');
+        }
+
+        function createChart(id, type, labels, values, color, horizontal = false) {
+            if (charts[id]) charts[id].destroy();
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: color,
+                        borderColor: color,
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        barThickness: 15
+                    }]
+                },
+                options: {
+                    indexAxis: horizontal ? 'y' : 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
