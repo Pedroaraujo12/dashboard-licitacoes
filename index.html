@@ -24,7 +24,7 @@
     <header class="flex flex-col lg:flex-row justify-between items-center mb-8 px-4 gap-4 border-b border-slate-800 pb-6 text-white">
         <div class="flex items-center gap-4">
             <div class="bg-blue-600 p-2.5 rounded-xl"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
-            <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight">AgSUS - CCS - RIO DOCE</h1>
+            <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-white">AgSUS - CCS - RIO DOCE</h1>
         </div>
         <button onclick="window.location.reload()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-700 transition">🔄 Limpar Filtros</button>
     </header>
@@ -33,12 +33,11 @@
         <aside class="w-full xl:w-80 space-y-6">
             <div class="sidebar-card text-center"><p class="indicator-label">Ano Realização</p><p class="text-5xl font-black">2026</p></div>
             <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400">Total de Processos</p><p id="totalProcessos" class="text-4xl font-black text-white">0</p></div>
-            <div class="sidebar-card bg-emerald-900/20"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-2xl font-black text-emerald-400">R$ 0,00</p></div>
             <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase">Total Estimado</p><p id="vlrEstimadoTotal" class="text-2xl font-black text-white">R$ 0,00</p></div>
+            <div class="sidebar-card bg-emerald-900/20"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-2xl font-black text-emerald-400">R$ 0,00</p></div>
         </aside>
 
         <main class="flex-1 space-y-8">
-            <!-- Filtros com IDs e eventos corrigidos -->
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800 shadow-inner">
                 <div class="space-y-1.5"><label class="indicator-label text-[9px]">ID Processo</label><select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
                 <div class="space-y-1.5"><label class="indicator-label text-[9px]">Objeto</label><select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
@@ -47,7 +46,6 @@
                 <div class="space-y-1.5"><label class="indicator-label text-[9px]">Demandante</label><select class="filter-select" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
             </div>
 
-            <!-- Tabela de Detalhamento logo abaixo dos filtros -->
             <div class="bg-slate-900/30 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
                 <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Detalhamento dos Processos</h3></div>
                 <div class="overflow-x-auto max-h-[450px]">
@@ -70,7 +68,6 @@
         </main>
     </div>
 
-    <!-- Modal Detalhes -->
     <div id="modalDetalhes" class="fixed inset-0 modal-overlay hidden z-[100] flex items-center justify-center p-4">
         <div class="bg-[#1e293b] w-full max-w-2xl rounded-3xl border border-slate-700 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div class="bg-blue-600 px-6 py-5 flex justify-between items-center text-white">
@@ -103,7 +100,6 @@
 
         function populateFilters(data) {
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b)));
-
             const fill = (id, items) => {
                 const el = document.getElementById(id);
                 el.innerHTML = '<option value="Todos">Todos</option>';
@@ -112,7 +108,6 @@
                     opt.value = v; opt.innerText = v; el.appendChild(opt);
                 });
             };
-
             fill('f-processo', getUnique('id_processo'));
             fill('f-objeto', getUnique('objeto_resumido'));
             fill('f-coordenacao', getUnique('coordenacao'));
@@ -121,14 +116,11 @@
         }
 
         function applyFilters() {
-            // Pegar valores dos seletores um por um
             const idSel = document.getElementById('f-processo').value;
             const objSel = document.getElementById('f-objeto').value;
             const coordSel = document.getElementById('f-coordenacao').value;
             const modSel = document.getElementById('f-modalidade').value;
             const demSel = document.getElementById('f-demandante').value;
-
-            console.log("Aplicando filtros:", {idSel, objSel, coordSel, modSel, demSel});
 
             const filtered = rawData.filter(i => {
                 const matchId = (idSel === 'Todos' || String(i.id_processo) === idSel);
@@ -138,21 +130,16 @@
                 const matchDem = (demSel === 'Todos' || i.demandante === demSel);
                 return matchId && matchObj && matchCoord && matchMod && matchDem;
             });
-
             updateView(filtered);
         }
 
         function updateView(data) {
-            // Atualizar contadores
             document.getElementById('totalProcessos').innerText = data.length;
-            
             const sumEstimado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_estimado_anual) || 0), 0);
             const sumHomologado = data.reduce((acc, i) => acc + (parseFloat(i.vlr_homologado) || 0), 0);
-            
             document.getElementById('vlrEstimadoTotal').innerText = sumEstimado.toLocaleString('pt-br', {style:'currency', currency:'BRL'});
             document.getElementById('vlrEconomizado').innerText = (sumEstimado - sumHomologado).toLocaleString('pt-br', {style:'currency', currency:'BRL'});
 
-            // Renderizar tabela
             const tableBody = document.getElementById('tableBody');
             if (data.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-slate-600 uppercase font-black tracking-widest text-[10px]">Nenhum registro encontrado</td></tr>';
@@ -164,13 +151,10 @@
                         <td class="px-6 py-4 text-center"><span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold text-slate-400">${i.modalidade || '-'}</span></td>
                         <td class="px-6 py-4 text-center text-amber-400 font-black text-[10px] uppercase">${i.status || '-'}</td>
                         <td class="px-6 py-4 text-right font-black text-slate-300">${(parseFloat(i.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</td>
-                        <td class="px-6 py-4 text-right">
-                            <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition">Detalhes</button>
-                        </td>
+                        <td class="px-6 py-4 text-right"><button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition">Detalhes</button></td>
                     </tr>
                 `).join('');
             }
-
             renderCharts(data);
         }
 
@@ -187,15 +171,7 @@
             charts[id] = new Chart(canvas, {
                 type: type,
                 data: { labels: labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] },
-                options: { 
-                    indexAxis: horizontal ? 'y' : 'x', 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 9 } } },
-                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 9 } } }
-                    }
-                }
+                options: { indexAxis: horizontal ? 'y' : 'x', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 9 } } } } }
             });
         }
 
@@ -204,10 +180,7 @@
             if (!item) return;
             const modal = document.getElementById('modalDetalhes');
             document.getElementById('modalContent').innerHTML = `
-                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700">
-                    <p class="indicator-label mb-2 text-blue-400">Objeto Completo</p>
-                    <p class="font-bold text-slate-100 text-base leading-snug uppercase tracking-tight">${item.objeto_resumido}</p>
-                </div>
+                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-2 text-blue-400">Objeto Completo</p><p class="font-bold text-slate-100 text-base leading-snug uppercase tracking-tight">${item.objeto_resumido}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Processo</p><p class="font-black text-white text-lg">${item.id_processo}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Status</p><p class="font-black text-amber-400 uppercase">${item.status}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Estimado</p><p class="font-black text-white">${(parseFloat(item.vlr_estimado_anual) || 0).toLocaleString('pt-br', {style:'currency', currency:'BRL'})}</p></div>
@@ -217,7 +190,6 @@
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
-
         function closeModal() { document.getElementById('modalDetalhes').classList.add('hidden'); document.body.style.overflow = 'auto'; }
 
         init();
