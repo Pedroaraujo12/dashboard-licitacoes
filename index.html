@@ -50,7 +50,7 @@
 
         <main class="flex-1 space-y-8">
             <!-- Filtros com mapeamento correto da planilha -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
                 <div class="space-y-1.5">
                     <label class="indicator-label text-[9px]">ID Processo</label>
                     <select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos</option></select>
@@ -58,6 +58,10 @@
                 <div class="space-y-1.5">
                     <label class="indicator-label text-[9px]">Objeto</label>
                     <select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos</option></select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="indicator-label text-[9px]">Coordenação</label>
+                    <select class="filter-select" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas</option></select>
                 </div>
                 <div class="space-y-1.5">
                     <label class="indicator-label text-[9px]">Modalidade</label>
@@ -115,6 +119,7 @@
 
             fill('f-processo', getUnique('id_processo'));
             fill('f-objeto', getUnique('objeto_resumido'));
+            fill('f-coordenacao', getUnique('coordenacao'));
             fill('f-modalidade', getUnique('modalidade'));
             fill('f-demandante', getUnique('demandante'));
 
@@ -125,6 +130,7 @@
             const f = {
                 id: document.getElementById('f-processo').value,
                 obj: document.getElementById('f-objeto').value,
+                coord: document.getElementById('f-coordenacao').value,
                 mod: document.getElementById('f-modalidade').value,
                 dem: document.getElementById('f-demandante').value
             };
@@ -132,6 +138,7 @@
             const filtered = rawData.filter(i => 
                 (f.id === 'Todos' || i.id_processo === f.id) &&
                 (f.obj === 'Todos' || i.objeto_resumido === f.obj) &&
+                (f.coord === 'Todos' || i.coordenacao === f.coord) &&
                 (f.mod === 'Todos' || i.modalidade === f.mod) &&
                 (f.dem === 'Todos' || i.demandante === f.dem)
             );
