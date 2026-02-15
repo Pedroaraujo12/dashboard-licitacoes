@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMO Insight | Painel de Licitações AgSUS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --glass: rgba(30, 41, 59, 0.7); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top left, #0f172a, #020617); color: #f8fafc; }
+        .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem; }
+        .indicator-card { transition: transform 0.2s; }
+        .indicator-card:hover { transform: translateY(-4px); }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <!-- Header Moderno -->
+    <header class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-5">
+            <div class="h-14 w-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight">PMO <span class="text-blue-500">INSIGHT</span></h1>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-[0.2em]">AgSUS CCS-RD • Licitações 2026</p>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="window.location.reload()" class="bg-slate-800/50 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Resetar
+            </button>
+            <div id="pmoStatus" class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span></span> Roberto PMO Ativo
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Macro Indicadores (Estilo Dashboard SaaS) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="glass-card p-6 indicator-card">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processos Totais</p>
+                <div class="flex items-end justify-between">
+                    <h3 id="totalProcessos" class="text-4xl font-extrabold">--</h3>
+                    <span class="text-xs font-bold text-blue-400 bg-blue-400/10 px-2 py-1 rounded">Volume 2026</span>
+                </div>
+            </div>
+            <div class="glass-card p-6 indicator-card">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Estimado</p>
+                <div class="flex items-end justify-between">
+                    <h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100">R$ 0,00</h3>
+                </div>
+            </div>
+            <div class="glass-card p-6 indicator-card border-l-4 border-l-emerald-500">
+                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS (Saving)</p>
+                <div class="flex items-end justify-between">
+                    <h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3>
+                    <div class="h-1 w-20 bg-emerald-950 rounded-full overflow-hidden"><div id="savingBar" class="h-full bg-emerald-500" style="width: 0%"></div></div>
+                </div>
+            </div>
+            <div class="glass-card p-6 indicator-card border-l-4 border-l-amber-500">
+                <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Gargalo Crítico</p>
+                <div class="flex items-end justify-between">
+                    <h3 id="gargaloArea" class="text-lg font-extrabold text-amber-100">NAAGE</h3>
+                    <span class="text-[9px] font-bold text-amber-400 uppercase">Demandante</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros e Busca -->
+        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-5 gap-4">
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas as Coordenações</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas as Modalidades</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos os Demandantes</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-status" onchange="applyFilters()"><option value="Todos">Todos os Status</option></select>
+            <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar objeto ou ID..." class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition">
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Tabela (2/3) -->
+            <div class="lg:col-span-2 glass-card overflow-hidden">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400">Pipeline de Execução</h2>
+                    <span id="rowCount" class="text-[10px] font-bold bg-slate-800 px-3 py-1 rounded-full text-slate-500">-- processos</span>
+                </div>
+                <div class="overflow-x-auto overflow-y-auto max-h-[500px]">
+                    <table class="w-full text-left">
+                        <thead class="sticky top-0 bg-[#1e293b] z-10">
+                            <tr class="text-[10px] font-bold uppercase text-slate-500 border-b border-white/5">
+                                <th class="px-6 py-4">ID Processo</th>
+                                <th class="px-6 py-4">Objeto</th>
+                                <th class="px-6 py-4 text-center">Status</th>
+                                <th class="px-6 py-4 text-right">Estimado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="text-xs divide-y divide-white/5"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Gráficos (1/3) -->
+            <div class="space-y-6">
+                <div class="glass-card p-6 h-[260px]">
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-6">Volume por Modalidade</h2>
+                    <canvas id="chartModalidade"></canvas>
+                </div>
+                <div class="glass-card p-6 h-[260px]">
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-6">Status dos Processos</h2>
+                    <canvas id="chartStatus"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="flex flex-col md:flex-row justify-between items-center px-4 py-8 border-t border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest gap-4 text-center">
+            <div>Fonte: Sistema AgSUS CCS-RD | Gerado por Roberto PMO v2.0</div>
+            <div id="lastUpdate" class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Sincronizando...</div>
+        </footer>
+    </div>
+
+    <!-- Modal Detalhes (Modernizado) -->
+    <div id="modalDetalhes" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-2xl overflow-hidden shadow-2xl">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6 flex justify-between items-center">
+                <h2 class="text-sm font-black uppercase tracking-widest">Ficha Técnica do Processo</h2>
+                <button onclick="closeModal()" class="text-2xl opacity-50 hover:opacity-100">&times;</button>
+            </div>
+            <div id="modalContent" class="p-8 grid grid-cols-2 gap-6"></div>
+            <div class="px-8 py-6 border-t border-white/5 text-right">
+                <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition">Fechar Visualização</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let charts = {};
+        let rawData = [];
+
+        async function init() {
+            const { data, error } = await sb.from('licitacoes').select('*');
+            if (error) { console.error("Erro Supabase:", error); return; }
+            rawData = data || [];
+            document.getElementById('lastUpdate').innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span> Live: ` + new Date().toLocaleTimeString();
+            populateFilters(rawData);
+            updateView(rawData);
+        }
+
+        function populateFilters(data) {
+            const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(Boolean))].sort();
+            const fill = (id, items, prefix) => {
+                const el = document.getElementById(id);
+                el.innerHTML = `<option value="Todos">${prefix}</option>`;
+                items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
+            };
+            fill('f-coordenacao', getUnique('coordenacao'), 'Todas as Coordenações');
+            fill('f-modalidade', getUnique('modalidade'), 'Todas as Modalidades');
+            fill('f-demandante', getUnique('demandante'), 'Todos os Demandantes');
+            fill('f-status', getUnique('status'), 'Todos os Status');
+        }
+
+        function cleanVal(v) { return v ? (typeof v === 'number' ? v : parseFloat(String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0) : 0; }
+        function formatBRL(v) { return cleanVal(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
+
+        function applyFilters() {
+            const f = {
+                coord: document.getElementById('f-coordenacao').value,
+                mod: document.getElementById('f-modalidade').value,
+                dem: document.getElementById('f-demandante').value,
+                status: document.getElementById('f-status').value,
+                search: document.getElementById('searchBox').value.toLowerCase()
+            };
+            const filtered = rawData.filter(i => {
+                const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
+                const matchMod = (f.mod === 'Todos' || i.modalidade === f.mod);
+                const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
+                const matchStatus = (f.status === 'Todos' || i.status === f.status);
+                const matchSearch = (!f.search || (i.objeto_resumido + i.id_processo).toLowerCase().includes(f.search));
+                return matchCoord && matchMod && matchDem && matchStatus && matchSearch;
+            });
+            updateView(filtered);
+        }
+
+        function updateView(data) {
+            document.getElementById('totalProcessos').innerText = data.length;
+            document.getElementById('rowCount').innerText = data.length + " processos";
+            const sumEst = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
+            const sumHom = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
+            document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
+            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom);
+            
+            const percSaving = sumEst > 0 ? ((sumEst - sumHom) / sumEst) * 100 : 0;
+            document.getElementById('savingBar').style.width = percSaving + '%';
+
+            // Find main bottleneck
+            const demands = data.reduce((acc, i) => { acc[i.demandante] = (acc[i.demandante] || 0) + 1; return acc; }, {});
+            const topDemand = Object.entries(demands).sort((a,b) => b[1] - a[1])[0];
+            document.getElementById('gargaloArea').innerText = topDemand ? topDemand[0] : '--';
+
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = data.map(i => `
+                <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
+                    <td class="px-6 py-5 font-bold text-blue-400">${i.id_processo}</td>
+                    <td class="px-6 py-5 max-w-xs truncate text-slate-300">${i.objeto_resumido}</td>
+                    <td class="px-6 py-5 text-center">
+                        <span class="status-badge bg-blue-500/10 text-blue-400 border border-blue-500/20">${i.status || 'N/I'}</span>
+                    </td>
+                    <td class="px-6 py-5 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="4" class="p-10 text-center opacity-30 uppercase font-black tracking-widest">Sem dados</td></tr>';
+            renderCharts(data);
+        }
+
+        function renderCharts(data) {
+            const countBy = (key) => data.reduce((acc, i) => { const v = i[key] || 'N/I'; acc[v] = (acc[v] || 0) + 1; return acc; }, {});
+            draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef']);
+            draw('chartStatus', 'bar', Object.keys(countBy('status')), Object.values(countBy('status')), '#2dd4bf', true);
+        }
+
+        function draw(id, type, labels, values, color, horizontal = false) {
+            if (charts[id]) charts[id].destroy();
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, {
+                type: type,
+                data: { labels: labels, datasets: [{ data: values, backgroundColor: color, borderWidth: 0, borderRadius: 10 }] },
+                options: {
+                    indexAxis: horizontal ? 'y' : 'x',
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 } } },
+                    scales: { 
+                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } },
+                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } }
+                    }
+                }
+            });
+        }
+
+        function showDetails(id) {
+            const item = rawData.find(x => String(x.id_processo) === String(id));
+            if (!item) return;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="col-span-2 p-6 glass-card border-blue-500/20"><p class="text-[9px] font-bold text-blue-400 uppercase mb-2">Objeto do Processo</p><p class="text-base font-bold text-slate-100">${item.objeto_resumido}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 uppercase mb-1">ID Processo</p><p class="text-lg font-black text-white">${item.id_processo}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Status Atual</p><p class="text-lg font-black text-amber-500">${item.status}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Valor Estimado</p><p class="text-lg font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 uppercase mb-1">Valor Homologado</p><p class="text-lg font-black text-emerald-400">${formatBRL(item.vlr_homologado)}</p></div>
+                <div class="col-span-2 p-6 glass-card bg-slate-900/40"><p class="text-[9px] font-bold text-slate-500 uppercase mb-2">Histórico & Observações</p><p class="text-xs text-slate-400 italic leading-relaxed">${item.observacoes || 'Nenhuma observação registrada pelo PMO.'}</p></div>
+            `;
+            document.getElementById('modalDetalhes').classList.remove('hidden');
+        }
+        function closeModal() { document.getElementById('modalDetalhes').classList.add('hidden'); }
+        init();
+    </script>
+</body>
+</html>
