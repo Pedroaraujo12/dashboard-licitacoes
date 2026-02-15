@@ -156,7 +156,7 @@
             const { data, error } = await sb.from('licitacoes').select('*');
             if (error) { console.error("Erro Supabase:", error); return; }
             rawData = data || [];
-            document.getElementById('lastUpdate').innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span> Live: ` + new Date().toLocaleTimeString();
+            document.getElementById('lastUpdate').innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span> Atualizado em: ` + new Date().toLocaleDateString('pt-br') + `, às ` + new Date().toLocaleTimeString('pt-br');
             populateFilters(rawData);
             updateView(rawData);
         }
