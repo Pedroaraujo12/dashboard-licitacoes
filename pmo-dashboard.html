@@ -215,7 +215,9 @@
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => `
                 <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
-                    <td class="px-6 py-5 font-bold text-blue-400">${i.id_processo}</td>
+                    <td class="px-6 py-5 font-bold text-blue-400">
+                        ${i.processo_link ? `<a href="${i.processo_link}" target="_blank" onclick="event.stopPropagation();" class="hover:underline flex items-center gap-1">${i.id_processo} <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : (i.id_processo || '-')}
+                    </td>
                     <td class="px-6 py-5 max-w-xs truncate text-slate-300">${i.objeto_resumido}</td>
                     <td class="px-6 py-5 text-center">
                         <span class="status-badge bg-blue-500/10 text-blue-400 border border-blue-500/20">${i.status || 'N/I'}</span>
