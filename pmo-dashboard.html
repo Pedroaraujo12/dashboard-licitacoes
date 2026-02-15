@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/extenso@2.0.1/dist/extenso.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --glass: rgba(30, 41, 59, 0.7); }
@@ -176,6 +177,15 @@
 
         function cleanVal(v) { return v ? (typeof v === 'number' ? v : parseFloat(String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0) : 0; }
         function formatBRL(v) { return cleanVal(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
+        function valorPorExtenso(v) {
+            const num = cleanVal(v);
+            if (num === 0) return 'Zero reais';
+            try {
+                return extenso(num.toFixed(2).replace('.', ','), { mode: 'currency' });
+            } catch (e) {
+                return '';
+            }
+        }
 
         function applyFilters() {
             const f = {
@@ -222,7 +232,7 @@
                     <td class="px-6 py-5 text-center">
                         <span class="status-badge bg-blue-500/10 text-blue-400 border border-blue-500/20">${i.status || 'N/I'}</span>
                     </td>
-                    <td class="px-6 py-5 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
+                    <td class="px-6 py-5 text-right font-bold text-slate-100" title="${valorPorExtenso(i.vlr_estimado_anual)}">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
             `).join('') || '<tr><td colspan="4" class="p-10 text-center opacity-30 uppercase font-black tracking-widest">Sem dados</td></tr>';
             renderCharts(data);
