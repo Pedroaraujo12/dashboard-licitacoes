@@ -60,13 +60,13 @@
             <div class="glass-card p-6 indicator-card">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Estimado</p>
                 <div class="flex items-end justify-between">
-                    <h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100">R$ 0,00</h3>
+                    <h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100" title="">R$ 0,00</h3>
                 </div>
             </div>
             <div class="glass-card p-6 indicator-card border-l-4 border-l-emerald-500">
                 <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS</p>
                 <div class="flex items-end justify-between">
-                    <h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3>
+                    <h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400" title="">R$ 0,00</h3>
                     <div class="h-1 w-20 bg-emerald-950 rounded-full overflow-hidden"><div id="savingBar" class="h-full bg-emerald-500" style="width: 0%"></div></div>
                 </div>
             </div>
@@ -212,7 +212,10 @@
             const sumEst = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
             const sumHom = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
+            document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEst);
+            
             document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom);
+            document.getElementById('vlrEconomizado').title = valorPorExtenso(sumEst - sumHom);
             
             const percSaving = sumEst > 0 ? ((sumEst - sumHom) / sumEst) * 100 : 0;
             document.getElementById('savingBar').style.width = percSaving + '%';
