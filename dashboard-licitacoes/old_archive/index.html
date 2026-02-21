@@ -18,18 +18,6 @@
         .chart-title { font-size: 0.8rem; font-weight: 800; margin-bottom: 1.25rem; color: #facc15; text-transform: uppercase; }
         .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
         
-        .valor-extenso-label {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            color: #10b981 !important;
-            font-size: 10px !important;
-            font-style: italic;
-            margin-top: 4px;
-            line-height: 1.2;
-            min-height: 1.2em;
-        }
-
         @media (max-width: 768px) {
             .indicator-value { font-size: 1.25rem; }
             .sidebar-card { padding: 1rem; }
@@ -44,7 +32,6 @@
         <div class="flex items-center gap-3">
             <div class="bg-blue-600 p-2 rounded-xl shrink-0"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
             <h1 class="text-lg md:text-2xl font-black uppercase tracking-tight leading-tight">AgSUS - CCS - Rio doce</h1>
-            <span id="debug-info" class="text-[8px] text-red-500 font-mono ml-2"></span>
         </div>
         <button onclick="window.location.reload()" class="w-full lg:w-auto bg-slate-800 text-white px-4 py-2.5 rounded-lg text-xs font-bold hover:bg-slate-700 transition">🔄 Limpar Filtros</button>
     </header>
@@ -53,12 +40,11 @@
         <aside class="w-full xl:w-80 grid grid-cols-2 xl:flex xl:flex-col gap-4">
             <div class="sidebar-card text-center col-span-2 xl:col-span-1"><p class="indicator-label">Ano Realização</p><p class="text-4xl xl:text-5xl font-black text-white">2026</p></div>
             <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400 font-bold uppercase">Processos</p><p id="totalProcessos" class="text-3xl xl:text-4xl font-black text-white">0</p></div>
-            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase text-[9px]">Total Estimado</p><p id="vlrEstimadoTotal" class="text-lg xl:text-2xl font-black text-white text-emerald-400 truncate">R$ 0,00</p><div id="extensoEstimado" class="valor-extenso-label"></div></div>
-            <div class="sidebar-card bg-emerald-900/20 col-span-2 xl:col-span-1"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-xl xl:text-2xl font-black text-emerald-400">R$ 0,00</p><div id="extensoEconomizado" class="valor-extenso-label"></div></div>
+            <div class="sidebar-card bg-slate-800/50"><p class="indicator-label text-slate-400 font-bold uppercase text-[9px]">Total Estimado</p><p id="vlrEstimadoTotal" class="text-lg xl:text-2xl font-black text-white text-emerald-400 truncate">R$ 0,00</p></div>
+            <div class="sidebar-card bg-emerald-900/20 col-span-2 xl:col-span-1"><p class="indicator-label text-emerald-400 font-bold uppercase">Total Economizado</p><p id="vlrEconomizado" class="text-xl xl:text-2xl font-black text-emerald-400">R$ 0,00</p></div>
         </aside>
 
         <main class="flex-1 space-y-6">
-            <!-- Filtros -->
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 bg-slate-900/40 p-4 rounded-2xl border border-slate-800 shadow-inner">
                 <div class="space-y-1.5"><label class="indicator-label text-[8px]">ID</label><select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
                 <div class="space-y-1.5"><label class="indicator-label text-[8px]">Objeto</label><select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
@@ -67,7 +53,6 @@
                 <div class="space-y-1.5 col-span-2 md:col-span-1"><label class="indicator-label text-[8px]">Demandante</label><select class="filter-select" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
             </div>
 
-            <!-- Tabela Detalhamento -->
             <div class="bg-slate-900/30 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
                 <div class="p-4 border-b border-slate-800 flex justify-between items-center"><h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Detalhamento</h3></div>
                 <div class="overflow-x-auto max-h-[400px] table-container">
@@ -90,7 +75,6 @@
         </main>
     </div>
 
-    <!-- Modal Detalhes -->
     <div id="modalDetalhes" class="fixed inset-0 modal-overlay hidden z-[100] flex items-center justify-center p-2">
         <div class="bg-[#1e293b] w-full max-w-2xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
             <div class="bg-blue-600 px-5 py-4 flex justify-between items-center text-white shrink-0">
@@ -113,20 +97,12 @@
         async function init() {
             try {
                 const { data, error } = await sb.from('licitacoes').select('*');
-                if (error) { 
-                    console.error("Erro Supabase:", error); 
-                    document.getElementById('debug-info').innerText = "Erro DB: " + error.message;
-                    return; 
-                }
-                
+                if (error) { console.error("Erro Supabase:", error); return; }
                 rawData = data || [];
                 document.getElementById('lastUpdate').innerText = "Última Sincronização: " + new Date().toLocaleString('pt-br');
-                
                 populateFilters(rawData);
                 updateView(rawData);
-            } catch (e) {
-                document.getElementById('debug-info').innerText = "Erro Crítico: " + e.message;
-            }
+            } catch (e) { console.error("Erro Crítico:", e); }
         }
 
         function populateFilters(data) {
@@ -153,30 +129,25 @@
         }
 
         function formatBRL(v) {
-            const val = cleanVal(v);
-            return val.toLocaleString('pt-br', {style:'currency', currency:'BRL'});
+            return cleanVal(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'});
         }
 
         function valorPorExtenso(valor) {
             if (valor === 0) return 'Zero';
-            
             const unidades = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
             const dezenas = ['', 'dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
             const especiais = ['dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
             const centenas = ['', 'cem', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
-
             const formatarGrupo = (n) => {
                 let s = '';
                 const c = Math.floor(n / 100);
                 const d = Math.floor((n % 100) / 10);
                 const u = n % 10;
-
                 if (c > 0) {
                     if (c === 1 && (d > 0 || u > 0)) s += 'cento';
                     else s += centenas[c];
                     if (d > 0 || u > 0) s += ' e ';
                 }
-
                 if (d === 1) s += especiais[u];
                 else {
                     if (d > 1) {
@@ -187,36 +158,30 @@
                 }
                 return s;
             };
-
             let v = Math.abs(valor);
             let reais = Math.floor(v);
             let centavos = Math.round((v - reais) * 100);
             let partes = [];
-
             if (reais > 0) {
                 const trilhoes = Math.floor(reais / 1000000000000);
                 const bilhoes = Math.floor((reais % 1000000000000) / 1000000000);
                 const milhoes = Math.floor((reais % 1000000000) / 1000000);
                 const milhares = Math.floor((reais % 1000000) / 1000);
                 const resto = reais % 1000;
-
                 if (trilhoes > 0) partes.push(formatarGrupo(trilhoes) + (trilhoes === 1 ? ' trilhão' : ' trilhões'));
                 if (bilhoes > 0) partes.push(formatarGrupo(bilhoes) + (bilhoes === 1 ? ' bilhão' : ' bilhões'));
                 if (milhoes > 0) partes.push(formatarGrupo(milhoes) + (milhoes === 1 ? ' milhão' : ' milhões'));
                 if (milhares > 0) partes.push(formatarGrupo(milhares) + ' mil');
                 if (resto > 0) partes.push(formatarGrupo(resto));
-
                 let textoReais = partes.join(', ').replace(/, ([^,]*)$/, ' e $1');
                 if (reais === 1) textoReais += ' real';
                 else if (reais % 1000000 === 0 && reais > 0) textoReais += ' de reais';
                 else textoReais += ' reais';
                 partes = [textoReais];
             }
-
             if (centavos > 0) {
                 partes.push(formatarGrupo(centavos) + (centavos === 1 ? ' centavo' : ' centavos'));
             }
-
             let resultado = partes.join(' e ');
             return resultado.charAt(0).toUpperCase() + resultado.slice(1);
         }
@@ -229,7 +194,6 @@
                 mod: document.getElementById('f-modalidade').value,
                 dem: document.getElementById('f-demandante').value
             };
-
             const filtered = rawData.filter(i => {
                 const matchId = (f.id === 'Todos' || String(i.id_processo) === f.id);
                 const matchObj = (f.obj === 'Todos' || i.objeto_resumido === f.obj);
@@ -242,39 +206,22 @@
         }
 
         function updateView(data) {
-            console.log("Updating view with data length:", data.length);
             document.getElementById('totalProcessos').innerText = data.length;
-            
             const sumEstimado = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
             const sumHomologado = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
             
-            console.log("Calculated sums:", sumEstimado, sumHomologado);
-            
-            const extEstimado = valorPorExtenso(sumEstimado);
-            console.log("Extenso Estimado:", extEstimado);
-            
+            // Removemos as legendas da sidebar e voltamos ao básico funcional
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEstimado);
-            document.getElementById('vlrEstimadoTotal').title = extEstimado;
-            document.getElementById('extensoEstimado').innerHTML = '<span>' + extEstimado + '</span>';
-            
-            const economizado = sumEstimado - sumHomologado;
-            const extEconomizado = valorPorExtenso(economizado);
-            console.log("Extenso Economizado:", extEconomizado);
-            
-            document.getElementById('vlrEconomizado').innerText = formatBRL(economizado);
-            document.getElementById('vlrEconomizado').title = extEconomizado;
-            document.getElementById('extensoEconomizado').innerHTML = '<span>' + extEconomizado + '</span>';
+            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEstimado - sumHomologado);
 
             const tableBody = document.getElementById('tableBody');
             if (data.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-600 uppercase font-black tracking-widest text-[10px]">Nenhum registro encontrado</td></tr>';
             } else {
-                tableBody.innerHTML = data.map(i => {
-                    const vEstimado = cleanVal(i.vlr_estimado_anual);
-                    return `
+                tableBody.innerHTML = data.map(i => `
                     <tr class="hover:bg-blue-500/10 transition group">
                         <td class="px-4 py-3 font-black text-blue-400 text-[9px] uppercase">
-                            ${i.processo_link ? `<a href="${i.processo_link}" target="_blank" class="hover:underline flex items-center gap-1">${i.id_processo} <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : (i.id_processo || '-')}
+                            ${i.processo_link ? `<a href="${i.processo_link}" target="_blank" class="hover:underline flex items-center gap-1">${i.id_processo}</a>` : (i.id_processo || '-')}
                         </td>
                         <td class="px-4 py-3 font-medium text-slate-200 text-[10px] leading-tight max-w-[150px] md:max-w-xs truncate md:whitespace-normal">${i.objeto_resumido || '-'}</td>
                         <td class="px-4 py-3 text-center text-amber-400 font-black text-[9px] uppercase">${i.status || '-'}</td>
@@ -283,7 +230,7 @@
                             <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter transition">Ver</button>
                         </td>
                     </tr>
-                `}).join('');
+                `).join('');
             }
             renderCharts(data);
         }
@@ -321,8 +268,16 @@
                 <div class="col-span-1 md:col-span-2 p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-2 text-blue-400">Objeto Completo</p><p class="font-bold text-slate-100 text-sm leading-snug uppercase tracking-tight">${item.objeto_resumido}</p></div>
                 <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-1">Processo</p><p class="font-black text-white text-base">${item.id_processo}</p></div>
                 <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-1">Status</p><p class="font-black text-amber-400 uppercase">${item.status}</p></div>
-                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-1">Valor Estimado</p><p class="font-black text-white" title="${valorPorExtenso(cleanVal(item.vlr_estimado_anual))}">${formatBRL(item.vlr_estimado_anual)}</p><p class="text-[8px] text-slate-500 mt-1 italic">${valorPorExtenso(cleanVal(item.vlr_estimado_anual))}</p></div>
-                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-1">Valor Homologado</p><p class="font-black text-emerald-400" title="${valorPorExtenso(cleanVal(item.vlr_homologado))}">${formatBRL(item.vlr_homologado)}</p><p class="text-[8px] text-slate-500 mt-1 italic">${valorPorExtenso(cleanVal(item.vlr_homologado))}</p></div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <p class="indicator-label mb-1">Valor Estimado</p>
+                    <p class="font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p>
+                    <p class="text-[10px] text-emerald-400 mt-2 font-bold italic leading-tight">${valorPorExtenso(cleanVal(item.vlr_estimado_anual))}</p>
+                </div>
+                <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                    <p class="indicator-label mb-1">Valor Homologado</p>
+                    <p class="font-black text-emerald-400">${formatBRL(item.vlr_homologado)}</p>
+                    <p class="text-[10px] text-emerald-400 mt-2 font-bold italic leading-tight">${valorPorExtenso(cleanVal(item.vlr_homologado))}</p>
+                </div>
                 <div class="col-span-1 md:col-span-2 p-4 bg-slate-900/50 rounded-xl border border-slate-700"><p class="indicator-label mb-2 text-slate-500">Observações</p><p class="text-[10px] text-slate-400 italic">${item.observacoes || 'Sem observações.'}</p></div>
             `;
             modal.classList.remove('hidden');
