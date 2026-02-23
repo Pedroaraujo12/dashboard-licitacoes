@@ -88,11 +88,12 @@
         </div>
 
         <!-- Filtros e Busca -->
-        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-7 gap-4">
+        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-8 gap-4">
             <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar objeto ou ID..." class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition">
             <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas as Coordenações</option></select>
             <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Todos os Responsáveis</option></select>
             <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas as Modalidades</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-fase" onchange="applyFilters()"><option value="Todos">Todas as Fases</option></select>
             <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prioridade" onchange="applyFilters()"><option value="Todos">Todas as Prioridades</option></select>
             <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos os Demandantes</option></select>
             <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-status" onchange="applyFilters()"><option value="Todos">Todos os Status</option></select>
@@ -197,6 +198,7 @@
             fill('f-coordenacao', getUnique('coordenacao'), 'Todas as Coordenações');
             fill('f-responsavel', getUnique('responsavel'), 'Todos os Responsáveis');
             fill('f-modalidade', getUnique('modalidade'), 'Todas as Modalidades');
+            fill('f-fase', getUnique('fase_atual'), 'Todas as Fases');
             fill('f-prioridade', getUnique('prioridade'), 'Todas as Prioridades');
             fill('f-demandante', getUnique('demandante'), 'Todos os Demandantes');
             fill('f-status', getUnique('status'), 'Todos os Status');
@@ -243,6 +245,7 @@
                 coord: document.getElementById('f-coordenacao').value,
                 resp: document.getElementById('f-responsavel').value,
                 mod: document.getElementById('f-modalidade').value,
+                fase: document.getElementById('f-fase').value,
                 prior: document.getElementById('f-prioridade').value,
                 dem: document.getElementById('f-demandante').value,
                 status: document.getElementById('f-status').value,
@@ -252,11 +255,12 @@
                 const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
                 const matchResp = (f.resp === 'Todos' || i.responsavel === f.resp);
                 const matchMod = (f.mod === 'Todos' || i.modalidade === f.mod);
+                const matchFase = (f.fase === 'Todos' || i.fase_atual === f.fase);
                 const matchPrior = (f.prior === 'Todos' || i.prioridade === f.prior);
                 const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
                 const matchStatus = (f.status === 'Todos' || i.status === f.status);
                 const matchSearch = (!f.search || (i.objeto_resumido + i.id_processo).toLowerCase().includes(f.search));
-                return matchCoord && matchResp && matchMod && matchPrior && matchDem && matchStatus && matchSearch;
+                return matchCoord && matchResp && matchMod && matchFase && matchPrior && matchDem && matchStatus && matchSearch;
             });
             updateView(filtered);
         }
