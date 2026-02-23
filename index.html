@@ -44,11 +44,13 @@
 
         <main class="flex-1 space-y-8">
             <!-- Filtros -->
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800 shadow-inner">
+            <div class="grid grid-cols-1 md:grid-cols-7 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800 shadow-inner">
                 <div class="space-y-1.5"><label class="indicator-label text-[9px]">ID Processo</label><select class="filter-select" id="f-processo" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Responsável</label><select class="filter-select" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
                 <div class="space-y-1.5"><label class="indicator-label text-[9px]">Objeto</label><select class="filter-select" id="f-objeto" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
                 <div class="space-y-1.5"><label class="indicator-label text-[9px]">Coordenação</label><select class="filter-select" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
                 <div class="space-y-1.5"><label class="indicator-label text-[9px]">Modalidade</label><select class="filter-select" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Prioridade</label><select class="filter-select" id="f-prioridade" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
                 <div class="space-y-1.5"><label class="indicator-label text-[9px]">Demandante</label><select class="filter-select" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
             </div>
 
@@ -119,7 +121,9 @@
             fill('f-processo', getUnique('id_processo'));
             fill('f-objeto', getUnique('objeto_resumido'));
             fill('f-coordenacao', getUnique('coordenacao'));
+            fill('f-responsavel', getUnique('responsavel'));
             fill('f-modalidade', getUnique('modalidade'));
+            fill('f-prioridade', getUnique('prioridade'));
             fill('f-demandante', getUnique('demandante'));
         }
 
@@ -136,19 +140,23 @@
         function applyFilters() {
             const f = {
                 id: document.getElementById('f-processo').value,
+                resp: document.getElementById('f-responsavel').value,
                 obj: document.getElementById('f-objeto').value,
                 coord: document.getElementById('f-coordenacao').value,
                 mod: document.getElementById('f-modalidade').value,
+                prior: document.getElementById('f-prioridade').value,
                 dem: document.getElementById('f-demandante').value
             };
 
             const filtered = rawData.filter(i => {
                 const matchId = (f.id === 'Todos' || String(i.id_processo) === f.id);
+                const matchResp = (f.resp === 'Todos' || i.responsavel === f.resp);
                 const matchObj = (f.obj === 'Todos' || i.objeto_resumido === f.obj);
                 const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
                 const matchMod = (f.mod === 'Todos' || i.modalidade === f.mod);
+                const matchPrior = (f.prior === 'Todos' || i.prioridade === f.prior);
                 const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
-                return matchId && matchObj && matchCoord && matchMod && matchDem;
+                return matchId && matchResp && matchObj && matchCoord && matchMod && matchPrior && matchDem;
             });
             updateView(filtered);
         }
