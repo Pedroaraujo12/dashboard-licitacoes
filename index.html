@@ -233,7 +233,7 @@
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Status</p><p class="font-black text-amber-400 uppercase">${item.status}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Estimado</p><p class="font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Valor Homologado</p><p class="font-black text-emerald-400">${formatBRL(item.vlr_homologado)}</p></div>
-                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-2 text-slate-500">Observações</p><p class="text-xs text-slate-400 italic">${item.observacoes || 'Sem observações.'}</p></div>
+                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-2 text-slate-500">Observações</p><div class="text-xs text-slate-400 italic">${item.observacoes || 'Sem observações.'}</div></div>
             `;
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';

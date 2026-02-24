@@ -362,7 +362,7 @@
 
                 <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Valor Estimado</p><p class="text-lg font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
                 <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 uppercase mb-1">Valor Homologado</p><p class="text-lg font-black text-emerald-400">${formatBRL(item.vlr_homologado)}</p></div>
-                <div class="col-span-2 p-6 glass-card bg-slate-900/40"><p class="text-[9px] font-bold text-slate-500 uppercase mb-2">Histórico & Observações</p><p class="text-xs text-slate-400 italic leading-relaxed">${item.observacoes || 'Nenhuma observação registrada pelo PMO.'}</p></div>
+                <div class="col-span-2 p-6 glass-card bg-slate-900/40"><p class="text-[9px] font-bold text-slate-500 uppercase mb-2">Histórico & Observações</p><div class="text-xs text-slate-400 italic leading-relaxed">${item.observacoes || 'Nenhuma observação registrada pelo PMO.'}</div></div>
             `;
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
