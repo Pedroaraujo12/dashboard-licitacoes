@@ -14,52 +14,60 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top left, #0f172a, #020617); color: #f8fafc; }
         .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem; }
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .sla-bar { height: 4px; border-radius: 2px; background: #1e293b; overflow: hidden; margin-top: 4px; }
-        .sla-progress { height: 100%; transition: width 0.3s; }
-        .sla-on-time { background: #10b981; }
-        .sla-warning { background: #f59e0b; }
-        .sla-overdue { background: #ef4444; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen">
-    <header class="max-w-7xl mx-auto mb-10 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-extrabold uppercase tracking-tight">Gestão de Projetos v2</h1>
-            <p class="text-xs font-medium text-slate-400 uppercase tracking-widest">CCS-RD • Licitações 2026</p>
+    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4">
+            <div class="h-12 w-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold uppercase tracking-tight">Gestão de Projetos v2</h1>
+                <p class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">AgSUS • Licitações 2026</p>
+            </div>
         </div>
-        <button onclick="window.location.reload()" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold">Atualizar</button>
+        <button onclick="window.location.reload()" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition border border-slate-700">Sincronizar Painel</button>
     </header>
 
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2 glass-card p-6 overflow-hidden">
-            <h2 class="text-sm font-bold uppercase mb-4 text-slate-400">Fluxo de Execução</h2>
-            <div class="overflow-y-auto max-h-[600px]">
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="text-slate-500 border-b border-white/5">
-                            <th class="py-3">ID Processo</th>
-                            <th class="py-3">Objeto</th>
-                            <th class="py-3 text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-white/5"></tbody>
-                </table>
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Tabela Lateral (8 colunas) -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+            <div class="glass-card p-6 overflow-hidden flex-1">
+                <h2 class="text-xs font-bold uppercase mb-4 text-slate-400 tracking-widest">Fluxo de Execução</h2>
+                <div class="overflow-y-auto max-h-[700px]">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="sticky top-0 bg-[#0f172a] z-10">
+                            <tr class="text-slate-500 border-b border-white/5 uppercase">
+                                <th class="py-3 px-2">Processo</th>
+                                <th class="py-3 px-2">Objeto</th>
+                                <th class="py-3 px-2 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-white/5"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        <div class="space-y-6">
+
+        <!-- Gráficos Laterais (4 colunas) -->
+        <div class="lg:col-span-4 space-y-6">
             <div class="glass-card p-6">
-                <h2 class="text-[10px] font-bold uppercase text-blue-400 mb-4">Volume por Modalidade</h2>
-                <canvas id="chartModalidade" height="180"></canvas>
+                <h2 class="text-[10px] font-bold uppercase text-blue-400 mb-4 tracking-widest">Volume por Modalidade</h2>
+                <div class="h-[200px]"><canvas id="chartModalidade"></canvas></div>
             </div>
+            
+            <!-- Gráfico de Responsável (Estilo do Modelo Enviado) -->
             <div class="glass-card p-6">
-                <h2 class="text-[10px] font-bold uppercase text-emerald-400 mb-4">Status dos Processos</h2>
-                <canvas id="chartStatus" height="180"></canvas>
+                <h2 class="text-[10px] font-bold uppercase text-emerald-400 mb-4 tracking-widest">Processos por Responsável</h2>
+                <div class="h-[250px]"><canvas id="chartResponsavel"></canvas></div>
             </div>
+
             <div class="glass-card p-6">
-                <h2 class="text-[10px] font-bold uppercase text-indigo-400 mb-4">Processos por Responsável</h2>
-                <canvas id="chartResponsavel" height="180"></canvas>
+                <h2 class="text-[10px] font-bold uppercase text-pink-400 mb-4 tracking-widest">Status Geral</h2>
+                <div class="h-[200px]"><canvas id="chartStatus"></canvas></div>
             </div>
         </div>
     </div>
@@ -69,8 +77,7 @@
         const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1'];
-        const STATUS_MAP = { 'Devolvido': '#ec4899', 'Em andamento': '#f59e0b', 'Não recebido': '#64748b' };
+        const STATUS_COLORS = { 'Devolvido': '#ec4899', 'Em andamento': '#f59e0b', 'Não recebido': '#64748b', 'Pendente': '#8b5cf6' };
 
         async function init() {
             const { data } = await sb.from('licitacoes').select('*');
@@ -78,11 +85,11 @@
             
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => `
-                <tr class="border-b border-white/5">
-                    <td class="py-4 font-bold text-blue-400">${i.id_processo}</td>
-                    <td class="py-4 text-slate-300">${i.objeto_resumido}</td>
-                    <td class="py-4 text-center">
-                        <span class="status-badge" style="background: ${STATUS_MAP[i.status] || '#1e293b'}30; color: ${STATUS_MAP[i.status] || '#94a3b8'}">${i.status}</span>
+                <tr class="hover:bg-white/5 transition">
+                    <td class="py-3 px-2 font-bold text-blue-400">${i.id_processo || '-'}</td>
+                    <td class="py-3 px-2 text-slate-300 leading-tight">${i.objeto_resumido}</td>
+                    <td class="py-3 px-2 text-center">
+                        <span class="status-badge" style="background: ${STATUS_COLORS[i.status] || '#1e293b'}25; color: ${STATUS_COLORS[i.status] || '#94a3b8'}; border: 1px solid ${STATUS_COLORS[i.status] || '#ffffff'}20">${i.status}</span>
                     </td>
                 </tr>
             `).join('');
@@ -92,31 +99,45 @@
 
         function renderCharts(data) {
             const count = (key) => data.reduce((acc, i) => { 
-                let v = i[key] || 'N/I';
+                let v = i[key] || 'Não Atribuído';
                 if(v === "Cotação de preço") v = "Cotação de Preços";
                 acc[v] = (acc[v] || 0) + 1; 
                 return acc; 
             }, {});
 
-            draw('chartModalidade', 'doughnut', count('modalidade'));
-            draw('chartStatus', 'bar', count('status'), true);
-            draw('chartResponsavel', 'bar', count('responsavel'));
+            const respData = count('responsavel');
+
+            // Modalidade
+            draw('chartModalidade', 'doughnut', count('modalidade'), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
+            
+            // Status
+            draw('chartStatus', 'bar', count('status'), Object.values(STATUS_COLORS), true);
+            
+            // Responsável (Cores Verdes conforme modelo)
+            draw('chartResponsavel', 'bar', respData, ['#22c55e', '#4ade80', '#86efac', '#bbf7d0'], true);
         }
 
-        function draw(id, type, dataObj, horizontal = false) {
+        function draw(id, type, dataObj, colors, horizontal = false) {
             new Chart(document.getElementById(id), {
                 type: type,
                 data: {
                     labels: Object.keys(dataObj),
-                    datasets: [{ data: Object.values(dataObj), backgroundColor: COLORS, borderRadius: 5 }]
+                    datasets: [{ 
+                        data: Object.values(dataObj), 
+                        backgroundColor: colors, 
+                        borderRadius: 4,
+                        barThickness: 15
+                    }]
                 },
                 options: {
                     indexAxis: horizontal ? 'y' : 'x',
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: type === 'doughnut', labels: { color: '#94a3b8', font: { size: 8 } } } },
+                    plugins: { 
+                        legend: { display: type === 'doughnut', position: 'bottom', labels: { color: '#94a3b8', font: { size: 9 } } } 
+                    },
                     scales: { 
-                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 7 } } },
-                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 7 } } }
+                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } },
+                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } }
                     }
                 }
             });
