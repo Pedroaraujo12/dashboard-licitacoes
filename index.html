@@ -290,7 +290,7 @@
             }, { 'sla-on-time': 0, 'sla-warning': 0, 'sla-overdue': 0 });
             draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [slaStats['sla-on-time'], slaStats['sla-warning'], slaStats['sla-overdue']], ['#10b981', '#f59e0b', '#ef4444'], true);
 
-            const respData = countBy('responsavel');
+            const respDataRaw = countBy('responsavel'); const respData = Object.keys(respDataRaw).sort((a, b) => { if (a === "Não Atribuído") return 1; if (b === "Não Atribuído") return -1; return respDataRaw[b] - respDataRaw[a]; }).reduce((acc, key) => { acc[key] = respDataRaw[key]; return acc; }, {});
             draw('chartResponsavel', 'bar', Object.keys(respData), Object.values(respData), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'], true);
         }
 
