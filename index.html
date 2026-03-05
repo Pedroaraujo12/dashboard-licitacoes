@@ -314,7 +314,7 @@
         }
 
         function renderCharts(data) {
-            const countBy = (key) => data.reduce((acc, i) => { const v = i[key] || 'Não Atribuído'; acc[v] = (acc[v] || 0) + 1; return acc; }, {});
+            const countBy = (key) => data.reduce((acc, i) => { let v = i[key] || 'Não Atribuído'; if(v === "Cotação de preço") v = "Cotação de Preços"; acc[v] = (acc[v] || 0) + 1; return acc; }, {});
             
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef']);
             
