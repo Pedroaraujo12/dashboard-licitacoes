@@ -262,7 +262,7 @@
                 const sla = calculateSLA(i);
                 return `
                 <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
-                    <td class="px-6 py-5 font-bold text-blue-400">${i.id_processo || '-'}
+                    <td class="px-6 py-5 font-bold text-blue-400">${i.processo_link ? `<a href="${i.processo_link}" target="_blank" class="hover:underline text-blue-400 font-bold">${i.id_processo}</a>` : (i.id_processo || "-")}
                         <div class="sla-bar"><div class="sla-progress ${sla.status}" style="width: ${sla.percent}%"></div></div>
                     </td>
                     <td class="px-6 py-5 max-w-xs truncate text-slate-300">${i.objeto_resumido}</td>
