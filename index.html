@@ -291,7 +291,7 @@
             draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [slaStats['sla-on-time'], slaStats['sla-warning'], slaStats['sla-overdue']], ['#10b981', '#f59e0b', '#ef4444'], true);
 
             const respData = countBy('responsavel');
-            draw('chartResponsavel', 'bar', Object.keys(respData), Object.values(respData), ['#22c55e', '#4ade80', '#86efac', '#bbf7d0'], true);
+            draw('chartResponsavel', 'bar', Object.keys(respData), Object.values(respData), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'], true);
         }
 
         function draw(id, type, labels, values, color, horizontal = false) {
