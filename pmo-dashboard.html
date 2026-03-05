@@ -244,7 +244,7 @@
             updateView(filtered);
         }
 
-        function updateView(data) {
+        function updateView(data) { console.log("v1.2.9 Force Load");
             document.getElementById('totalProcessos').innerText = data.length;
             document.getElementById('rowCount').innerText = data.length + " processos";
             const sumEst = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
