@@ -250,7 +250,7 @@
             const sumEst = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
             const sumHom = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
-            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom);
+            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom); document.getElementById('vlrEconomizado').title = "Soma de todos os ganhos (Estimado - Homologado)";
             const percSaving = sumEst > 0 ? ((sumEst - sumHom) / sumEst) * 100 : 0;
             document.getElementById('savingBar').style.width = percSaving + '%';
             const demands = data.reduce((acc, i) => { acc[i.demandante] = (acc[i.demandante] || 0) + 1; return acc; }, {});
