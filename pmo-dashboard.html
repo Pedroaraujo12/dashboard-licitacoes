@@ -43,7 +43,7 @@
         </div>
         <div class="flex gap-3">
             <a href="index.html" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-blue-600/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg> Visão Operacional
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg> Visão Operacional
             </a>
             <button onclick="window.location.reload()" class="bg-slate-800/50 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Resetar
@@ -107,7 +107,7 @@
                     <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2>
                     <span id="rowCount" class="text-[10px] font-bold bg-slate-800 px-3 py-1 rounded-full text-slate-500">-- processos</span>
                 </div>
-                <div class="overflow-x-auto overflow-y-auto max-h-[500px]">
+                <div class="overflow-x-auto overflow-y-auto max-h-[780px]">
                     <table class="w-full text-left">
                         <thead class="sticky top-0 bg-[#1e293b] z-10">
                             <tr class="text-[10px] font-bold uppercase text-slate-500 border-b border-white/5">
@@ -131,6 +131,10 @@
                 <div class="glass-card p-6 h-[260px]">
                     <h2 class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-6">Status dos Processos</h2>
                     <canvas id="chartStatus"></canvas>
+                </div>
+                <div class="glass-card p-6 h-[260px]">
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-6">Processos por Responsável</h2>
+                    <canvas id="chartResponsavel"></canvas>
                 </div>
             </div>
         </div>
@@ -168,12 +172,17 @@
             'Dispensa de Licitação': 15
         };
 
-        const FASES_CONFIG = {
-            'Planejamento': { dias: 3, color: '#3b82f6' },
-            'Produção': { dias: 13, color: '#8b5cf6' },
-            'Análise': { dias: 10, color: '#f59e0b' },
-            'Execução': { dias: 11, color: '#10b981' },
-            'Aprovação': { dias: 15, color: '#ef4444' }
+        const STATUS_COLORS = {
+            'Em andamento': '#f59e0b',
+            'Não recebido': '#64748b',
+            'Em Instrução': '#3b82f6',
+            'Publicado': '#10b981',
+            'Homologado': '#059669',
+            'Suspenso': '#ef4444',
+            'Cancelado': '#94a3b8',
+            'Concluído': '#10b981',
+            'Pendente de assinatura': '#8b5cf6',
+            'Devolvido': '#ec4899'
         };
 
         let charts = {};
@@ -212,7 +221,6 @@
             const start = new Date(item.data_entrada);
             const end = item.data_homologacao ? new Date(item.data_homologacao) : new Date();
             
-            // Simplified business days calculation
             let days = 0;
             let current = new Date(start);
             while (current <= end) {
@@ -279,7 +287,6 @@
             const percSaving = sumEst > 0 ? ((sumEst - sumHom) / sumEst) * 100 : 0;
             document.getElementById('savingBar').style.width = percSaving + '%';
 
-            // Find main bottleneck
             const demands = data.reduce((acc, i) => { acc[i.demandante] = (acc[i.demandante] || 0) + 1; return acc; }, {});
             const topDemand = Object.entries(demands).sort((a,b) => b[1] - a[1])[0];
             document.getElementById('gargaloArea').innerText = topDemand ? topDemand[0] : '--';
@@ -287,6 +294,7 @@
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
                 const sla = calculateSLA(i);
+                const color = STATUS_COLORS[i.status] || '#f59e0b';
                 return `
                 <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
                     <td class="px-6 py-5 font-bold text-blue-400">
@@ -297,7 +305,7 @@
                     </td>
                     <td class="px-6 py-5 max-w-xs truncate text-slate-300">${i.objeto_resumido}</td>
                     <td class="px-6 py-5 text-center">
-                        <span class="status-badge bg-amber-500/10 text-amber-500 border border-amber-500/20">${i.status || 'N/I'}</span>
+                        <span class="status-badge" style="background: ${color}15; color: ${color}; border: 1px solid ${color}30">${i.status || 'N/I'}</span>
                     </td>
                     <td class="px-6 py-5 text-right font-bold text-slate-100" title="${valorPorExtenso(i.vlr_estimado_anual)}">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
@@ -306,12 +314,10 @@
         }
 
         function renderCharts(data) {
-            const countBy = (key) => data.reduce((acc, i) => { const v = i[key] || 'N/I'; acc[v] = (acc[v] || 0) + 1; return acc; }, {});
+            const countBy = (key) => data.reduce((acc, i) => { const v = i[key] || 'Não Atribuído'; acc[v] = (acc[v] || 0) + 1; return acc; }, {});
             
-            // Modalidade Doughnut
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef']);
             
-            // SLA Health Bar Chart
             const slaStats = data.reduce((acc, i) => {
                 const s = calculateSLA(i).status;
                 acc[s] = (acc[s] || 0) + 1;
@@ -319,6 +325,9 @@
             }, { 'sla-on-time': 0, 'sla-warning': 0, 'sla-overdue': 0 });
             
             draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [slaStats['sla-on-time'], slaStats['sla-warning'], slaStats['sla-overdue']], ['#10b981', '#f59e0b', '#ef4444'], true);
+
+            const respData = countBy('responsavel');
+            draw('chartResponsavel', 'bar', Object.keys(respData), Object.values(respData), ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'], false);
         }
 
         function draw(id, type, labels, values, color, horizontal = false) {
@@ -326,14 +335,14 @@
             const ctx = document.getElementById(id).getContext('2d');
             charts[id] = new Chart(ctx, {
                 type: type,
-                data: { labels: labels, datasets: [{ data: values, backgroundColor: color, borderWidth: 0, borderRadius: 10 }] },
+                data: { labels: labels, datasets: [{ data: values, backgroundColor: color, borderWidth: 0, borderRadius: 6 }] },
                 options: {
                     indexAxis: horizontal ? 'y' : 'x',
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 } } },
+                    plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 8 }, boxWidth: 8 } } },
                     scales: { 
-                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } },
-                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } }
+                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 7 } } },
+                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 7 } } }
                     }
                 }
             });
