@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/extenso@2.0.1/dist/extenso.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --glass: rgba(30, 41, 59, 0.7); }
@@ -16,11 +15,10 @@
         .indicator-card { transition: transform 0.2s; }
         .indicator-card:hover { transform: translateY(-4px); }
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .sla-bar { height: 4px; border-radius: 2px; background: #1e293b; overflow: hidden; margin-top: 4px; }
-        .sla-progress { height: 100%; transition: width 0.3s; }
-        .sla-on-time { background: #10b981; }
-        .sla-warning { background: #f59e0b; }
-        .sla-overdue { background: #ef4444; }
+        .aging-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; }
+        .aging-red { background-color: #ef4444; color: white; }
+        .aging-yellow { background-color: #eab308; color: black; }
+        .aging-green { background-color: #22c55e; color: white; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -75,30 +73,26 @@
                     <div class="h-1 w-20 bg-emerald-950 rounded-full overflow-hidden"><div id="savingBar" class="h-full bg-emerald-500" style="width: 0%"></div></div>
                 </div>
             </div>
-            <div class="glass-card p-6 indicator-card border-l-4 border-l-amber-500">
-                <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Gargalo Crítico</p>
+            <div class="glass-card p-6 indicator-card border-l-4 border-l-red-500">
+                <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Processos em Atraso</p>
                 <div class="flex items-end justify-between">
-                    <h3 id="gargaloArea" class="text-lg font-extrabold text-amber-100">NAAGE</h3>
-                    <span class="text-[9px] font-bold text-amber-400 uppercase">Demandante</span>
+                    <h3 id="totalAtrasados" class="text-4xl font-extrabold text-red-100">--</h3>
+                    <span class="text-[9px] font-bold text-red-400 uppercase">Atenção Crítica</span>
                 </div>
             </div>
         </div>
 
-        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-8 gap-4">
-            <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar objeto ou ID..." class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition">
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas as Coordenações</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Todos os Responsáveis</option></select>
+        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prazo" onchange="applyFilters()"><option value="Todos">Todos os Prazos</option><option value="Atrasados">Somente Atrasados</option><option value="No Prazo">No Prazo</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos os Demandantes</option></select>
             <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas as Modalidades</option></select>
             <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-fase" onchange="applyFilters()"><option value="Todos">Todas as Fases</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prioridade" onchange="applyFilters()"><option value="Todos">Todas as Prioridades</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos os Demandantes</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-status" onchange="applyFilters()"><option value="Todos">Todos os Status</option></select>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 glass-card overflow-hidden">
                 <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2>
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400">Aging de Processos (Ciclo de Vida)</h2>
                     <span id="rowCount" class="text-[10px] font-bold bg-slate-800 px-3 py-1 rounded-full text-slate-500">-- processos</span>
                 </div>
                 <div class="overflow-x-auto overflow-y-auto max-h-[780px]">
@@ -106,8 +100,9 @@
                         <thead class="sticky top-0 bg-[#1e293b] z-10">
                             <tr class="text-[10px] font-bold uppercase text-slate-500 border-b border-white/5">
                                 <th class="px-6 py-4">ID Processo</th>
-                                <th class="px-6 py-4">Objeto</th>
-                                <th class="px-6 py-4 text-center">Status</th>
+                                <th class="px-6 py-4">Fase Atual</th>
+                                <th class="px-6 py-4 text-center">Prazo Atividade</th>
+                                <th class="px-6 py-4 text-center">Entrega Final</th>
                                 <th class="px-6 py-4 text-right">Estimado</th>
                             </tr>
                         </thead>
@@ -122,7 +117,7 @@
                     <canvas id="chartModalidade"></canvas>
                 </div>
                 <div class="glass-card p-6 h-[260px]">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-6">Status dos Processos</h2>
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-6">Saúde dos Prazos</h2>
                     <canvas id="chartStatus"></canvas>
                 </div>
                 <div class="glass-card p-6 h-[280px]">
@@ -141,12 +136,12 @@
     <div id="modalDetalhes" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-[100] flex items-center justify-center p-2 sm:p-4">
         <div class="glass-card w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] sm:max-h-none">
             <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center shrink-0">
-                <h2 class="text-xs sm:text-sm font-black uppercase tracking-widest">Ficha Técnica do Processo</h2>
+                <h2 class="text-xs sm:text-sm font-black uppercase tracking-widest">Cronograma Detalhado</h2>
                 <button onclick="closeModal()" class="text-2xl opacity-50 hover:opacity-100 leading-none">&times;</button>
             </div>
             <div id="modalContent" class="p-4 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 overflow-y-auto"></div>
             <div class="px-4 sm:px-8 py-4 sm:py-6 border-t border-white/5 text-right shrink-0">
-                <button onclick="closeModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition">Fechar Visualização</button>
+                <button onclick="closeModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition">Fechar</button>
             </div>
         </div>
     </div>
@@ -155,13 +150,6 @@
         const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const SLA_METAS = {
-            'Pregão Eletrônico': 52,
-            'Cotação de Preços': 20,
-            'Concorrência': 65,
-            'Dispensa de Licitação': 15
-        };
 
         let charts = {};
         let rawData = [];
@@ -182,115 +170,160 @@
                 el.innerHTML = `<option value="Todos">${prefix}</option>`;
                 items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
             };
-            fill('f-coordenacao', getUnique('coordenacao'), 'Todas as Coordenações');
-            fill('f-responsavel', getUnique('responsavel'), 'Todos os Responsáveis');
+            fill('f-demandante', getUnique('demandante'), 'Todos os Demandantes');
             fill('f-modalidade', getUnique('modalidade'), 'Todas as Modalidades');
             fill('f-fase', getUnique('fase_atual'), 'Todas as Fases');
-            fill('f-prioridade', getUnique('prioridade'), 'Todas as Prioridades');
-            fill('f-demandante', getUnique('demandante'), 'Todos os Demandantes');
-            fill('f-status', getUnique('status'), 'Todos os Status');
         }
 
         function cleanVal(v) { return v ? (typeof v === 'number' ? v : parseFloat(String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0) : 0; }
         function formatBRL(v) { return cleanVal(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
         
-        function calculateSLA(item) {
-            if (!item.data_entrada) return { percent: 0, status: 'unknown', days: 0 };
-            const start = new Date(item.data_entrada);
-            const end = item.data_homologacao ? new Date(item.data_homologacao) : new Date();
-            let days = 0;
-            let current = new Date(start);
-            while (current <= end) {
-                const day = current.getDay();
-                if (day !== 0 && day !== 6) days++;
-                current.setDate(current.getDate() + 1);
-            }
-            const meta = SLA_METAS[item.modalidade] || 30;
-            const percent = Math.min((days / meta) * 100, 100);
-            let status = 'sla-on-time';
-            if (percent > 100) status = 'sla-overdue';
-            else if (percent > 75) status = 'sla-warning';
-            return { percent, status, days, meta };
+        function formatDate(d) { 
+            if(!d || d === '-' || d === 'None') return '-';
+            try { 
+                if(d.includes('-')) {
+                    const parts = d.split('-');
+                    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+                return d; 
+            } catch(e) { return d; }
         }
 
-        function valorPorExtenso(v) {
-            const num = cleanVal(v);
-            if (num === 0) return 'Zero reais';
-            try { return extenso(num.toFixed(2).replace('.', ','), { mode: 'currency' }); } catch (e) { return ''; }
+        function extractMetaDates(obs) {
+            const match = obs ? obs.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
+            if (match) {
+                return { ativ: match[1], final: match[2], cleanObs: obs.replace(match[0], '') };
+            }
+            return { ativ: null, final: null, cleanObs: obs || '' };
+        }
+
+        function parseToISO(dateStr) {
+            if (!dateStr || dateStr === '-' || dateStr === 'None') return null;
+            if (dateStr.includes('-')) return dateStr;
+            const parts = dateStr.split('/');
+            if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            return dateStr;
+        }
+
+        function getAging(dateStr) {
+            const isoDate = parseToISO(dateStr);
+            if (!isoDate) return { label: 'N/A', class: '' };
+            const today = new Date(); today.setHours(0,0,0,0);
+            const target = new Date(isoDate);
+            if (isNaN(target)) return { label: dateStr, class: '' };
+            const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) return { label: `Atrasado ${Math.abs(diffDays)}d`, class: 'aging-red' };
+            if (diffDays <= 2) return { label: `Vence em ${diffDays}d`, class: 'aging-yellow' };
+            return { label: `No Prazo (${diffDays}d)`, class: 'aging-green' };
+        }
+
+        function valorPorExtenso(valor) {
+            if (!valor || valor <= 0) return "";
+            const unidades = ["", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"];
+            const dez_a_dezenove = ["dez", "onze", "doze", "treze", "quatorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove"];
+            const dezenas = ["", "", "vinte", "trinta", "quarenta", "cinquenta", "sessenta", "setenta", "oitenta", "noventa"];
+            const centenas = ["", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"];
+            function converter_parte(n) {
+                if (n === 0) return "";
+                if (n === 100) return "cem";
+                let c = Math.floor(n / 100), d = Math.floor((n % 100) / 10), u = n % 10, res = "";
+                if (c > 0) res += centenas[c];
+                if (d > 0 || u > 0) {
+                    if (res !== "") res += " e ";
+                    if (d === 1) res += dez_a_dezenove[u];
+                    else { res += dezenas[d]; if (d > 0 && u > 0) res += " e "; res += unidades[u]; }
+                }
+                return res.trim();
+            }
+            let inteiro = Math.floor(valor), centavos = Math.round((valor - inteiro) * 100), partes = [];
+            let milhoes = Math.floor(inteiro / 1000000), milhares = Math.floor((inteiro % 1000000) / 1000), resto = inteiro % 1000;
+            if (milhoes > 0) partes.push(converter_parte(milhoes) + (milhoes === 1 ? " milhão" : " milhões"));
+            if (milhares > 0) partes.push(converter_parte(milhares) + " mil");
+            if (resto > 0 || partes.length === 0) partes.push(converter_parte(resto));
+            let porExtenso = partes.join(", ").replace(/, ([^,]*)$/, " e $1") + (inteiro === 1 ? " real" : " reais");
+            if (centavos > 0) porExtenso += " e " + converter_parte(centavos) + (centavos === 1 ? " centavo" : " centavos");
+            return porExtenso.charAt(0).toUpperCase() + porExtenso.slice(1);
         }
 
         function applyFilters() {
             const f = {
-                coord: document.getElementById('f-coordenacao').value,
-                resp: document.getElementById('f-responsavel').value,
-                mod: document.getElementById('f-modalidade').value,
-                fase: document.getElementById('f-fase').value,
-                prior: document.getElementById('f-prioridade').value,
+                prazo: document.getElementById('f-prazo').value,
                 dem: document.getElementById('f-demandante').value,
-                status: document.getElementById('f-status').value,
-                search: document.getElementById('searchBox').value.toLowerCase()
+                mod: document.getElementById('f-modalidade').value,
+                fase: document.getElementById('f-fase').value
             };
             const filtered = rawData.filter(i => {
-                const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
-                const matchResp = (f.resp === 'Todos' || i.responsavel === f.resp);
+                const aging = getAging(i.data_prevista);
+                const matchPrazo = (f.prazo === 'Todos' || (f.prazo === 'Atrasados' && aging.class === 'aging-red') || (f.prazo === 'No Prazo' && aging.class !== 'aging-red'));
+                const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
                 const matchMod = (f.mod === 'Todos' || i.modalidade === f.mod);
                 const matchFase = (f.fase === 'Todos' || i.fase_atual === f.fase);
-                const matchPrior = (f.prior === 'Todos' || i.prioridade === f.prior);
-                const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
-                const matchStatus = (f.status === 'Todos' || i.status === f.status);
-                const matchSearch = (!f.search || (i.objeto_resumido + i.id_processo).toLowerCase().includes(f.search));
-                return matchCoord && matchResp && matchMod && matchFase && matchPrior && matchDem && matchStatus && matchSearch;
+                return matchPrazo && matchDem && matchMod && matchFase;
             });
             updateView(filtered);
         }
 
-        function updateView(data) { console.log("v1.2.9 Force Load");
+        function updateView(data) {
             document.getElementById('totalProcessos').innerText = data.length;
             document.getElementById('rowCount').innerText = data.length + " processos";
             const sumEst = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
             const sumHom = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
-            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom); document.getElementById('vlrEconomizado').title = "Soma de todos os ganhos (Estimado - Homologado)";
+            document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEst);
+            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom);
+            
             const percSaving = sumEst > 0 ? ((sumEst - sumHom) / sumEst) * 100 : 0;
             document.getElementById('savingBar').style.width = percSaving + '%';
-            const demands = data.reduce((acc, i) => { acc[i.demandante] = (acc[i.demandante] || 0) + 1; return acc; }, {});
-            const topDemand = Object.entries(demands).sort((a,b) => b[1] - a[1])[0];
-            document.getElementById('gargaloArea').innerText = topDemand ? topDemand[0] : '--';
+            
+            const atrasados = data.filter(i => getAging(i.data_prevista).class === 'aging-red');
+            document.getElementById('totalAtrasados').innerText = atrasados.length;
 
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
-                const sla = calculateSLA(i);
+                const meta = extractMetaDates(i.observacoes);
+                const agingAtiv = getAging(i.data_prevista);
+                const agingFinal = getAging(meta.final);
                 return `
                 <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
-                    <td class="px-6 py-5 font-bold text-blue-400">${i.processo_link ? `<a href="${i.processo_link}" target="_blank" class="hover:underline text-blue-400 font-bold">${i.id_processo}</a>` : (i.id_processo || "-")}
-                        <div class="sla-bar"><div class="sla-progress ${sla.status}" style="width: ${sla.percent}%"></div></div>
+                    <td class="px-6 py-5 font-bold text-blue-400">
+                        ${i.id_processo}
                     </td>
-                    <td class="px-6 py-5 max-w-xs truncate text-slate-300">${i.objeto_resumido}</td>
-                    <td class="px-6 py-5 text-center"><span class="status-badge bg-amber-500/10 text-amber-500 border border-amber-500/20">${i.status || 'N/I'}</span></td>
+                    <td class="px-6 py-5 max-w-xs truncate text-slate-300">
+                        <div class="font-bold text-slate-100">${i.fase_atual || '-'}</div>
+                        <div class="text-[9px] text-slate-500 uppercase">${i.objeto_resumido}</div>
+                    </td>
+                    <td class="px-6 py-5 text-center">
+                        <span class="aging-badge ${agingAtiv.class}">${agingAtiv.label}</span>
+                        <div class="text-[9px] text-slate-500 mt-1">${formatDate(i.data_prevista)}</div>
+                    </td>
+                    <td class="px-6 py-5 text-center">
+                        <span class="font-bold ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(meta.final)}</span>
+                    </td>
                     <td class="px-6 py-5 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
-            `}).join('') || '<tr><td colspan="4" class="p-10 text-center opacity-30 uppercase font-black tracking-widest">Sem dados</td></tr>';
+            `}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest">Sem dados</td></tr>';
             renderCharts(data);
         }
 
         function renderCharts(data) {
             const countBy = (key) => data.reduce((acc, i) => { 
-                let v = i[key] || 'Não Atribuído';
-                if(v === "Cotação de preço") v = "Cotação de Preços";
+                let v = i[key] || 'N/I';
                 acc[v] = (acc[v] || 0) + 1; 
                 return acc; 
             }, {});
             
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
             
-            const slaStats = data.reduce((acc, i) => {
-                const s = calculateSLA(i).status;
-                acc[s] = (acc[s] || 0) + 1;
+            const agingStats = data.reduce((acc, i) => {
+                const s = getAging(i.data_prevista).class;
+                if(s === 'aging-green') acc.green++;
+                else if(s === 'aging-yellow') acc.yellow++;
+                else if(s === 'aging-red') acc.red++;
                 return acc;
-            }, { 'sla-on-time': 0, 'sla-warning': 0, 'sla-overdue': 0 });
-            draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [slaStats['sla-on-time'], slaStats['sla-warning'], slaStats['sla-overdue']], ['#10b981', '#f59e0b', '#ef4444'], true);
+            }, { green: 0, yellow: 0, red: 0 });
+            draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [agingStats.green, agingStats.yellow, agingStats.red], ['#10b981', '#f59e0b', '#ef4444'], true);
 
-            const respDataRaw = countBy('responsavel'); const respData = Object.keys(respDataRaw).sort((a, b) => { if (a === "Não Atribuído") return 1; if (b === "Não Atribuído") return -1; return respDataRaw[b] - respDataRaw[a]; }).reduce((acc, key) => { acc[key] = respDataRaw[key]; return acc; }, {});
+            const respData = countBy('responsavel');
             draw('chartResponsavel', 'bar', Object.keys(respData), Object.values(respData), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'], true);
         }
 
@@ -314,13 +347,14 @@
         function showDetails(id) {
             const item = rawData.find(x => String(x.id_processo) === String(id));
             if (!item) return;
-            const sla = calculateSLA(item);
+            const meta = extractMetaDates(item.observacoes);
             document.getElementById('modalContent').innerHTML = `
                 <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-blue-400 uppercase mb-2">Objeto</p><p class="text-base font-bold text-slate-100">${item.objeto_resumido}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">ID</p><p class="text-lg font-black text-white">${item.id_processo}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Status</p><p class="text-lg font-black text-amber-500">${item.status}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Fase Atual</p><p class="text-lg font-black text-white">${item.fase_atual || '-'}</p><p class="text-[10px] text-slate-400">Início: ${formatDate(meta.ativ)}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Prazo Atividade</p><p class="text-lg font-black text-white">${formatDate(item.data_prevista)}</p><span class="aging-badge ${getAging(item.data_prevista).class}">${getAging(item.data_prevista).label}</span></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 mb-1">Entrega Final Prevista</p><p class="text-lg font-black text-emerald-400">${formatDate(meta.final)}</p></div>
                 <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Estimado</p><p class="text-lg font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 mb-1">Homologado</p><p class="text-lg font-black text-emerald-400">${formatBRL(item.vlr_homologado)}</p></div>
+                <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Notas Estratégicas</p><div class="text-xs text-slate-400">${meta.cleanObs || 'Sem observações.'}</div></div>
             `;
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
