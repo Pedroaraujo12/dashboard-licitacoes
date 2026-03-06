@@ -3,151 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Projetos | Painel de Licitações AgSUS</title>
+    <title>Painel de Licitações | AgSUS CCS-RD</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/extenso@2.0.1/dist/extenso.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --glass: rgba(30, 41, 59, 0.7); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top left, #0f172a, #020617); color: #f8fafc; }
-        .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem; }
-        .indicator-card { transition: transform 0.2s; }
-        .indicator-card:hover { transform: translateY(-4px); }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .sla-bar { height: 4px; border-radius: 2px; background: #1e293b; overflow: hidden; margin-top: 4px; }
-        .sla-progress { height: 100%; transition: width 0.3s; }
-        .sla-on-time { background: #10b981; }
-        .sla-warning { background: #f59e0b; }
-        .sla-overdue { background: #ef4444; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        body { font-family: 'Roboto', sans-serif; background-color: #0b1120; color: white; }
+        .sidebar-card { background-color: #1e293b; border-radius: 0.75rem; padding: 1.25rem; border: 1px solid #334155; }
+        .indicator-label { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+        .chart-container { background-color: #111827; border-radius: 1rem; padding: 1.5rem; height: 320px; position: relative; border: 1px solid #1f2937; }
+        .filter-select { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: #e5e7eb; width: 100%; cursor: pointer; }
+        .chart-title { font-size: 0.8rem; font-weight: 800; margin-bottom: 1.25rem; color: #facc15; text-transform: uppercase; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); }
+        .aging-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; }
+        .aging-red { background-color: #ef4444; color: white; }
+        .aging-yellow { background-color: #eab308; color: black; }
+        .aging-green { background-color: #22c55e; color: white; }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
+<body class="p-4 md:p-6 overflow-x-hidden min-h-screen">
 
-    <header class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="flex items-center gap-5">
-            <div class="h-14 w-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            </div>
-            <div>
-                <h1 class="text-2xl font-extrabold tracking-tight uppercase">Gestão de Projetos</h1>
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-[0.2em]">AgSUS CCS-RD • Licitações 2026</p>
-            </div>
+    <header class="flex flex-col lg:flex-row justify-between items-center mb-8 px-4 gap-4 border-b border-slate-800 pb-6 text-white">
+        <div class="flex items-center gap-4">
+            <div class="bg-blue-600 p-2.5 rounded-xl"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+            <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight">Gestão de Prazos AgSUS CCS-RD • Licitações 2026</h1>
         </div>
-        <div class="flex gap-3">
-            <a href="index.html" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-blue-600/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg> Visão Operacional
-            </a>
-            <button onclick="window.location.reload()" class="bg-slate-800/50 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Resetar
-            </button>
-            <div id="pmoStatus" class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
-                <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span></span> Ativo
-            </div>
+        <div class="flex items-center gap-4">
+            <button onclick="window.location.reload()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-700 transition">🔄 Recarregar Dados</button>
         </div>
     </header>
 
-    <div class="max-w-7xl mx-auto space-y-8">
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="glass-card p-6 indicator-card">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processos Totais</p>
-                <div class="flex items-end justify-between">
-                    <h3 id="totalProcessos" class="text-4xl font-extrabold">--</h3>
-                    <span class="text-xs font-bold text-blue-400 bg-blue-400/10 px-2 py-1 rounded">Volume 2026</span>
-                </div>
-            </div>
-            <div class="glass-card p-6 indicator-card">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Estimado</p>
-                <div class="flex items-end justify-between">
-                    <h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100" title="">R$ 0,00</h3>
-                </div>
-            </div>
-            <div class="glass-card p-6 indicator-card border-l-4 border-l-emerald-500">
-                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS</p>
-                <div class="flex items-end justify-between">
-                    <h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400" title="">R$ 0,00</h3>
-                    <div class="h-1 w-20 bg-emerald-950 rounded-full overflow-hidden"><div id="savingBar" class="h-full bg-emerald-500" style="width: 0%"></div></div>
-                </div>
-            </div>
-            <div class="glass-card p-6 indicator-card border-l-4 border-l-amber-500">
-                <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Gargalo Crítico</p>
-                <div class="flex items-end justify-between">
-                    <h3 id="gargaloArea" class="text-lg font-extrabold text-amber-100">NAAGE</h3>
-                    <span class="text-[9px] font-bold text-amber-400 uppercase">Demandante</span>
-                </div>
-            </div>
-        </div>
+    <div class="flex flex-col xl:flex-row gap-8">
+        <aside class="w-full xl:w-80 space-y-6">
+            <div class="sidebar-card text-center"><p class="indicator-label">Total de Processos</p><p id="totalProcessos" class="text-5xl font-black text-white">0</p></div>
+            <div class="sidebar-card bg-blue-900/20"><p class="indicator-label text-blue-400">Total Estimado</p><p id="vlrEstimadoTotal" class="text-2xl font-black text-white">R$ 0,00</p></div>
+            <div class="sidebar-card bg-red-900/20"><p class="indicator-label text-red-400">Processos em Atraso</p><p id="totalAtrasados" class="text-4xl font-black text-white">0</p></div>
+        </aside>
 
-        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-8 gap-4">
-            <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar objeto ou ID..." class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition">
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Todas as Coordenações</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Todos os Responsáveis</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas as Modalidades</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-fase" onchange="applyFilters()"><option value="Todos">Todas as Fases</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prioridade" onchange="applyFilters()"><option value="Todos">Todas as Prioridades</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos os Demandantes</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-status" onchange="applyFilters()"><option value="Todos">Todos os Status</option></select>
-        </div>
+        <main class="flex-1 space-y-8">
+            <!-- Filtros -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-900/40 p-6 rounded-2xl border border-slate-800 shadow-inner">
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Status de Prazo</label><select class="filter-select" id="f-prazo" onchange="applyFilters()"><option value="Todos">Todos</option><option value="Atrasados">Atrasados</option><option value="No Prazo">No Prazo</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Demandante</label><select class="filter-select" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Modalidade</label><select class="filter-select" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
+                <div class="space-y-1.5"><label class="indicator-label text-[9px]">Fase Atual</label><select class="filter-select" id="f-fase" onchange="applyFilters()"><option value="Todos">Todas</option></select></div>
+            </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 glass-card overflow-hidden">
-                <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2>
-                    <span id="rowCount" class="text-[10px] font-bold bg-slate-800 px-3 py-1 rounded-full text-slate-500">-- processos</span>
-                </div>
-                <div class="overflow-x-auto overflow-y-auto max-h-[780px]">
-                    <table class="w-full text-left">
-                        <thead class="sticky top-0 bg-[#1e293b] z-10">
-                            <tr class="text-[10px] font-bold uppercase text-slate-500 border-b border-white/5">
-                                <th class="px-6 py-4">ID Processo</th>
-                                <th class="px-6 py-4">Objeto</th>
-                                <th class="px-6 py-4 text-center">Status</th>
-                                <th class="px-6 py-4 text-right">Estimado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody" class="text-xs divide-y divide-white/5"></tbody>
+            <!-- Tabela Detalhamento -->
+            <div class="bg-slate-900/30 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+                <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Aging de Processos (Ciclo de Vida)</h3></div>
+                <div class="overflow-x-auto max-h-[600px]">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="sticky top-0 bg-[#111827] z-10 shadow-sm"><tr class="text-slate-500 font-black uppercase border-b border-slate-800"><th class="px-6 py-4">Processo</th><th class="px-6 py-4">Fase Atual</th><th class="px-6 py-4 text-center">Prazo Atividade</th><th class="px-6 py-4 text-center">Entrega Final</th><th class="px-6 py-4 text-right">Valor Estimado</th><th class="px-6 py-4 text-right">Ação</th></tr></thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-800/40 text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="glass-card p-6 h-[260px]">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-6">Volume por Modalidade</h2>
-                    <canvas id="chartModalidade"></canvas>
-                </div>
-                <div class="glass-card p-6 h-[260px]">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-6">Status dos Processos</h2>
-                    <canvas id="chartStatus"></canvas>
-                </div>
-                <div class="glass-card p-6 h-[280px]">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-6">Processos por Responsável</h2>
-                    <canvas id="chartResponsavel"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <footer class="flex flex-col md:flex-row justify-between items-center px-4 py-8 border-t border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest gap-4 text-center">
-            <div>Fonte: Sistema AgSUS CCS-RD | Gerado por: Pedro Araújo da Silva - 61-993887186 / pedro.silva@agenciasus.org.br</div>
-            <div id="lastUpdate" class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Sincronizando...</div>
-        </footer>
+            <footer class="pt-8 flex flex-col md:flex-row justify-between text-slate-500 text-[10px] font-black uppercase tracking-wider gap-4">
+                <span id="lastUpdate">Atualizado em: --/--/----</span>
+            </footer>
+        </main>
     </div>
 
-    <div id="modalDetalhes" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-[100] flex items-center justify-center p-2 sm:p-4">
-        <div class="glass-card w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] sm:max-h-none">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center shrink-0">
-                <h2 class="text-xs sm:text-sm font-black uppercase tracking-widest">Ficha Técnica do Processo</h2>
-                <button onclick="closeModal()" class="text-2xl opacity-50 hover:opacity-100 leading-none">&times;</button>
-            </div>
-            <div id="modalContent" class="p-4 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 overflow-y-auto"></div>
-            <div class="px-4 sm:px-8 py-4 sm:py-6 border-t border-white/5 text-right shrink-0">
-                <button onclick="closeModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition">Fechar Visualização</button>
-            </div>
+    <!-- Modal Detalhes -->
+    <div id="modalDetalhes" class="fixed inset-0 modal-overlay hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] w-full max-w-2xl rounded-3xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-blue-600 px-6 py-5 flex justify-between items-center text-white"><h2 class="text-lg font-black uppercase tracking-tighter">Cronograma do Processo</h2><button onclick="closeModal()" class="text-3xl leading-none">&times;</button></div>
+            <div id="modalContent" class="p-8 grid grid-cols-2 gap-6 text-sm overflow-y-auto"></div>
+            <div class="bg-slate-900/50 px-8 py-5 text-right"><button onclick="closeModal()" class="bg-slate-700 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px]">Fechar</button></div>
         </div>
     </div>
 
@@ -155,174 +80,195 @@
         const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const SLA_METAS = {
-            'Pregão Eletrônico': 52,
-            'Cotação de Preços': 20,
-            'Concorrência': 65,
-            'Dispensa de Licitação': 15
-        };
-
-        let charts = {};
         let rawData = [];
 
         async function init() {
             const { data, error } = await sb.from('licitacoes').select('*');
-            if (error) { console.error("Erro Supabase:", error); return; }
+            if (error) { console.error(error); return; }
             rawData = data || [];
-            document.getElementById('lastUpdate').innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span> Atualizado em: ` + new Date().toLocaleDateString('pt-br') + `, às ` + new Date().toLocaleTimeString('pt-br');
+            document.getElementById('lastUpdate').innerText = "Última Sincronização: " + new Date().toLocaleString('pt-br');
             populateFilters(rawData);
             updateView(rawData);
         }
 
         function populateFilters(data) {
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(Boolean))].sort();
-            const fill = (id, items, prefix) => {
+            const fill = (id, items) => {
                 const el = document.getElementById(id);
-                el.innerHTML = `<option value="Todos">${prefix}</option>`;
-                items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
+                el.innerHTML = '<option value="Todos">Todos</option>';
+                items.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v; opt.innerText = v; el.appendChild(opt);
+                });
             };
-            fill('f-coordenacao', getUnique('coordenacao'), 'Todas as Coordenações');
-            fill('f-responsavel', getUnique('responsavel'), 'Todos os Responsáveis');
-            fill('f-modalidade', getUnique('modalidade'), 'Todas as Modalidades');
-            fill('f-fase', getUnique('fase_atual'), 'Todas as Fases');
-            fill('f-prioridade', getUnique('prioridade'), 'Todas as Prioridades');
-            fill('f-demandante', getUnique('demandante'), 'Todos os Demandantes');
-            fill('f-status', getUnique('status'), 'Todos os Status');
+            fill('f-demandante', getUnique('demandante'));
+            fill('f-modalidade', getUnique('modalidade'));
+            fill('f-fase', getUnique('fase_atual'));
         }
 
-        function cleanVal(v) { return v ? (typeof v === 'number' ? v : parseFloat(String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0) : 0; }
+        function cleanVal(v) { return parseFloat(v) || 0; }
         function formatBRL(v) { return cleanVal(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
-        
-        function calculateSLA(item) {
-            if (!item.data_entrada) return { percent: 0, status: 'unknown', days: 0 };
-            const start = new Date(item.data_entrada);
-            const end = item.data_homologacao ? new Date(item.data_homologacao) : new Date();
-            let days = 0;
-            let current = new Date(start);
-            while (current <= end) {
-                const day = current.getDay();
-                if (day !== 0 && day !== 6) days++;
-                current.setDate(current.getDate() + 1);
-            }
-            const meta = SLA_METAS[item.modalidade] || 30;
-            const percent = Math.min((days / meta) * 100, 100);
-            let status = 'sla-on-time';
-            if (percent > 100) status = 'sla-overdue';
-            else if (percent > 75) status = 'sla-warning';
-            return { percent, status, days, meta };
+        function formatDate(d) { 
+            if(!d || d === '-' || d === 'None') return '-';
+            try { 
+                if(d.includes('-')) return new Date(d).toLocaleDateString('pt-br');
+                return d; 
+            } catch(e) { return d; }
         }
 
-        function valorPorExtenso(v) {
-            const num = cleanVal(v);
-            if (num === 0) return 'Zero reais';
-            try { return extenso(num.toFixed(2).replace('.', ','), { mode: 'currency' }); } catch (e) { return ''; }
+        function extractMetaDates(obs) {
+            const match = obs ? obs.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
+            if (match) {
+                return { ativ: match[1], final: match[2], cleanObs: obs.replace(match[0], '') };
+            }
+            return { ativ: null, final: null, cleanObs: obs || '' };
+        }
+
+        function parseToISO(dateStr) {
+            if (!dateStr || dateStr === '-' || dateStr === 'None') return null;
+            if (dateStr.includes('-')) return dateStr;
+            const parts = dateStr.split('/');
+            if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            return dateStr;
+        }
+
+        function getAging(dateStr) {
+            const isoDate = parseToISO(dateStr);
+            if (!isoDate) return { label: 'N/A', class: '' };
+            const today = new Date(); today.setHours(0,0,0,0);
+            const target = new Date(isoDate);
+            if (isNaN(target)) return { label: dateStr, class: '' };
+            const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) return { label: `Atrasado ${Math.abs(diffDays)}d`, class: 'aging-red' };
+            if (diffDays <= 2) return { label: `Vence em ${diffDays}d`, class: 'aging-yellow' };
+            return { label: `No Prazo (${diffDays}d)`, class: 'aging-green' };
+        }
+
+        function valorPorExtenso(valor) {
+            if (!valor || valor <= 0) return "";
+            const unidades = ["", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"];
+            const dez_a_dezenove = ["dez", "onze", "doze", "treze", "quatorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove"];
+            const dezenas = ["", "", "vinte", "trinta", "quarenta", "cinquenta", "sessenta", "setenta", "oitenta", "noventa"];
+            const centenas = ["", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"];
+
+            function converter_parte(n) {
+                if (n === 0) return "";
+                if (n === 100) return "cem";
+                let c = Math.floor(n / 100), d = Math.floor((n % 100) / 10), u = n % 10, res = "";
+                if (c > 0) res += centenas[c];
+                if (d > 0 || u > 0) {
+                    if (res !== "") res += " e ";
+                    if (d === 1) res += dez_a_dezenove[u];
+                    else { res += dezenas[d]; if (d > 0 && u > 0) res += " e "; res += unidades[u]; }
+                }
+                return res.trim();
+            }
+
+            let inteiro = Math.floor(valor), centavos = Math.round((valor - inteiro) * 100), partes = [];
+            let milhoes = Math.floor(inteiro / 1000000), milhares = Math.floor((inteiro % 1000000) / 1000), resto = inteiro % 1000;
+            if (milhoes > 0) partes.push(converter_parte(milhoes) + (milhoes === 1 ? " milhão" : " milhões"));
+            if (milhares > 0) partes.push(converter_parte(milhares) + " mil");
+            if (resto > 0 || partes.length === 0) partes.push(converter_parte(resto));
+            let porExtenso = partes.join(", ").replace(/, ([^,]*)$/, " e $1") + (inteiro === 1 ? " real" : " reais");
+            if (centavos > 0) porExtenso += " e " + converter_parte(centavos) + (centavos === 1 ? " centavo" : " centavos");
+            return porExtenso.charAt(0).toUpperCase() + porExtenso.slice(1);
         }
 
         function applyFilters() {
             const f = {
-                coord: document.getElementById('f-coordenacao').value,
-                resp: document.getElementById('f-responsavel').value,
-                mod: document.getElementById('f-modalidade').value,
-                fase: document.getElementById('f-fase').value,
-                prior: document.getElementById('f-prioridade').value,
+                prazo: document.getElementById('f-prazo').value,
                 dem: document.getElementById('f-demandante').value,
-                status: document.getElementById('f-status').value,
-                search: document.getElementById('searchBox').value.toLowerCase()
+                mod: document.getElementById('f-modalidade').value,
+                fase: document.getElementById('f-fase').value
             };
+
             const filtered = rawData.filter(i => {
-                const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
-                const matchResp = (f.resp === 'Todos' || i.responsavel === f.resp);
+                const aging = getAging(i.data_prevista);
+                const matchPrazo = (f.prazo === 'Todos' || (f.prazo === 'Atrasados' && aging.class === 'aging-red') || (f.prazo === 'No Prazo' && aging.class !== 'aging-red'));
+                const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
                 const matchMod = (f.mod === 'Todos' || i.modalidade === f.mod);
                 const matchFase = (f.fase === 'Todos' || i.fase_atual === f.fase);
-                const matchPrior = (f.prior === 'Todos' || i.prioridade === f.prior);
-                const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
-                const matchStatus = (f.status === 'Todos' || i.status === f.status);
-                const matchSearch = (!f.search || (i.objeto_resumido + i.id_processo).toLowerCase().includes(f.search));
-                return matchCoord && matchResp && matchMod && matchFase && matchPrior && matchDem && matchStatus && matchSearch;
+                return matchPrazo && matchDem && matchMod && matchFase;
             });
             updateView(filtered);
         }
 
-        function updateView(data) { console.log("v1.2.9 Force Load");
+        function updateView(data) {
             document.getElementById('totalProcessos').innerText = data.length;
-            document.getElementById('rowCount').innerText = data.length + " processos";
             const sumEst = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
-            const sumHom = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
-            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom); document.getElementById('vlrEconomizado').title = "Soma de todos os ganhos (Estimado - Homologado)";
-            const percSaving = sumEst > 0 ? ((sumEst - sumHom) / sumEst) * 100 : 0;
-            document.getElementById('savingBar').style.width = percSaving + '%';
-            const demands = data.reduce((acc, i) => { acc[i.demandante] = (acc[i.demandante] || 0) + 1; return acc; }, {});
-            const topDemand = Object.entries(demands).sort((a,b) => b[1] - a[1])[0];
-            document.getElementById('gargaloArea').innerText = topDemand ? topDemand[0] : '--';
+            document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEst);
+            
+            const atrasados = data.filter(i => getAging(formatDate(i.data_prevista)).class === 'aging-red');
+            document.getElementById('totalAtrasados').innerText = atrasados.length;
 
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
-                const sla = calculateSLA(i);
+                const meta = extractMetaDates(i.observacoes);
+                const agingAtiv = getAging(formatDate(i.data_prevista));
+                const agingFinal = getAging(meta.final);
+                const timeline = `Entrada: ${formatDate(i.data_entrada)}\nAtividade: ${formatDate(meta.ativ)}\nEntrega Ativ: ${formatDate(i.data_prevista)}\nEntrega Final: ${formatDate(meta.final)}`;
+
                 return `
-                <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
-                    <td class="px-6 py-5 font-bold text-blue-400">${i.processo_link ? `<a href="${i.processo_link}" target="_blank" class="hover:underline text-blue-400 font-bold">${i.id_processo}</a>` : (i.id_processo || "-")}
-                        <div class="sla-bar"><div class="sla-progress ${sla.status}" style="width: ${sla.percent}%"></div></div>
+                <tr class="hover:bg-blue-500/10 transition">
+                    <td class="px-6 py-4 font-black text-blue-400">
+                        <a href="${i.processo_link}" target="_blank" class="hover:underline" title="${timeline}">${i.id_processo}</a>
                     </td>
-                    <td class="px-6 py-5 max-w-xs truncate text-slate-300">${i.objeto_resumido}</td>
-                    <td class="px-6 py-5 text-center"><span class="status-badge bg-amber-500/10 text-amber-500 border border-amber-500/20">${i.status || 'N/I'}</span></td>
-                    <td class="px-6 py-5 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
+                    <td class="px-6 py-4">
+                        <div class="text-[11px] font-bold text-slate-200">${i.fase_atual || '-'}</div>
+                        <div class="text-[9px] text-amber-400 uppercase font-black">${i.status || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="aging-badge ${agingAtiv.class}">${agingAtiv.label}</span>
+                        <div class="text-[9px] text-slate-500 mt-1">${formatDate(i.data_prevista)}</div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="text-[10px] font-black ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(meta.final)}</span>
+                        <div class="text-[9px] text-slate-500">${agingFinal.label}</div>
+                    </td>
+                    <td class="px-6 py-4 text-right font-black text-slate-300" title="${valorPorExtenso(cleanVal(i.vlr_estimado_anual))}">${formatBRL(i.vlr_estimado_anual)}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition">Timeline</button>
+                    </td>
                 </tr>
-            `}).join('') || '<tr><td colspan="4" class="p-10 text-center opacity-30 uppercase font-black tracking-widest">Sem dados</td></tr>';
-            renderCharts(data);
-        }
-
-        function renderCharts(data) {
-            const countBy = (key) => data.reduce((acc, i) => { 
-                let v = i[key] || 'Não Atribuído';
-                if(v === "Cotação de preço") v = "Cotação de Preços";
-                acc[v] = (acc[v] || 0) + 1; 
-                return acc; 
-            }, {});
-            
-            draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
-            
-            const slaStats = data.reduce((acc, i) => {
-                const s = calculateSLA(i).status;
-                acc[s] = (acc[s] || 0) + 1;
-                return acc;
-            }, { 'sla-on-time': 0, 'sla-warning': 0, 'sla-overdue': 0 });
-            draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [slaStats['sla-on-time'], slaStats['sla-warning'], slaStats['sla-overdue']], ['#10b981', '#f59e0b', '#ef4444'], true);
-
-            const respDataRaw = countBy('responsavel'); const respData = Object.keys(respDataRaw).sort((a, b) => { if (a === "Não Atribuído") return 1; if (b === "Não Atribuído") return -1; return respDataRaw[b] - respDataRaw[a]; }).reduce((acc, key) => { acc[key] = respDataRaw[key]; return acc; }, {});
-            draw('chartResponsavel', 'bar', Object.keys(respData), Object.values(respData), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'], true);
-        }
-
-        function draw(id, type, labels, values, color, horizontal = false) {
-            if (charts[id]) charts[id].destroy();
-            charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
-                type: type,
-                data: { labels: labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] },
-                options: {
-                    indexAxis: horizontal ? 'y' : 'x',
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 } } },
-                    scales: { 
-                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } },
-                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } }
-                    }
-                }
-            });
+            `}).join('');
         }
 
         function showDetails(id) {
-            const item = rawData.find(x => String(x.id_processo) === String(id));
+            const item = rawData.find(x => x.id_processo === id);
             if (!item) return;
-            const sla = calculateSLA(item);
+            const meta = extractMetaDates(item.observacoes);
+            const modal = document.getElementById('modalDetalhes');
             document.getElementById('modalContent').innerHTML = `
-                <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-blue-400 uppercase mb-2">Objeto</p><p class="text-base font-bold text-slate-100">${item.objeto_resumido}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">ID</p><p class="text-lg font-black text-white">${item.id_processo}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Status</p><p class="text-lg font-black text-amber-500">${item.status}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Estimado</p><p class="text-lg font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 mb-1">Homologado</p><p class="text-lg font-black text-emerald-400">${formatBRL(item.vlr_homologado)}</p></div>
+                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700">
+                    <p class="indicator-label mb-2 text-blue-400">Objeto</p>
+                    <p class="font-bold text-slate-100 uppercase tracking-tight">${item.objeto_resumido}</p>
+                </div>
+                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700">
+                    <p class="indicator-label mb-1">Entrada no Sistema</p>
+                    <p class="font-black text-white text-lg">${formatDate(item.data_entrada)}</p>
+                </div>
+                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700">
+                    <p class="indicator-label mb-1">Fase Atual</p>
+                    <p class="font-black text-amber-400">${item.fase_atual || '-'}</p>
+                    <p class="text-[10px] italic text-slate-500">Iniciado em: ${formatDate(meta.ativ)}</p>
+                </div>
+                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700">
+                    <p class="indicator-label mb-1">Prazo da Atividade</p>
+                    <p class="font-black text-white text-lg">${formatDate(item.data_prevista)}</p>
+                    <span class="aging-badge ${getAging(item.data_prevista).class}">${getAging(item.data_prevista).label}</span>
+                </div>
+                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700">
+                    <p class="indicator-label mb-1">Entrega Final Prevista</p>
+                    <p class="font-black text-emerald-400 text-lg">${formatDate(meta.final)}</p>
+                    <p class="text-[10px] text-slate-400">${getAging(meta.final).label}</p>
+                </div>
+                <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700">
+                    <p class="indicator-label mb-2 text-slate-500">Observações Estratégicas</p>
+                    <div class="text-xs text-slate-400">${meta.cleanObs || 'Sem notas de acompanhamento.'}</div>
+                </div>
             `;
-            document.getElementById('modalDetalhes').classList.remove('hidden');
+            modal.classList.remove('hidden');
         }
         function closeModal() { document.getElementById('modalDetalhes').classList.add('hidden'); }
         init();
