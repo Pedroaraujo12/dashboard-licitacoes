@@ -82,7 +82,6 @@
             </div>
         </div>
 
-        <!-- Filtros Completos e Pesquisa -->
         <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-2">
             <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar..." class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition">
             <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-prazo" onchange="applyFilters()"><option value="Todos">Prazo</option><option value="Atrasados">Atrasados</option><option value="No Prazo">No Prazo</option></select>
@@ -166,13 +165,11 @@
             rawData = data || [];
             document.getElementById('lastUpdate').innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span> Atualizado em: ` + new Date().toLocaleDateString('pt-br') + `, às ` + new Date().toLocaleTimeString('pt-br');
             populateFilters(rawData);
-            updateView(rawData);
+            applyFilters(); // FORÇA A PRIMEIRA RENDERIZAÇÃO
         }
 
         function populateFilters(data) {
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(v => v && String(v).trim() !== ""))].sort((a, b) => String(a).localeCompare(String(b)));
-            
-            // Lógica para capturar o catálogo de todas as 19 fases injetado no metadado
             let todasAsFases = getUnique('fase_atual');
             const registroComCatalogo = data.find(i => i.observacoes && i.observacoes.includes('<!--CATALOGO_FASES:'));
             if (registroComCatalogo) {
@@ -182,20 +179,18 @@
                     todasAsFases = [...new Set([...todasAsFases, ...catalogo])].sort((a, b) => String(a).localeCompare(String(b)));
                 }
             }
-
             const fill = (id, items, prefix) => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 el.innerHTML = `<option value="Todos">${prefix}</option>`;
                 items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
             };
-
-            fill('f-coordenacao', getUnique('coordenacao'), 'Coordenação');
-            fill('f-responsavel', getUnique('responsavel'), 'Responsável');
-            fill('f-modalidade', getUnique('modalidade'), 'Modalidade');
-            fill('f-fase', todasAsFases, 'Fase Atual'); // USA A LISTA COMPLETA
-            fill('f-prioridade', getUnique('prioridade'), 'Prioridade');
-            fill('f-demandante', getUnique('demandante'), 'Demandante');
+            fill('f-coordenacao', getUnique('coordenacao'), 'Coord.');
+            fill('f-responsavel', getUnique('responsavel'), 'Resp.');
+            fill('f-modalidade', getUnique('modalidade'), 'Modal.');
+            fill('f-fase', todasAsFases, 'Fase');
+            fill('f-prioridade', getUnique('prioridade'), 'Prior.');
+            fill('f-demandante', getUnique('demandante'), 'Demand.');
         }
 
         function cleanVal(v) { return v ? (typeof v === 'number' ? v : parseFloat(String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0) : 0; }
@@ -270,7 +265,6 @@
 
         function applyFilters() {
             if (!rawData || rawData.length === 0) return;
-
             const f = {
                 prazo: document.getElementById('f-prazo').value,
                 dem: document.getElementById('f-demandante').value,
@@ -281,34 +275,25 @@
                 prior: document.getElementById('f-prioridade').value,
                 search: document.getElementById('searchBox').value ? document.getElementById('searchBox').value.toLowerCase().trim() : ""
             };
-
             const filtered = rawData.filter(i => {
-                // Filtro de Busca (Search) - Prioridade Total
                 if (f.search) {
                     const objText = String(i.objeto_resumido || "").toLowerCase();
                     const idText = String(i.id_processo || "").toLowerCase();
                     if (!objText.includes(f.search) && !idText.includes(f.search)) return false;
                 }
-
-                // Filtro de Prazo (Aging)
                 const aging = getAging(i.data_prevista);
                 if (f.prazo !== 'Todos') {
                     if (f.prazo === 'Atrasados' && aging.class !== 'aging-red') return false;
                     if (f.prazo === 'No Prazo' && aging.class === 'aging-red') return false;
                 }
-
-                // Demais filtros (Exact match)
                 if (f.dem !== 'Todos' && i.demandante !== f.dem) return false;
                 if (f.mod !== 'Todos' && i.modalidade !== f.mod) return false;
                 if (f.fase !== 'Todos' && i.fase_atual !== f.fase) return false;
                 if (f.coord !== 'Todos' && i.coordenacao !== f.coord) return false;
                 if (f.resp !== 'Todos' && i.responsavel !== f.resp) return false;
                 if (f.prior !== 'Todos' && i.prioridade !== f.prior) return false;
-
                 return true;
             });
-
-            console.log("Filtros Aplicados:", f, "Resultados:", filtered.length);
             updateView(filtered);
         }
 
@@ -320,13 +305,11 @@
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
             document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEst);
             document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom);
-            
             const percSaving = sumEst > 0 ? ((sumEst - sumHom) / sumEst) * 100 : 0;
             document.getElementById('savingBar').style.width = percSaving + '%';
-            
             const atrasados = data.filter(i => getAging(i.data_prevista).class === 'aging-red');
             document.getElementById('totalAtrasados').innerText = atrasados.length;
-
+            const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
                 const meta = extractMetaDates(i.observacoes);
                 const agingAtiv = getAging(i.data_prevista);
@@ -355,14 +338,8 @@
         }
 
         function renderCharts(data) {
-            const countBy = (key) => data.reduce((acc, i) => { 
-                let v = i[key] || 'N/I';
-                acc[v] = (acc[v] || 0) + 1; 
-                return acc; 
-            }, {});
-            
+            const countBy = (key) => data.reduce((acc, i) => { let v = i[key] || 'N/I'; acc[v] = (acc[v] || 0) + 1; return acc; }, {});
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
-            
             const agingStats = data.reduce((acc, i) => {
                 const s = getAging(i.data_prevista).class;
                 if(s === 'aging-green') acc.green++;
@@ -371,7 +348,6 @@
                 return acc;
             }, { green: 0, yellow: 0, red: 0 });
             draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [agingStats.green, agingStats.yellow, agingStats.red], ['#10b981', '#f59e0b', '#ef4444'], true);
-
             const respData = countBy('responsavel');
             draw('chartResponsavel', 'bar', Object.keys(respData), Object.values(respData), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'], true);
         }
