@@ -242,6 +242,10 @@
                 if (f.fase !== 'Todos' && i.fase_atual !== f.fase) return false;
                 if (f.coord !== 'Todos' && i.coordenacao !== f.coord) return false;
                 if (f.resp !== 'Todos' && i.responsavel !== f.resp) return false;
+                
+                // Se clicar no gráfico de responsável e o label for N/I, o filtro acima falha.
+                // Mas a lógica do onClick agora trata isso.
+                
                 if (f.prior !== 'Todos' && i.prioridade !== f.prior) return false;
                 return true;
             });
@@ -300,8 +304,29 @@
                             const label = labels[index];
                             
                             if (id === 'chartResponsavel') {
-                                document.getElementById('f-responsavel').value = label === 'N/I' ? 'Todos' : label;
-                                applyFilters();
+                                const val = label === 'N/I' ? '' : label;
+                                const select = document.getElementById('f-responsavel');
+                                
+                                // Tenta encontrar o valor no select (que pode ter o texto formatado)
+                                let found = false;
+                                for (let i = 0; i < select.options.length; i++) {
+                                    if (select.options[i].value === label) {
+                                        select.selectedIndex = i;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if (!found) select.value = 'Todos';
+                                
+                                // Lógica customizada para filtrar N/I (vazio) se clicar no N/I
+                                if (label === 'N/I') {
+                                    const filtered = rawData.filter(item => !item.responsavel || String(item.responsavel).trim() === "");
+                                    updateView(filtered);
+                                    document.getElementById('f-responsavel').value = 'Todos'; // Mantém neutro em cima
+                                } else {
+                                    applyFilters();
+                                }
                             } else if (id === 'chartModalidade') {
                                 document.getElementById('f-modalidade').value = label;
                                 applyFilters();
