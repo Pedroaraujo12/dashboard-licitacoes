@@ -160,12 +160,17 @@
         let rawData = [];
 
         async function init() {
-            const { data, error } = await sb.from('licitacoes').select('*');
-            if (error) { console.error("Erro Supabase:", error); return; }
-            rawData = data || [];
-            document.getElementById('lastUpdate').innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span> Atualizado em: ` + new Date().toLocaleDateString('pt-br') + `, às ` + new Date().toLocaleTimeString('pt-br');
-            populateFilters(rawData);
-            applyFilters(); // FORÇA A PRIMEIRA RENDERIZAÇÃO
+            try {
+                const { data, error } = await sb.from('licitacoes').select('*');
+                if (error) throw error;
+                rawData = data || [];
+                document.getElementById('lastUpdate').innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span> Atualizado em: ` + new Date().toLocaleDateString('pt-br') + `, às ` + new Date().toLocaleTimeString('pt-br');
+                populateFilters(rawData);
+                applyFilters();
+            } catch (e) {
+                console.error("Erro ao carregar dados:", e);
+                document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-400 uppercase font-black tracking-widest text-[10px]">Erro na conexão: ${e.message}</td></tr>`;
+            }
         }
 
         function populateFilters(data) {
@@ -193,14 +198,25 @@
             fill('f-demandante', getUnique('demandante'), 'Demand.');
         }
 
-        function cleanVal(v) { return v ? (typeof v === 'number' ? v : parseFloat(String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0) : 0; }
+        function cleanVal(v) { 
+            if (!v) return 0;
+            if (typeof v === 'number') return v;
+            const str = String(v).replace('R$', '').trim();
+            // Se tiver vírgula e não for formato científico, é PT-BR
+            if (str.includes(',') && !str.includes('e')) {
+                return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+            }
+            // Senão, assume formato float padrão
+            return parseFloat(str) || 0;
+        }
+
         function formatBRL(v) { return cleanVal(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
         
         function formatDate(d) { 
             if(!d || d === '-' || d === 'None') return '-';
             try { 
                 if(d.includes('-')) {
-                    const parts = d.split('-');
+                    const parts = d.split('T')[0].split('-');
                     return `${parts[2]}/${parts[1]}/${parts[0]}`;
                 }
                 return d; 
@@ -210,14 +226,14 @@
         function extractMetaDates(obs) {
             const match = obs ? obs.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
             if (match) {
-                return { ativ: match[1], final: match[2], cleanObs: obs.replace(match[0], '') };
+                return { ativ: match[1], final: match[2], cleanObs: obs.replace(match[0], '').replace(/<!--CATALOGO_FASES:.*-->/, '') };
             }
-            return { ativ: null, final: null, cleanObs: obs || '' };
+            return { ativ: null, final: null, cleanObs: obs ? obs.replace(/<!--CATALOGO_FASES:.*-->/, '') : '' };
         }
 
         function parseToISO(dateStr) {
             if (!dateStr || dateStr === '-' || dateStr === 'None') return null;
-            if (dateStr.includes('-')) return dateStr;
+            if (dateStr.includes('-')) return dateStr.split('T')[0];
             const parts = dateStr.split('/');
             if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
             return dateStr;
@@ -354,7 +370,9 @@
 
         function draw(id, type, labels, values, color, horizontal = false) {
             if (charts[id]) charts[id].destroy();
-            charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            charts[id] = new Chart(canvas.getContext('2d'), {
                 type: type,
                 data: { labels: labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] },
                 options: {
@@ -375,7 +393,7 @@
             const meta = extractMetaDates(item.observacoes);
             document.getElementById('modalContent').innerHTML = `
                 <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-blue-400 uppercase mb-2">Objeto</p><p class="text-base font-bold text-slate-100">${item.objeto_resumido}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Fase Atual</p><p class="text-lg font-black text-white">${item.fase_atual || '-'}</p><p class="text-[10px] text-slate-400">Início: ${formatDate(meta.ativ)}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Fase Atual</p><p class="text-lg font-black text-white">${item.fase_atual || '-'}</p><p class="text-[10px] text-slate-400">Iniciado em: ${formatDate(meta.ativ)}</p></div>
                 <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Prazo Atividade</p><p class="text-lg font-black text-white">${formatDate(item.data_prevista)}</p><span class="aging-badge ${getAging(item.data_prevista).class}">${getAging(item.data_prevista).label}</span></div>
                 <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 mb-1">Entrega Final Prevista</p><p class="text-lg font-black text-emerald-400">${formatDate(meta.final)}</p></div>
                 <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Estimado</p><p class="text-lg font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
