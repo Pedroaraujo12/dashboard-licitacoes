@@ -42,47 +42,19 @@
             <button onclick="window.location.reload()" class="bg-slate-800/50 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Resetar
             </button>
-            <div class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
-                <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span></span> Ativo
-            </div>
         </div>
     </header>
 
     <div class="max-w-7xl mx-auto space-y-8">
-        <!-- Cards de Indicadores -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="glass-card p-6 indicator-card">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processos Totais</p>
-                <div class="flex items-end justify-between">
-                    <h3 id="totalProcessos" class="text-4xl font-extrabold">--</h3>
-                    <span class="text-xs font-bold text-blue-400 bg-blue-400/10 px-2 py-1 rounded">Volume 2026</span>
-                </div>
-            </div>
-            <div class="glass-card p-6 indicator-card">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Estimado</p>
-                <div class="flex items-end justify-between">
-                    <h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100">R$ 0,00</h3>
-                </div>
-            </div>
-            <div class="glass-card p-6 indicator-card border-l-4 border-l-emerald-500">
-                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS</p>
-                <div class="flex items-end justify-between">
-                    <h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3>
-                    <div class="h-1 w-20 bg-emerald-950 rounded-full overflow-hidden"><div id="savingBar" class="h-full bg-emerald-500" style="width: 0%"></div></div>
-                </div>
-            </div>
-            <div class="glass-card p-6 indicator-card border-l-4 border-l-red-500">
-                <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Processos em Atraso</p>
-                <div class="flex items-end justify-between">
-                    <h3 id="totalAtrasados" class="text-4xl font-extrabold text-red-100">--</h3>
-                    <span class="text-[9px] font-bold text-red-400 uppercase">Gargalos</span>
-                </div>
-            </div>
+            <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processos Totais</p><h3 id="totalProcessos" class="text-4xl font-extrabold">--</h3></div>
+            <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Estimado</p><h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100">R$ 0,00</h3></div>
+            <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS</p><h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3></div>
+            <div class="glass-card p-6 indicator-card border-l-4 border-l-red-500"><p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Em Atraso</p><h3 id="totalAtrasados" class="text-4xl font-extrabold text-red-100">--</h3></div>
         </div>
 
-        <!-- Filtros Completos -->
-        <div class="glass-card p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-2">
-            <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar..." class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition">
+        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-2">
+            <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar..." class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300">
             <select id="f-prazo" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Prazo</option><option value="Atrasados">Atrasados</option><option value="No Prazo">No Prazo</option></select>
             <select id="f-coordenacao" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Coord.</option></select>
             <select id="f-responsavel" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Resp.</option></select>
@@ -90,54 +62,32 @@
             <select id="f-fase" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Fase</option></select>
             <select id="f-prioridade" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Prior.</option></select>
             <select id="f-demandante" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Demand.</option></select>
-            <button onclick="window.location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white rounded-lg px-2 py-1.5 text-[10px] font-bold">Limpar</button>
+            <button onclick="window.location.reload()" class="bg-slate-700 text-white rounded-lg px-2 py-1.5 text-[10px] font-bold">Limpar</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 glass-card overflow-hidden">
-                <div class="p-4 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2>
-                    <span id="rowCount" class="text-[9px] font-bold bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">-- processos</span>
-                </div>
+                <div class="p-4 border-b border-white/5 flex justify-between items-center"><h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2><span id="rowCount" class="text-[9px] font-bold bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">-- processos</span></div>
                 <div class="overflow-x-hidden overflow-y-auto max-h-[600px]">
                     <table class="w-full text-left table-fixed">
-                        <thead class="sticky top-0 bg-[#1e293b] z-10 shadow-sm">
-                            <tr class="text-[9px] font-black uppercase text-slate-500 border-b border-white/10 tracking-tighter">
-                                <th class="w-[18%] px-2 py-3">ID Processo</th>
-                                <th class="w-[28%] px-2 py-3">Fase / Status</th>
-                                <th class="w-[18%] px-2 py-3 text-center">Prazo Tarefa</th>
-                                <th class="w-[18%] px-2 py-3 text-center">Entrega Final</th>
-                                <th class="w-[18%] px-2 py-3 text-right">Vlr Estimado</th>
-                            </tr>
-                        </thead>
+                        <thead class="sticky top-0 bg-[#1e293b] z-10 shadow-sm"><tr class="text-[9px] font-black uppercase text-slate-500 border-b border-white/10 tracking-tighter"><th class="w-[18%] px-2 py-3">ID Processo</th><th class="w-[28%] px-2 py-3">Fase / Status</th><th class="w-[18%] px-2 py-3 text-center">Prazo Tarefa</th><th class="w-[18%] px-2 py-3 text-center">Entrega Final</th><th class="w-[18%] px-2 py-3 text-right">Vlr Estimado</th></tr></thead>
                         <tbody id="tableBody" class="text-[10px] divide-y divide-white/5"></tbody>
                     </table>
                 </div>
             </div>
-
             <div class="space-y-6">
                 <div class="glass-card p-6 h-[250px]"><h2 class="text-[10px] font-bold uppercase text-blue-400 mb-4">Modalidades</h2><canvas id="chartModalidade"></canvas></div>
                 <div class="glass-card p-6 h-[250px]"><h2 class="text-[10px] font-bold uppercase text-emerald-400 mb-4">Saúde dos Prazos</h2><canvas id="chartStatus"></canvas></div>
                 <div class="glass-card p-6 h-[250px]"><h2 class="text-[10px] font-bold uppercase text-indigo-400 mb-4">Responsáveis</h2><canvas id="chartResponsavel"></canvas></div>
             </div>
         </div>
-
-        <footer class="flex flex-col md:flex-row justify-between items-center px-4 py-8 border-t border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest gap-4">
-            <div id="lastUpdate">Sincronizando dados...</div>
-        </footer>
     </div>
 
-    <!-- Modal Detalhes -->
     <div id="modalDetalhes" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 flex justify-between items-center shrink-0">
-                <h2 class="text-xs font-black uppercase tracking-widest text-white">Ficha do Processo</h2>
-                <button onclick="closeModal()" class="text-2xl text-white opacity-50 hover:opacity-100">&times;</button>
-            </div>
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 flex justify-between items-center shrink-0"><h2 class="text-xs font-black uppercase text-white">Ficha do Processo</h2><button onclick="closeModal()" class="text-2xl text-white opacity-50 hover:opacity-100">&times;</button></div>
             <div id="modalContent" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto"></div>
-            <div class="px-6 py-4 border-t border-white/5 text-right shrink-0">
-                <button onclick="closeModal()" class="bg-slate-700 text-white px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Fechar</button>
-            </div>
+            <div class="px-6 py-4 border-t border-white/5 text-right shrink-0"><button onclick="closeModal()" class="bg-slate-700 text-white px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Fechar</button></div>
         </div>
     </div>
 
@@ -145,77 +95,28 @@
         const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let charts = {};
-        let rawData = [];
+        let charts = {}, rawData = [], forcedRespFilter = null;
 
         async function init() {
             const { data, error } = await sb.from('licitacoes').select('*');
-            if (error) { 
-                document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="p-10 text-center">Erro: ${error.message}</td></tr>`;
-                return;
-            }
+            if (error) { document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="p-10 text-center">Erro: ${error.message}</td></tr>`; return; }
             rawData = data || [];
-            document.getElementById('lastUpdate').innerText = "Última Atualização: " + new Date().toLocaleString('pt-br');
             populateFilters(rawData);
             applyFilters();
         }
 
-        function cleanNum(v) {
-            if (!v) return 0;
-            if (typeof v === 'number') return v;
-            let s = String(v).replace('R$', '').trim();
-            // Se o Supabase enviar algo como "156000.0", parseFloat funciona direto.
-            // Se enviar "156.000,00", precisamos converter.
-            if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
-            else if (s.includes(',')) s = s.replace(',', '.');
-            return parseFloat(s) || 0;
-        }
-
+        function cleanNum(v) { if (!v) return 0; if (typeof v === 'number') return v; let s = String(v).replace('R$', '').trim(); if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.'); else if (s.includes(',')) s = s.replace(',', '.'); return parseFloat(s) || 0; }
         function formatBRL(v) { return cleanNum(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
-        
-        function formatDate(d) { 
-            if(!d || d === 'None') return '-';
-            const iso = String(d).split('T')[0];
-            const p = iso.split('-');
-            return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
-        }
-
-        function getAging(dateStr) {
-            if (!dateStr || dateStr === 'None') return { label: 'N/A', class: '' };
-            let iso = dateStr;
-            if (dateStr.includes('/')) { const p = dateStr.split('/'); iso = `${p[2]}-${p[1]}-${p[0]}`; }
-            const target = new Date(iso.split('T')[0]);
-            if (isNaN(target)) return { label: 'Data Inv.', class: '' };
-            const today = new Date(); today.setHours(0,0,0,0);
-            const diffDays = Math.ceil((target - today) / (86400000));
-            if (diffDays < 0) return { label: `Atrasado ${Math.abs(diffDays)}d`, class: 'aging-red' };
-            if (diffDays <= 2) return { label: `Vence em ${diffDays}d`, class: 'aging-yellow' };
-            return { label: `No Prazo (${diffDays}d)`, class: 'aging-green' };
-        }
+        function formatDate(d) { if(!d || d === 'None') return '-'; const iso = String(d).split('T')[0]; const p = iso.split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d; }
+        function getAging(dateStr) { if (!dateStr || dateStr === 'None') return { label: 'N/A', class: '' }; let iso = dateStr; if (dateStr.includes('/')) { const p = dateStr.split('/'); iso = `${p[2]}-${p[1]}-${p[0]}`; } const target = new Date(iso.split('T')[0]); if (isNaN(target)) return { label: 'Data Inv.', class: '' }; const today = new Date(); today.setHours(0,0,0,0); const diffDays = Math.ceil((target - today) / (86400000)); if (diffDays < 0) return { label: `Atrasado ${Math.abs(diffDays)}d`, class: 'aging-red' }; if (diffDays <= 2) return { label: `Vence em ${diffDays}d`, class: 'aging-yellow' }; return { label: `No Prazo (${diffDays}d)`, class: 'aging-green' }; }
 
         function populateFilters(data) {
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(v => v && String(v).trim() !== ""))].sort();
-            const fill = (id, items, prefix) => {
-                const el = document.getElementById(id); if(!el) return;
-                el.innerHTML = `<option value="Todos">${prefix}</option>`;
-                items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
-            };
-            
-            // Catálogo completo de 19 fases via metadado
+            const fill = (id, items, prefix) => { const el = document.getElementById(id); if(!el) return; el.innerHTML = `<option value="Todos">${prefix}</option>`; items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); }); };
             let fases = getUnique('fase_atual');
             const reg = data.find(i => i.observacoes && i.observacoes.includes('<!--CATALOGO_FASES:'));
-            if (reg) {
-                const match = reg.observacoes.match(/<!--CATALOGO_FASES:(.*)-->/);
-                if (match) fases = [...new Set([...fases, ...match[1].split('|')])].sort();
-            }
-
-            fill('f-coordenacao', getUnique('coordenacao'), 'Coord.');
-            fill('f-responsavel', getUnique('responsavel'), 'Resp.');
-            fill('f-modalidade', getUnique('modalidade'), 'Modal.');
-            fill('f-fase', fases, 'Fase');
-            fill('f-prioridade', getUnique('prioridade'), 'Prior.');
-            fill('f-demandante', getUnique('demandante'), 'Demand.');
+            if (reg) { const match = reg.observacoes.match(/<!--CATALOGO_FASES:(.*)-->/); if (match) fases = [...new Set([...fases, ...match[1].split('|')])].sort(); }
+            fill('f-coordenacao', getUnique('coordenacao'), 'Coord.'); fill('f-responsavel', getUnique('responsavel'), 'Resp.'); fill('f-modalidade', getUnique('modalidade'), 'Modal.'); fill('f-fase', fases, 'Fase'); fill('f-prioridade', getUnique('prioridade'), 'Prior.'); fill('f-demandante', getUnique('demandante'), 'Demand.');
         }
 
         function applyFilters() {
@@ -225,31 +126,30 @@
                 mod: document.getElementById('f-modalidade').value,
                 fase: document.getElementById('f-fase').value,
                 coord: document.getElementById('f-coordenacao').value,
-                resp: document.getElementById('f-responsavel').value,
+                resp: forcedRespFilter || document.getElementById('f-responsavel').value,
                 prior: document.getElementById('f-prioridade').value,
                 search: document.getElementById('searchBox').value.toLowerCase().trim()
             };
 
             const filtered = rawData.filter(i => {
                 if (f.search && !(String(i.objeto_resumido || "") + String(i.id_processo || "")).toLowerCase().includes(f.search)) return false;
-                if (f.prazo !== 'Todos') {
-                    const aging = getAging(i.data_prevista);
-                    if (f.prazo === 'Atrasados' && aging.class !== 'aging-red') return false;
-                    if (f.prazo === 'No Prazo' && aging.class === 'aging-red') return false;
-                }
+                if (f.prazo !== 'Todos') { const aging = getAging(i.data_prevista); if (f.prazo === 'Atrasados' && aging.class !== 'aging-red') return false; if (f.prazo === 'No Prazo' && aging.class === 'aging-red') return false; }
                 if (f.dem !== 'Todos' && i.demandante !== f.dem) return false;
                 if (f.mod !== 'Todos' && i.modalidade !== f.mod) return false;
                 if (f.fase !== 'Todos' && i.fase_atual !== f.fase) return false;
                 if (f.coord !== 'Todos' && i.coordenacao !== f.coord) return false;
-                if (f.resp !== 'Todos' && i.responsavel !== f.resp) return false;
                 
-                // Se clicar no gráfico de responsável e o label for N/I, o filtro acima falha.
-                // Mas a lógica do onClick agora trata isso.
+                // Lógica especial para N/I e Responsável
+                if (f.resp !== 'Todos') {
+                    if (f.resp === 'N/I') { if (i.responsavel && String(i.responsavel).trim() !== "") return false; }
+                    else if (i.responsavel !== f.resp) return false;
+                }
                 
                 if (f.prior !== 'Todos' && i.prioridade !== f.prior) return false;
                 return true;
             });
             updateView(filtered);
+            forcedRespFilter = null; // Reseta após aplicar
         }
 
         function updateView(data) {
@@ -259,13 +159,10 @@
             const sumHom = data.reduce((acc, i) => acc + cleanNum(i.vlr_homologado), 0);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
             document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom);
-            document.getElementById('savingBar').style.width = sumEst > 0 ? ((sumEst - sumHom)/sumEst)*100 + '%' : '0%';
-            
             const atrasados = data.filter(i => getAging(i.data_prevista).class === 'aging-red');
             document.getElementById('totalAtrasados').innerText = atrasados.length;
 
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = data.map(i => {
+            document.getElementById('tableBody').innerHTML = data.map(i => {
                 const match = i.observacoes ? i.observacoes.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
                 const agingAtiv = getAging(i.data_prevista);
                 const agingFinal = getAging(match ? match[2] : null);
@@ -278,11 +175,11 @@
                     <td class="px-2 py-3 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
             `}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest text-[10px]">Sem dados</td></tr>';
-            renderCharts(data);
+            renderCharts(rawData); // SEMPRE RENDERIZA CHARTS COM BASE NO FULL DATA
         }
 
         function renderCharts(data) {
-            const countBy = (k) => data.reduce((a, i) => { let v = i[k] || 'N/I'; a[v] = (a[v] || 0) + 1; return a; }, {});
+            const countBy = (k) => data.reduce((a, i) => { let v = i[k] || 'N/I'; if (v.trim()==="") v="N/I"; a[v] = (a[v] || 0) + 1; return a; }, {});
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
             const s = data.reduce((a, i) => { const c = getAging(i.data_prevista).class; if(c==='aging-green') a.g++; else if(c==='aging-yellow') a.y++; else if(c==='aging-red') a.r++; return a; }, {g:0,y:0,r:0});
             draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [s.g, s.y, s.r], ['#10b981', '#f59e0b', '#ef4444'], true);
@@ -293,60 +190,17 @@
             if (charts[id]) charts[id].destroy();
             const canvas = document.getElementById(id); if (!canvas) return;
             charts[id] = new Chart(canvas.getContext('2d'), { 
-                type, 
-                data: { labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] }, 
+                type, data: { labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] }, 
                 options: { 
-                    indexAxis: horizontal ? 'y' : 'x', 
-                    maintainAspectRatio: false, 
+                    indexAxis: horizontal ? 'y' : 'x', maintainAspectRatio: false, 
                     onClick: (e, activeEls) => {
                         if (activeEls.length > 0) {
-                            const index = activeEls[0].index;
-                            const label = labels[index];
-                            
-                            if (id === 'chartResponsavel') {
-                                const val = label === 'N/I' ? '' : label;
-                                const select = document.getElementById('f-responsavel');
-                                
-                                // Tenta encontrar o valor no select (que pode ter o texto formatado)
-                                let found = false;
-                                for (let i = 0; i < select.options.length; i++) {
-                                    if (select.options[i].value === label) {
-                                        select.selectedIndex = i;
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                
-                                if (!found) select.value = 'Todos';
-                                
-                                // Lógica customizada para filtrar N/I (vazio) se clicar no N/I
-                                if (label === 'N/I') {
-                                    const filtered = rawData.filter(item => !item.responsavel || String(item.responsavel).trim() === "");
-                                    updateView(filtered);
-                                    document.getElementById('f-responsavel').value = 'Todos'; // Mantém neutro em cima
-                                } else {
-                                    applyFilters();
-                                }
-                            } else if (id === 'chartModalidade') {
-                                document.getElementById('f-modalidade').value = label;
-                                applyFilters();
-                            } else if (id === 'chartStatus') {
-                                // Mapeamento para o filtro de prazo
-                                const statusMap = { 'Atrasado': 'Atrasados', 'No Prazo': 'No Prazo', 'Alerta': 'Todos' };
-                                if (statusMap[label]) {
-                                    document.getElementById('f-prazo').value = statusMap[label];
-                                    applyFilters();
-                                }
-                            }
+                            const label = labels[activeEls[0].index];
+                            if (id === 'chartResponsavel') { forcedRespFilter = label; applyFilters(); }
                         }
                     },
-                    plugins: { 
-                        legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } 
-                    }, 
-                    scales: { 
-                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } }, 
-                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } } 
-                    } 
+                    plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } }, 
+                    scales: { x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } }, y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } } } 
                 } 
             });
         }
