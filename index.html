@@ -50,10 +50,16 @@
             </div>
 
             <div class="bg-slate-900/30 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-                <div class="p-5 border-b border-slate-800 flex justify-between items-center"><h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Fluxo de Execução</h3></div>
-                <div class="overflow-x-auto max-h-[600px]">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead class="sticky top-0 bg-[#111827] z-10 shadow-sm"><tr class="text-slate-500 font-black uppercase border-b border-slate-800"><th class="px-6 py-4">Processo</th><th class="px-6 py-4">Fase Atual</th><th class="px-6 py-4 text-center">Prazo Tarefa</th><th class="px-6 py-4 text-center">Entrega Final</th><th class="px-6 py-4 text-right">Vlr Estimado</th><th class="px-6 py-4 text-right">Ação</th></tr></thead>
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center"><h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Fluxo de Execução</h3></div>
+                <div class="overflow-x-hidden overflow-y-auto max-h-[600px]">
+                    <table class="w-full text-left table-fixed">
+                        <thead class="sticky top-0 bg-[#111827] z-10 shadow-sm"><tr class="text-[9px] font-black uppercase border-b border-slate-800 text-slate-500 tracking-tighter">
+                            <th class="w-[18%] px-2 py-4">Processo</th>
+                            <th class="w-[28%] px-2 py-4">Fase Atual</th>
+                            <th class="w-[18%] px-2 py-4 text-center">Prazo Tarefa</th>
+                            <th class="w-[18%] px-2 py-4 text-center">Entrega Final</th>
+                            <th class="w-[18%] px-2 py-4 text-right">Vlr Estimado</th>
+                        </tr></thead>
                         <tbody id="tableBody" class="divide-y divide-slate-800/40 text-slate-300"></tbody>
                     </table>
                 </div>
@@ -195,7 +201,7 @@
             const sumEst = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
             document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEst);
-            const atrasados = data.filter(i => getAging(i.data_prevista).class === 'aging-red');
+            const atrasados = data.filter(i => getAging(formatDate(i.data_prevista)).class === 'aging-red');
             document.getElementById('totalAtrasados').innerText = atrasados.length;
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
@@ -204,26 +210,23 @@
                 const agingFinal = getAging(meta.final);
                 const timeline = `Entrada: ${formatDate(i.data_entrada)}\nAtividade: ${formatDate(meta.ativ)}\nEntrega Ativ: ${formatDate(i.data_prevista)}\nEntrega Final: ${formatDate(meta.final)}`;
                 return `
-                <tr class="hover:bg-blue-500/10 transition">
-                    <td class="px-6 py-4 font-black text-blue-400">
-                        <a href="${i.processo_link}" target="_blank" class="hover:underline" title="${timeline}">${i.id_processo}</a>
+                <tr class="hover:bg-blue-500/10 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
+                    <td class="px-2 py-4 font-black text-blue-400 truncate text-[10px]">
+                        <a href="${i.processo_link}" target="_blank" class="hover:underline" onclick="event.stopPropagation()" title="${timeline}">${i.id_processo}</a>
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="text-[11px] font-bold text-slate-200">${i.fase_atual || '-'}</div>
-                        <div class="text-[9px] text-amber-400 uppercase font-black">${i.status || '-'}</div>
+                    <td class="px-2 py-4">
+                        <div class="text-[10px] font-bold text-slate-200 truncate" title="${i.fase_atual}">${i.fase_atual || '-'}</div>
+                        <div class="text-[8px] text-amber-400 uppercase font-black truncate">${i.status || '-'}</div>
                     </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="aging-badge ${agingAtiv.class}">${agingAtiv.label}</span>
-                        <div class="text-[9px] text-slate-500 mt-1">${formatDate(i.data_prevista)}</div>
+                    <td class="px-2 py-4 text-center">
+                        <span class="aging-badge ${agingAtiv.class} text-[8px]">${agingAtiv.label}</span>
+                        <div class="text-[8px] text-slate-500 mt-1">${formatDate(i.data_prevista)}</div>
                     </td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-2 py-4 text-center">
                         <span class="text-[10px] font-black ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(meta.final)}</span>
-                        <div class="text-[9px] ${agingFinal.class === 'aging-red' ? 'text-red-500/50' : 'text-slate-500'} mt-1 uppercase font-black tracking-tighter">${agingFinal.label}</div>
+                        <div class="text-[8px] ${agingFinal.class === 'aging-red' ? 'text-red-500/50' : 'text-slate-500'} mt-1 uppercase font-black tracking-tighter">${agingFinal.label}</div>
                     </td>
-                    <td class="px-6 py-4 text-right font-black text-slate-300" title="${valorPorExtenso(cleanVal(i.vlr_estimado_anual))}">${formatBRL(i.vlr_estimado_anual)}</td>
-                    <td class="px-6 py-4 text-right">
-                        <button onclick="showDetails('${i.id_processo}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition">Timeline</button>
-                    </td>
+                    <td class="px-2 py-4 text-right font-black text-slate-300 text-[10px]">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
             `}).join('');
         }
@@ -238,7 +241,7 @@
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Entrada no Sistema</p><p class="font-black text-white text-lg">${formatDate(item.data_entrada)}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Fase Atual</p><p class="font-black text-amber-400">${item.fase_atual || '-'}</p><p class="text-[10px] italic text-slate-500">Iniciado em: ${formatDate(meta.ativ)}</p></div>
                 <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Prazo da Atividade</p><p class="font-black text-white text-lg">${formatDate(item.data_prevista)}</p><span class="aging-badge ${getAging(item.data_prevista).class}">${getAging(item.data_prevista).label}</span></div>
-                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Entrega Final Prevista</p><p class="font-black text-emerald-400 text-lg">${formatDate(meta.final)}</p><p class="text-[10px] text-slate-400">${getAging(meta.final).label}</p></div>
+                <div class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-1">Entrega Final Prevista</p><p class="font-black text-emerald-400 text-lg">${formatDate(item.data_prevista)}</p><p class="text-[10px] text-slate-400">${getAging(formatDate(item.data_prevista)).label}</p></div>
                 <div class="col-span-2 p-5 bg-slate-900/50 rounded-2xl border border-slate-700"><p class="indicator-label mb-2 text-slate-500">Observações Estratégicas</p><div class="text-xs text-slate-400">${meta.cleanObs || 'Sem notas de acompanhamento.'}</div></div>
             `;
             modal.classList.remove('hidden');

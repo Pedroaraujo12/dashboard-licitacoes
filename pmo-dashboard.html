@@ -83,35 +83,36 @@
         </div>
 
         <!-- Filtros Completos e Pesquisa -->
-        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar objeto ou ID..." class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition lg:col-span-1">
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prazo" onchange="applyFilters()"><option value="Todos">Status Prazo</option><option value="Atrasados">Atrasados</option><option value="No Prazo">No Prazo</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Coordenação</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Responsável</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Modalidade</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-fase" onchange="applyFilters()"><option value="Todos">Fase Atual</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prioridade" onchange="applyFilters()"><option value="Todos">Prioridade</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Demandante</option></select>
+        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-2">
+            <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar..." class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition">
+            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-prazo" onchange="applyFilters()"><option value="Todos">Prazo</option><option value="Atrasados">Atrasados</option><option value="No Prazo">No Prazo</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Coord.</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Resp.</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Modal.</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-fase" onchange="applyFilters()"><option value="Todos">Fase</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-prioridade" onchange="applyFilters()"><option value="Todos">Prior.</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Demand.</option></select>
+            <button onclick="window.location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white rounded-lg px-2 py-1.5 text-[10px] font-bold transition">Limpar</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 glass-card overflow-hidden">
-                <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2>
-                    <span id="rowCount" class="text-[10px] font-bold bg-slate-800 px-3 py-1 rounded-full text-slate-500">-- processos</span>
+                <div class="p-4 border-b border-white/5 flex justify-between items-center">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2>
+                    <span id="rowCount" class="text-[9px] font-bold bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">-- processos</span>
                 </div>
-                <div class="overflow-x-auto overflow-y-auto max-h-[780px]">
-                    <table class="w-full text-left">
+                <div class="overflow-x-hidden overflow-y-auto max-h-[780px]">
+                    <table class="w-full text-left table-fixed">
                         <thead class="sticky top-0 bg-[#1e293b] z-10 shadow-sm">
-                            <tr class="text-[9px] md:text-[10px] font-black uppercase text-slate-500 border-b border-white/10 tracking-wider">
-                                <th class="px-3 md:px-6 py-4">ID Processo</th>
-                                <th class="px-3 md:px-6 py-4">Fase Atual</th>
-                                <th class="px-3 md:px-6 py-4 text-center">Prazo Tarefa</th>
-                                <th class="px-3 md:px-6 py-4 text-center">Entrega Final</th>
-                                <th class="px-3 md:px-6 py-4 text-right">Vlr Estimado</th>
+                            <tr class="text-[9px] font-black uppercase text-slate-500 border-b border-white/10 tracking-tighter">
+                                <th class="w-[18%] px-2 py-3">ID Processo</th>
+                                <th class="w-[28%] px-2 py-3">Fase / Status</th>
+                                <th class="w-[18%] px-2 py-3 text-center">Prazo Tarefa</th>
+                                <th class="w-[18%] px-2 py-3 text-center">Entrega Final</th>
+                                <th class="w-[18%] px-2 py-3 text-right">Vlr Estimado</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody" class="text-xs divide-y divide-white/5"></tbody>
+                        <tbody id="tableBody" class="text-[10px] divide-y divide-white/5"></tbody>
                     </table>
                 </div>
             </div>
@@ -297,29 +298,28 @@
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
                 const meta = extractMetaDates(i.observacoes);
-                // No PMO, 'data_prevista' agora é o prazo da atividade calculado pela planilha
                 const agingAtiv = getAging(i.data_prevista);
                 const agingFinal = getAging(meta.final);
                 return `
                 <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
-                    <td class="px-3 md:px-6 py-5 font-bold text-blue-400">
+                    <td class="px-2 py-3 font-bold text-blue-400 truncate text-[10px]">
                         ${i.id_processo}
                     </td>
-                    <td class="px-3 md:px-6 py-5 max-w-xs truncate text-slate-300">
-                        <div class="font-bold text-slate-100">${i.fase_atual || '-'}</div>
-                        <div class="text-[9px] text-slate-500 uppercase">${i.objeto_resumido}</div>
+                    <td class="px-2 py-3">
+                        <div class="font-bold text-slate-100 truncate text-[10px]" title="${i.fase_atual}">${i.fase_atual || '-'}</div>
+                        <div class="text-[8px] text-slate-500 uppercase truncate" title="${i.objeto_resumido}">${i.objeto_resumido}</div>
                     </td>
-                    <td class="px-3 md:px-6 py-5 text-center">
-                        <span class="aging-badge ${agingAtiv.class}">${agingAtiv.label}</span>
-                        <div class="text-[9px] text-slate-500 mt-1 font-medium">${formatDate(i.data_prevista)}</div>
+                    <td class="px-2 py-3 text-center">
+                        <span class="aging-badge ${agingAtiv.class} text-[8px]">${agingAtiv.label}</span>
+                        <div class="text-[8px] text-slate-500 mt-0.5 font-medium">${formatDate(i.data_prevista)}</div>
                     </td>
-                    <td class="px-3 md:px-6 py-5 text-center">
-                        <span class="font-bold ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(meta.final)}</span>
-                        <div class="text-[9px] ${agingFinal.class === 'aging-red' ? 'text-red-500/50' : 'text-slate-500'} mt-1 uppercase font-black tracking-tighter">${agingFinal.label}</div>
+                    <td class="px-2 py-3 text-center">
+                        <span class="font-bold text-[10px] ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(meta.final)}</span>
+                        <div class="text-[8px] ${agingFinal.class === 'aging-red' ? 'text-red-500/50' : 'text-slate-500'} mt-0.5 uppercase font-black tracking-tighter">${agingFinal.label}</div>
                     </td>
-                    <td class="px-3 md:px-6 py-5 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
+                    <td class="px-2 py-3 text-right font-bold text-slate-100 text-[10px]">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
-            `}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest">Sem dados</td></tr>';
+            `}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest text-[10px]">Sem dados</td></tr>';
             renderCharts(data);
         }
 
