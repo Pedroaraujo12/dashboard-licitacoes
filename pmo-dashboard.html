@@ -269,6 +269,8 @@
         }
 
         function applyFilters() {
+            if (!rawData || rawData.length === 0) return;
+
             const f = {
                 prazo: document.getElementById('f-prazo').value,
                 dem: document.getElementById('f-demandante').value,
@@ -277,25 +279,36 @@
                 coord: document.getElementById('f-coordenacao').value,
                 resp: document.getElementById('f-responsavel').value,
                 prior: document.getElementById('f-prioridade').value,
-                search: document.getElementById('searchBox').value.toLowerCase()
+                search: document.getElementById('searchBox').value ? document.getElementById('searchBox').value.toLowerCase().trim() : ""
             };
+
             const filtered = rawData.filter(i => {
+                // Filtro de Busca (Search) - Prioridade Total
+                if (f.search) {
+                    const objText = String(i.objeto_resumido || "").toLowerCase();
+                    const idText = String(i.id_processo || "").toLowerCase();
+                    if (!objText.includes(f.search) && !idText.includes(f.search)) return false;
+                }
+
+                // Filtro de Prazo (Aging)
                 const aging = getAging(i.data_prevista);
-                const matchPrazo = (f.prazo === 'Todos' || (f.prazo === 'Atrasados' && aging.class === 'aging-red') || (f.prazo === 'No Prazo' && aging.class !== 'aging-red'));
-                const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
-                const matchMod = (f.mod === 'Todos' || i.modalidade === f.mod);
-                const matchFase = (f.fase === 'Todos' || i.fase_atual === f.fase);
-                const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
-                const matchResp = (f.resp === 'Todos' || i.responsavel === f.resp);
-                const matchPrior = (f.prior === 'Todos' || i.prioridade === f.prior);
-                
-                // Correção: Se a busca estiver vazia, matchSearch é true para todos
-                const objText = (i.objeto_resumido || "").toLowerCase();
-                const idText = (i.id_processo || "").toLowerCase();
-                const matchSearch = (!f.search || objText.includes(f.search) || idText.includes(f.search));
-                
-                return matchPrazo && matchDem && matchMod && matchFase && matchCoord && matchResp && matchPrior && matchSearch;
+                if (f.prazo !== 'Todos') {
+                    if (f.prazo === 'Atrasados' && aging.class !== 'aging-red') return false;
+                    if (f.prazo === 'No Prazo' && aging.class === 'aging-red') return false;
+                }
+
+                // Demais filtros (Exact match)
+                if (f.dem !== 'Todos' && i.demandante !== f.dem) return false;
+                if (f.mod !== 'Todos' && i.modalidade !== f.mod) return false;
+                if (f.fase !== 'Todos' && i.fase_atual !== f.fase) return false;
+                if (f.coord !== 'Todos' && i.coordenacao !== f.coord) return false;
+                if (f.resp !== 'Todos' && i.responsavel !== f.resp) return false;
+                if (f.prior !== 'Todos' && i.prioridade !== f.prior) return false;
+
+                return true;
             });
+
+            console.log("Filtros Aplicados:", f, "Resultados:", filtered.length);
             updateView(filtered);
         }
 
