@@ -95,7 +95,7 @@
         const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let charts = {}, rawData = [], forcedRespFilter = null;
+        let charts = {}, rawData = [], forcedRespFilter = null, forcedModFilter = null;
 
         async function init() {
             const { data, error } = await sb.from('licitacoes').select('*');
@@ -123,7 +123,7 @@
             const f = {
                 prazo: document.getElementById('f-prazo').value,
                 dem: document.getElementById('f-demandante').value,
-                mod: document.getElementById('f-modalidade').value,
+                mod: forcedModFilter || document.getElementById('f-modalidade').value,
                 fase: document.getElementById('f-fase').value,
                 coord: document.getElementById('f-coordenacao').value,
                 resp: forcedRespFilter || document.getElementById('f-responsavel').value,
@@ -135,7 +135,10 @@
                 if (f.search && !(String(i.objeto_resumido || "") + String(i.id_processo || "")).toLowerCase().includes(f.search)) return false;
                 if (f.prazo !== 'Todos') { const aging = getAging(i.data_prevista); if (f.prazo === 'Atrasados' && aging.class !== 'aging-red') return false; if (f.prazo === 'No Prazo' && aging.class === 'aging-red') return false; }
                 if (f.dem !== 'Todos' && i.demandante !== f.dem) return false;
+                
+                // Lógica para Modalidade
                 if (f.mod !== 'Todos' && i.modalidade !== f.mod) return false;
+                
                 if (f.fase !== 'Todos' && i.fase_atual !== f.fase) return false;
                 if (f.coord !== 'Todos' && i.coordenacao !== f.coord) return false;
                 
@@ -149,7 +152,8 @@
                 return true;
             });
             updateView(filtered);
-            forcedRespFilter = null; // Reseta após aplicar
+            forcedRespFilter = null; 
+            forcedModFilter = null;
         }
 
         function updateView(data) {
@@ -197,6 +201,7 @@
                         if (activeEls.length > 0) {
                             const label = labels[activeEls[0].index];
                             if (id === 'chartResponsavel') { forcedRespFilter = label; applyFilters(); }
+                            if (id === 'chartModalidade') { forcedModFilter = label; applyFilters(); }
                         }
                     },
                     plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } }, 
