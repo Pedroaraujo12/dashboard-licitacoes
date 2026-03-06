@@ -171,16 +171,29 @@
 
         function populateFilters(data) {
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(v => v && String(v).trim() !== ""))].sort((a, b) => String(a).localeCompare(String(b)));
+            
+            // Lógica para capturar o catálogo de todas as 19 fases injetado no metadado
+            let todasAsFases = getUnique('fase_atual');
+            const registroComCatalogo = data.find(i => i.observacoes && i.observacoes.includes('<!--CATALOGO_FASES:'));
+            if (registroComCatalogo) {
+                const match = registroComCatalogo.observacoes.match(/<!--CATALOGO_FASES:(.*)-->/);
+                if (match) {
+                    const catalogo = match[1].split('|');
+                    todasAsFases = [...new Set([...todasAsFases, ...catalogo])].sort((a, b) => String(a).localeCompare(String(b)));
+                }
+            }
+
             const fill = (id, items, prefix) => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 el.innerHTML = `<option value="Todos">${prefix}</option>`;
                 items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
             };
+
             fill('f-coordenacao', getUnique('coordenacao'), 'Coordenação');
             fill('f-responsavel', getUnique('responsavel'), 'Responsável');
             fill('f-modalidade', getUnique('modalidade'), 'Modalidade');
-            fill('f-fase', getUnique('fase_atual'), 'Fase Atual');
+            fill('f-fase', todasAsFases, 'Fase Atual'); // USA A LISTA COMPLETA
             fill('f-prioridade', getUnique('prioridade'), 'Prioridade');
             fill('f-demandante', getUnique('demandante'), 'Demandante');
         }
