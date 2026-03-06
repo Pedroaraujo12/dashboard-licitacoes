@@ -288,7 +288,42 @@
         function draw(id, type, labels, values, color, horizontal = false) {
             if (charts[id]) charts[id].destroy();
             const canvas = document.getElementById(id); if (!canvas) return;
-            charts[id] = new Chart(canvas.getContext('2d'), { type, data: { labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] }, options: { indexAxis: horizontal ? 'y' : 'x', maintainAspectRatio: false, plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } }, scales: { x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } }, y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } } } } });
+            charts[id] = new Chart(canvas.getContext('2d'), { 
+                type, 
+                data: { labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] }, 
+                options: { 
+                    indexAxis: horizontal ? 'y' : 'x', 
+                    maintainAspectRatio: false, 
+                    onClick: (e, activeEls) => {
+                        if (activeEls.length > 0) {
+                            const index = activeEls[0].index;
+                            const label = labels[index];
+                            
+                            if (id === 'chartResponsavel') {
+                                document.getElementById('f-responsavel').value = label === 'N/I' ? 'Todos' : label;
+                                applyFilters();
+                            } else if (id === 'chartModalidade') {
+                                document.getElementById('f-modalidade').value = label;
+                                applyFilters();
+                            } else if (id === 'chartStatus') {
+                                // Mapeamento para o filtro de prazo
+                                const statusMap = { 'Atrasado': 'Atrasados', 'No Prazo': 'No Prazo', 'Alerta': 'Todos' };
+                                if (statusMap[label]) {
+                                    document.getElementById('f-prazo').value = statusMap[label];
+                                    applyFilters();
+                                }
+                            }
+                        }
+                    },
+                    plugins: { 
+                        legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } 
+                    }, 
+                    scales: { 
+                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } }, 
+                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } } 
+                    } 
+                } 
+            });
         }
 
         function showDetails(id) {
