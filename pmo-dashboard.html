@@ -295,7 +295,6 @@
             const atrasados = data.filter(i => getAging(i.data_prevista).class === 'aging-red');
             document.getElementById('totalAtrasados').innerText = atrasados.length;
 
-            const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
                 const meta = extractMetaDates(i.observacoes);
                 const agingAtiv = getAging(i.data_prevista);
@@ -303,7 +302,7 @@
                 return `
                 <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
                     <td class="px-2 py-3 font-bold text-blue-400 truncate text-[10px]">
-                        ${i.id_processo}
+                        ${i.processo_link ? `<a href="${i.processo_link}" target="_blank" onclick="event.stopPropagation()" class="hover:underline">${i.id_processo}</a>` : i.id_processo}
                     </td>
                     <td class="px-2 py-3">
                         <div class="font-bold text-slate-100 truncate text-[10px]" title="${i.fase_atual}">${i.fase_atual || '-'}</div>
