@@ -12,19 +12,15 @@
         :root { --glass: rgba(30, 41, 59, 0.7); }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top left, #0f172a, #020617); color: #f8fafc; overflow-x: hidden; }
         .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem; }
-        .indicator-card { transition: transform 0.2s; }
-        .indicator-card:hover { transform: translateY(-4px); }
         .aging-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; white-space: nowrap; }
         .aging-red { background-color: #ef4444; color: white; }
         .aging-yellow { background-color: #eab308; color: black; }
         .aging-green { background-color: #22c55e; color: white; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen">
-
     <header class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
         <div class="flex items-center gap-5">
             <div class="h-14 w-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
@@ -36,21 +32,17 @@
             </div>
         </div>
         <div class="flex gap-3">
-            <a href="index.html" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-blue-600/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg> Visão Operacional
-            </a>
-            <button onclick="window.location.reload()" class="bg-slate-800/50 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Resetar
-            </button>
+            <a href="index.html" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2">Visão Operacional</a>
+            <button onclick="window.location.reload()" class="bg-slate-800/50 text-slate-300 px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-700">Resetar</button>
         </div>
     </header>
 
     <div class="max-w-7xl mx-auto space-y-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processos Totais</p><h3 id="totalProcessos" class="text-4xl font-extrabold">--</h3></div>
-            <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Estimado</p><h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100">R$ 0,00</h3></div>
-            <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS</p><h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3></div>
-            <div class="glass-card p-6 indicator-card border-l-4 border-l-red-500"><p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Em Atraso</p><h3 id="totalAtrasados" class="text-4xl font-extrabold text-red-100">--</h3></div>
+            <div class="glass-card p-6"><p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Processos Totais</p><h3 id="totalProcessos" class="text-4xl font-extrabold">--</h3></div>
+            <div class="glass-card p-6"><p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Valor Estimado</p><h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100">R$ 0,00</h3></div>
+            <div class="glass-card p-6"><p class="text-[10px] font-bold text-emerald-500 uppercase mb-1">Economia CCS</p><h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3></div>
+            <div class="glass-card p-6 border-l-4 border-l-red-500"><p class="text-[10px] font-bold text-red-500 uppercase mb-1">Em Atraso</p><h3 id="totalAtrasados" class="text-4xl font-extrabold text-red-100">--</h3></div>
         </div>
 
         <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-2">
@@ -67,10 +59,10 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 glass-card overflow-hidden">
-                <div class="p-4 border-b border-white/5 flex justify-between items-center"><h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2><span id="rowCount" class="text-[9px] font-bold bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">-- processos</span></div>
+                <div class="p-4 border-b border-white/5 flex justify-between items-center"><h2 class="text-xs font-bold uppercase text-slate-400">Fluxo de Execução</h2><span id="rowCount" class="text-[9px] font-bold bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">-- processos</span></div>
                 <div class="overflow-x-hidden overflow-y-auto max-h-[600px]">
                     <table class="w-full text-left table-fixed">
-                        <thead class="sticky top-0 bg-[#1e293b] z-10 shadow-sm"><tr class="text-[9px] font-black uppercase text-slate-500 border-b border-white/10 tracking-tighter"><th class="w-[18%] px-2 py-3">ID Processo</th><th class="w-[28%] px-2 py-3">Fase / Status</th><th class="w-[18%] px-2 py-3 text-center">Prazo Tarefa</th><th class="w-[18%] px-2 py-3 text-center">Entrega Final</th><th class="w-[18%] px-2 py-3 text-right">Vlr Estimado</th></tr></thead>
+                        <thead class="sticky top-0 bg-[#1e293b] z-10 shadow-sm"><tr class="text-[9px] font-black uppercase text-slate-500 border-b border-white/10"><th class="w-[18%] px-2 py-3">ID Processo</th><th class="w-[28%] px-2 py-3">Fase / Status</th><th class="w-[18%] px-2 py-3 text-center">Prazo Tarefa</th><th class="w-[18%] px-2 py-3 text-center">Entrega Final</th><th class="w-[18%] px-2 py-3 text-right">Vlr Estimado</th></tr></thead>
                         <tbody id="tableBody" class="text-[10px] divide-y divide-white/5"></tbody>
                     </table>
                 </div>
@@ -85,9 +77,8 @@
 
     <div id="modalDetalhes" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 flex justify-between items-center shrink-0"><h2 class="text-xs font-black uppercase text-white">Ficha do Processo</h2><button onclick="closeModal()" class="text-2xl text-white opacity-50 hover:opacity-100">&times;</button></div>
             <div id="modalContent" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto"></div>
-            <div class="px-6 py-4 border-t border-white/5 text-right shrink-0"><button onclick="closeModal()" class="bg-slate-700 text-white px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Fechar</button></div>
+            <div class="px-6 py-4 border-t border-white/5 text-right"><button onclick="closeModal()" class="bg-slate-700 text-white px-6 py-2 rounded-lg text-[10px] font-bold">Fechar</button></div>
         </div>
     </div>
 
@@ -95,11 +86,11 @@
         const SUPABASE_URL = "https://qakrpkwmhlpynrphucfl.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GO7Aqg_eNO6hqUIl3rAzyg_GRuiIkWE";
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let charts = {}, rawData = [], forcedRespFilter = null, forcedModFilter = null;
+        let rawData = [], charts = {}, filters = { mod: null, resp: null };
 
         async function init() {
             const { data, error } = await sb.from('licitacoes').select('*');
-            if (error) { document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="p-10 text-center">Erro: ${error.message}</td></tr>`; return; }
+            if (error) return;
             rawData = data || [];
             populateFilters(rawData);
             applyFilters();
@@ -113,43 +104,42 @@
         function populateFilters(data) {
             const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(v => v && String(v).trim() !== ""))].sort();
             const fill = (id, items, prefix) => { const el = document.getElementById(id); if(!el) return; el.innerHTML = `<option value="Todos">${prefix}</option>`; items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); }); };
-            let fases = getUnique('fase_atual');
-            const reg = data.find(i => i.observacoes && i.observacoes.includes('<!--CATALOGO_FASES:'));
-            if (reg) { const match = reg.observacoes.match(/<!--CATALOGO_FASES:(.*)-->/); if (match) fases = [...new Set([...fases, ...match[1].split('|')])].sort(); }
-            fill('f-coordenacao', getUnique('coordenacao'), 'Coord.'); fill('f-responsavel', getUnique('responsavel'), 'Resp.'); fill('f-modalidade', getUnique('modalidade'), 'Modal.'); fill('f-fase', fases, 'Fase'); fill('f-prioridade', getUnique('prioridade'), 'Prior.'); fill('f-demandante', getUnique('demandante'), 'Demand.');
+            fill('f-coordenacao', getUnique('coordenacao'), 'Coord.'); fill('f-responsavel', getUnique('responsavel'), 'Resp.'); fill('f-modalidade', getUnique('modalidade'), 'Modal.'); fill('f-prioridade', getUnique('prioridade'), 'Prior.'); fill('f-demandante', getUnique('demandante'), 'Demand.');
+            let phases = getUnique('fase_atual'); const reg = data.find(i => i.observacoes && i.observacoes.includes('<!--CATALOGO_FASES:'));
+            if (reg) { const match = reg.observacoes.match(/<!--CATALOGO_FASES:(.*)-->/); if (match) phases = [...new Set([...phases, ...match[1].split('|')])].sort(); }
+            fill('f-fase', phases, 'Fase');
         }
 
         function applyFilters() {
-            const f = {
-                prazo: document.getElementById('f-prazo').value,
-                dem: document.getElementById('f-demandante').value,
-                mod: forcedModFilter || document.getElementById('f-modalidade').value,
-                fase: document.getElementById('f-fase').value,
-                coord: document.getElementById('f-coordenacao').value,
-                resp: forcedRespFilter || document.getElementById('f-responsavel').value,
-                prior: document.getElementById('f-prioridade').value,
-                search: document.getElementById('searchBox').value.toLowerCase().trim()
-            };
+            const s = document.getElementById('searchBox').value.toLowerCase().trim();
+            const p = document.getElementById('f-prazo').value;
+            const c = document.getElementById('f-coordenacao').value;
+            const r = filters.resp || document.getElementById('f-responsavel').value;
+            const m = filters.mod || document.getElementById('f-modalidade').value;
+            const f = document.getElementById('f-fase').value;
+            const pr = document.getElementById('f-prioridade').value;
+            const d = document.getElementById('f-demandante').value;
 
             const filtered = rawData.filter(i => {
-                if (f.search && !(String(i.objeto_resumido || "") + String(i.id_processo || "")).toLowerCase().includes(f.search)) return false;
-                if (f.prazo !== 'Todos') { const aging = getAging(i.data_prevista); if (f.prazo === 'Atrasados' && aging.class !== 'aging-red') return false; if (f.prazo === 'No Prazo' && aging.class === 'aging-red') return false; }
-                if (f.dem !== 'Todos' && i.demandante !== f.dem) return false;
+                if (s && !(String(i.objeto_resumido||"") + String(i.id_processo||"")).toLowerCase().includes(s)) return false;
+                if (p !== 'Todos') { const ag = getAging(i.data_prevista); if (p === 'Atrasados' && ag.class !== 'aging-red') return false; if (p === 'No Prazo' && ag.class === 'aging-red') return false; }
+                if (c !== 'Todos' && i.coordenacao !== c) return false;
+                if (f !== 'Todos' && i.fase_atual !== f) return false;
+                if (pr !== 'Todos' && i.prioridade !== pr) return false;
+                if (d !== 'Todos' && i.demandante !== d) return false;
                 
-                // Lógica corrigida para Modalidade com TRIM
-                if (f.mod !== 'Todos' && String(i.modalidade || "").trim() !== String(f.mod).trim()) return false;
+                // Modalidade - Trim robusto
+                if (m !== 'Todos' && String(i.modalidade||"").trim() !== String(m).trim()) return false;
                 
-                if (f.fase !== 'Todos' && i.fase_atual !== f.fase) return false;
-                if (f.coord !== 'Todos' && i.coordenacao !== f.coord) return false;
-                if (f.resp !== 'Todos') {
-                    if (f.resp === 'N/I') { if (i.responsavel && String(i.responsavel).trim() !== "") return false; }
-                    else if (i.responsavel !== f.resp) return false;
+                // Responsável - N/I support
+                if (r !== 'Todos') {
+                    if (r === 'N/I') { if (i.responsavel && String(i.responsavel).trim() !== "") return false; }
+                    else if (i.responsavel !== r) return false;
                 }
-                if (f.prior !== 'Todos' && i.prioridade !== f.prior) return false;
                 return true;
             });
             updateView(filtered);
-            forcedRespFilter = null; forcedModFilter = null;
+            filters = { mod: null, resp: null }; // reset
         }
 
         function updateView(data) {
@@ -164,42 +154,34 @@
 
             document.getElementById('tableBody').innerHTML = data.map(i => {
                 const match = i.observacoes ? i.observacoes.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
-                const agingAtiv = getAging(i.data_prevista);
-                const agingFinal = getAging(match ? match[2] : null);
-                return `
-                <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
-                    <td class="px-2 py-3 font-bold text-blue-400 truncate">${i.processo_link ? `<a href="${i.processo_link}" target="_blank" onclick="event.stopPropagation()" class="hover:underline">${i.id_processo}</a>` : i.id_processo}</td>
+                const agA = getAging(i.data_prevista);
+                const agF = getAging(match ? match[2] : null);
+                return `<tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
+                    <td class="px-2 py-3 font-bold text-blue-400 truncate">${i.id_processo}</td>
                     <td class="px-2 py-3"><div class="font-bold text-slate-100 truncate">${i.fase_atual || '-'}</div><div class="text-[8px] text-slate-500 uppercase truncate">${i.objeto_resumido}</div></td>
-                    <td class="px-2 py-3 text-center"><span class="aging-badge ${agingAtiv.class}">${agingAtiv.label}</span><div class="text-[8px] text-slate-500 mt-0.5">${formatDate(i.data_prevista)}</div></td>
-                    <td class="px-2 py-3 text-center"><span class="font-bold ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(match ? match[2] : null)}</span></td>
+                    <td class="px-2 py-3 text-center"><span class="aging-badge ${agA.class}">${agA.label}</span><div class="text-[8px] text-slate-500 mt-0.5">${formatDate(i.data_prevista)}</div></td>
+                    <td class="px-2 py-3 text-center"><span class="font-bold ${agF.class==='aging-red'?'text-red-400':'text-slate-300'}">${formatDate(match?match[2]:null)}</span></td>
                     <td class="px-2 py-3 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
-                </tr>
-            `}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest text-[10px]">Sem dados</td></tr>';
+                </tr>`}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase text-[10px]">Sem dados</td></tr>';
             renderCharts(rawData); 
         }
 
-        function renderCharts(data) {
-            const countBy = (k) => data.reduce((a, i) => { let v = String(i[k] || 'N/I').trim(); if (v==="") v="N/I"; a[v] = (a[v] || 0) + 1; return a; }, {});
+        function renderCharts(full) {
+            const countBy = (k) => full.reduce((a, i) => { let v = String(i[k]||'N/I').trim(); if(v==="")v="N/I"; a[v]=(a[v]||0)+1; return a; }, {});
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
-            const s = data.reduce((a, i) => { const c = getAging(i.data_prevista).class; if(c==='aging-green') a.g++; else if(c==='aging-yellow') a.y++; else if(c==='aging-red') a.r++; return a; }, {g:0,y:0,r:0});
+            const s = full.reduce((a, i) => { const c = getAging(i.data_prevista).class; if(c==='aging-green')a.g++; else if(c==='aging-yellow')a.y++; else if(c==='aging-red')a.r++; return a; }, {g:0,y:0,r:0});
             draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [s.g, s.y, s.r], ['#10b981', '#f59e0b', '#ef4444'], true);
             const r = countBy('responsavel'); draw('chartResponsavel', 'bar', Object.keys(r), Object.values(r), ['#3b82f6', '#6366f1', '#8b5cf6'], true);
         }
 
-        function draw(id, type, labels, values, color, horizontal = false) {
+        function draw(id, type, labels, values, color, horiz = false) {
             if (charts[id]) charts[id].destroy();
-            const canvas = document.getElementById(id); if (!canvas) return;
-            charts[id] = new Chart(canvas.getContext('2d'), { 
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, { 
                 type, data: { labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] }, 
                 options: { 
-                    indexAxis: horizontal ? 'y' : 'x', maintainAspectRatio: false, 
-                    onClick: (e, activeEls) => {
-                        if (activeEls.length > 0) {
-                            const label = labels[activeEls[0].index];
-                            if (id === 'chartResponsavel') { forcedRespFilter = label; applyFilters(); }
-                            if (id === 'chartModalidade') { forcedModFilter = label; applyFilters(); }
-                        }
-                    },
+                    indexAxis: horiz ? 'y' : 'x', maintainAspectRatio: false, 
+                    onClick: (e, activeEls) => { if (activeEls.length > 0) { const l = labels[activeEls[0].index]; if (id === 'chartResponsavel') filters.resp = l; if (id === 'chartModalidade') filters.mod = l; applyFilters(); } },
                     plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } }, 
                     scales: { x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } }, y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } } } 
                 } 
@@ -209,15 +191,7 @@
         function showDetails(id) {
             const item = rawData.find(x => String(x.id_processo) === String(id)); if (!item) return;
             const match = item.observacoes ? item.observacoes.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
-            const dates = match ? { ativ: match[1], final: match[2], obs: item.observacoes.split('-->').pop() } : { ativ: null, final: null, obs: item.observacoes };
-            document.getElementById('modalContent').innerHTML = `
-                <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-blue-400 uppercase mb-2">Objeto</p><p class="text-sm font-bold text-slate-100">${item.objeto_resumido}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Fase Atual</p><p class="text-base font-black text-white">${item.fase_atual || '-'}</p><p class="text-[9px] text-slate-400">Início: ${dates.ativ || '-'}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Prazo Tarefa</p><p class="text-base font-black text-white">${formatDate(item.data_prevista)}</p><span class="aging-badge ${getAging(item.data_prevista).class}">${getAging(item.data_prevista).label}</span></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 mb-1">Entrega Final</p><p class="text-base font-black text-emerald-400">${dates.final || '-'}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Estimado</p><p class="text-base font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
-                <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Notas</p><div class="text-[10px] text-slate-400">${dates.obs || 'Sem observações.'}</div></div>
-            `;
+            document.getElementById('modalContent').innerHTML = `<div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-blue-400 uppercase mb-2">Objeto</p><p class="text-sm font-bold text-slate-100">${item.objeto_resumido}</p></div><div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">ID</p><p class="text-base font-black text-white">${item.id_processo}</p></div><div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Status</p><p class="text-base font-black text-amber-500">${item.status}</p></div><div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Estimado</p><p class="text-base font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div><div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 mb-1">Homologado</p><p class="text-base font-black text-emerald-400">${formatBRL(item.vlr_homologado)}</p></div>`;
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
         function closeModal() { document.getElementById('modalDetalhes').classList.add('hidden'); }
