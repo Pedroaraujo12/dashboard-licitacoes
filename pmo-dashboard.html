@@ -82,11 +82,16 @@
             </div>
         </div>
 
-        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prazo" onchange="applyFilters()"><option value="Todos">Todos os Prazos</option><option value="Atrasados">Somente Atrasados</option><option value="No Prazo">No Prazo</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Todos os Demandantes</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Todas as Modalidades</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-fase" onchange="applyFilters()"><option value="Todos">Todas as Fases</option></select>
+        <!-- Filtros Completos e Pesquisa -->
+        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar objeto ou ID..." class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition lg:col-span-1">
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prazo" onchange="applyFilters()"><option value="Todos">Status Prazo</option><option value="Atrasados">Atrasados</option><option value="No Prazo">No Prazo</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Coordenação</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Responsável</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Modalidade</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-fase" onchange="applyFilters()"><option value="Todos">Fase Atual</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-prioridade" onchange="applyFilters()"><option value="Todos">Prioridade</option></select>
+            <select class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Demandante</option></select>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -170,9 +175,12 @@
                 el.innerHTML = `<option value="Todos">${prefix}</option>`;
                 items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
             };
-            fill('f-demandante', getUnique('demandante'), 'Todos os Demandantes');
-            fill('f-modalidade', getUnique('modalidade'), 'Todas as Modalidades');
-            fill('f-fase', getUnique('fase_atual'), 'Todas as Fases');
+            fill('f-coordenacao', getUnique('coordenacao'), 'Coordenação');
+            fill('f-responsavel', getUnique('responsavel'), 'Responsável');
+            fill('f-modalidade', getUnique('modalidade'), 'Modalidade');
+            fill('f-fase', getUnique('fase_atual'), 'Fase Atual');
+            fill('f-prioridade', getUnique('prioridade'), 'Prioridade');
+            fill('f-demandante', getUnique('demandante'), 'Demandante');
         }
 
         function cleanVal(v) { return v ? (typeof v === 'number' ? v : parseFloat(String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0) : 0; }
@@ -250,7 +258,11 @@
                 prazo: document.getElementById('f-prazo').value,
                 dem: document.getElementById('f-demandante').value,
                 mod: document.getElementById('f-modalidade').value,
-                fase: document.getElementById('f-fase').value
+                fase: document.getElementById('f-fase').value,
+                coord: document.getElementById('f-coordenacao').value,
+                resp: document.getElementById('f-responsavel').value,
+                prior: document.getElementById('f-prioridade').value,
+                search: document.getElementById('searchBox').value.toLowerCase()
             };
             const filtered = rawData.filter(i => {
                 const aging = getAging(i.data_prevista);
@@ -258,7 +270,11 @@
                 const matchDem = (f.dem === 'Todos' || i.demandante === f.dem);
                 const matchMod = (f.mod === 'Todos' || i.modalidade === f.mod);
                 const matchFase = (f.fase === 'Todos' || i.fase_atual === f.fase);
-                return matchPrazo && matchDem && matchMod && matchFase;
+                const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
+                const matchResp = (f.resp === 'Todos' || i.responsavel === f.resp);
+                const matchPrior = (f.prior === 'Todos' || i.prioridade === f.prior);
+                const matchSearch = (!f.search || (i.objeto_resumido + i.id_processo).toLowerCase().includes(f.search));
+                return matchPrazo && matchDem && matchMod && matchFase && matchCoord && matchResp && matchPrior && matchSearch;
             });
             updateView(filtered);
         }
