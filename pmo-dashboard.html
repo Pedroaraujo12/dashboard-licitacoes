@@ -10,19 +10,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --glass: rgba(30, 41, 59, 0.7); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top left, #0f172a, #020617); color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top left, #0f172a, #020617); color: #f8fafc; overflow-x: hidden; }
         .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem; }
         .indicator-card { transition: transform 0.2s; }
         .indicator-card:hover { transform: translateY(-4px); }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .aging-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; }
+        .aging-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; white-space: nowrap; }
         .aging-red { background-color: #ef4444; color: white; }
         .aging-yellow { background-color: #eab308; color: black; }
         .aging-green { background-color: #22c55e; color: white; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen">
@@ -44,14 +42,14 @@
             <button onclick="window.location.reload()" class="bg-slate-800/50 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Resetar
             </button>
-            <div id="pmoStatus" class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <div class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                 <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span></span> Ativo
             </div>
         </div>
     </header>
 
     <div class="max-w-7xl mx-auto space-y-8">
-        
+        <!-- Cards de Indicadores -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="glass-card p-6 indicator-card">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processos Totais</p>
@@ -63,13 +61,13 @@
             <div class="glass-card p-6 indicator-card">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Estimado</p>
                 <div class="flex items-end justify-between">
-                    <h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100" title="">R$ 0,00</h3>
+                    <h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100">R$ 0,00</h3>
                 </div>
             </div>
             <div class="glass-card p-6 indicator-card border-l-4 border-l-emerald-500">
                 <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS</p>
                 <div class="flex items-end justify-between">
-                    <h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400" title="">R$ 0,00</h3>
+                    <h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3>
                     <div class="h-1 w-20 bg-emerald-950 rounded-full overflow-hidden"><div id="savingBar" class="h-full bg-emerald-500" style="width: 0%"></div></div>
                 </div>
             </div>
@@ -77,21 +75,22 @@
                 <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Processos em Atraso</p>
                 <div class="flex items-end justify-between">
                     <h3 id="totalAtrasados" class="text-4xl font-extrabold text-red-100">--</h3>
-                    <span class="text-[9px] font-bold text-red-400 uppercase">Atenção Crítica</span>
+                    <span class="text-[9px] font-bold text-red-400 uppercase">Gargalos</span>
                 </div>
             </div>
         </div>
 
-        <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-2">
+        <!-- Filtros Completos -->
+        <div class="glass-card p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-2">
             <input type="text" id="searchBox" onkeyup="applyFilters()" placeholder="Buscar..." class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition">
-            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-prazo" onchange="applyFilters()"><option value="Todos">Prazo</option><option value="Atrasados">Atrasados</option><option value="No Prazo">No Prazo</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-coordenacao" onchange="applyFilters()"><option value="Todos">Coord.</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-responsavel" onchange="applyFilters()"><option value="Todos">Resp.</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-modalidade" onchange="applyFilters()"><option value="Todos">Modal.</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-fase" onchange="applyFilters()"><option value="Todos">Fase</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-prioridade" onchange="applyFilters()"><option value="Todos">Prior.</option></select>
-            <select class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 outline-none focus:border-blue-500 transition" id="f-demandante" onchange="applyFilters()"><option value="Todos">Demand.</option></select>
-            <button onclick="window.location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white rounded-lg px-2 py-1.5 text-[10px] font-bold transition">Limpar</button>
+            <select id="f-prazo" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Prazo</option><option value="Atrasados">Atrasados</option><option value="No Prazo">No Prazo</option></select>
+            <select id="f-coordenacao" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Coord.</option></select>
+            <select id="f-responsavel" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Resp.</option></select>
+            <select id="f-modalidade" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Modal.</option></select>
+            <select id="f-fase" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Fase</option></select>
+            <select id="f-prioridade" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Prior.</option></select>
+            <select id="f-demandante" onchange="applyFilters()" class="bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><option value="Todos">Demand.</option></select>
+            <button onclick="window.location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white rounded-lg px-2 py-1.5 text-[10px] font-bold">Limpar</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -100,7 +99,7 @@
                     <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Fluxo de Execução</h2>
                     <span id="rowCount" class="text-[9px] font-bold bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">-- processos</span>
                 </div>
-                <div class="overflow-x-hidden overflow-y-auto max-h-[780px]">
+                <div class="overflow-x-hidden overflow-y-auto max-h-[600px]">
                     <table class="w-full text-left table-fixed">
                         <thead class="sticky top-0 bg-[#1e293b] z-10 shadow-sm">
                             <tr class="text-[9px] font-black uppercase text-slate-500 border-b border-white/10 tracking-tighter">
@@ -117,36 +116,27 @@
             </div>
 
             <div class="space-y-6">
-                <div class="glass-card p-6 h-[260px]">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-6">Volume por Modalidade</h2>
-                    <canvas id="chartModalidade"></canvas>
-                </div>
-                <div class="glass-card p-6 h-[260px]">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-6">Saúde dos Prazos</h2>
-                    <canvas id="chartStatus"></canvas>
-                </div>
-                <div class="glass-card p-6 h-[280px]">
-                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-6">Processos por Responsável</h2>
-                    <canvas id="chartResponsavel"></canvas>
-                </div>
+                <div class="glass-card p-6 h-[250px]"><h2 class="text-[10px] font-bold uppercase text-blue-400 mb-4">Modalidades</h2><canvas id="chartModalidade"></canvas></div>
+                <div class="glass-card p-6 h-[250px]"><h2 class="text-[10px] font-bold uppercase text-emerald-400 mb-4">Saúde dos Prazos</h2><canvas id="chartStatus"></canvas></div>
+                <div class="glass-card p-6 h-[250px]"><h2 class="text-[10px] font-bold uppercase text-indigo-400 mb-4">Responsáveis</h2><canvas id="chartResponsavel"></canvas></div>
             </div>
         </div>
 
-        <footer class="flex flex-col md:flex-row justify-between items-center px-4 py-8 border-t border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest gap-4 text-center">
-            <div>Fonte: Sistema AgSUS CCS-RD | Gerado por: Pedro Araújo da Silva - 61-993887186 / pedro.silva@agenciasus.org.br</div>
-            <div id="lastUpdate" class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Sincronizando...</div>
+        <footer class="flex flex-col md:flex-row justify-between items-center px-4 py-8 border-t border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest gap-4">
+            <div id="lastUpdate">Sincronizando dados...</div>
         </footer>
     </div>
 
-    <div id="modalDetalhes" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-[100] flex items-center justify-center p-2 sm:p-4">
-        <div class="glass-card w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] sm:max-h-none">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center shrink-0">
-                <h2 class="text-xs sm:text-sm font-black uppercase tracking-widest">Cronograma Detalhado</h2>
-                <button onclick="closeModal()" class="text-2xl opacity-50 hover:opacity-100 leading-none">&times;</button>
+    <!-- Modal Detalhes -->
+    <div id="modalDetalhes" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 flex justify-between items-center shrink-0">
+                <h2 class="text-xs font-black uppercase tracking-widest text-white">Ficha do Processo</h2>
+                <button onclick="closeModal()" class="text-2xl text-white opacity-50 hover:opacity-100">&times;</button>
             </div>
-            <div id="modalContent" class="p-4 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 overflow-y-auto"></div>
-            <div class="px-4 sm:px-8 py-4 sm:py-6 border-t border-white/5 text-right shrink-0">
-                <button onclick="closeModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition">Fechar</button>
+            <div id="modalContent" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto"></div>
+            <div class="px-6 py-4 border-t border-white/5 text-right shrink-0">
+                <button onclick="closeModal()" class="bg-slate-700 text-white px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Fechar</button>
             </div>
         </div>
     </div>
@@ -160,127 +150,75 @@
         let rawData = [];
 
         async function init() {
-            try {
-                const { data, error } = await sb.from('licitacoes').select('*');
-                if (error) throw error;
-                rawData = data || [];
-                document.getElementById('lastUpdate').innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500"></span> Atualizado em: ` + new Date().toLocaleDateString('pt-br') + `, às ` + new Date().toLocaleTimeString('pt-br');
-                populateFilters(rawData);
-                applyFilters();
-            } catch (e) {
-                console.error("Erro ao carregar dados:", e);
-                document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-400 uppercase font-black tracking-widest text-[10px]">Erro na conexão: ${e.message}</td></tr>`;
+            const { data, error } = await sb.from('licitacoes').select('*');
+            if (error) { 
+                document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="p-10 text-center">Erro: ${error.message}</td></tr>`;
+                return;
             }
+            rawData = data || [];
+            document.getElementById('lastUpdate').innerText = "Última Atualização: " + new Date().toLocaleString('pt-br');
+            populateFilters(rawData);
+            applyFilters();
         }
 
-        function populateFilters(data) {
-            const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(v => v && String(v).trim() !== ""))].sort((a, b) => String(a).localeCompare(String(b)));
-            let todasAsFases = getUnique('fase_atual');
-            const registroComCatalogo = data.find(i => i.observacoes && i.observacoes.includes('<!--CATALOGO_FASES:'));
-            if (registroComCatalogo) {
-                const match = registroComCatalogo.observacoes.match(/<!--CATALOGO_FASES:(.*)-->/);
-                if (match) {
-                    const catalogo = match[1].split('|');
-                    todasAsFases = [...new Set([...todasAsFases, ...catalogo])].sort((a, b) => String(a).localeCompare(String(b)));
-                }
-            }
-            const fill = (id, items, prefix) => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.innerHTML = `<option value="Todos">${prefix}</option>`;
-                items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
-            };
-            fill('f-coordenacao', getUnique('coordenacao'), 'Coord.');
-            fill('f-responsavel', getUnique('responsavel'), 'Resp.');
-            fill('f-modalidade', getUnique('modalidade'), 'Modal.');
-            fill('f-fase', todasAsFases, 'Fase');
-            fill('f-prioridade', getUnique('prioridade'), 'Prior.');
-            fill('f-demandante', getUnique('demandante'), 'Demand.');
-        }
-
-        function cleanVal(v) { 
+        function cleanNum(v) {
             if (!v) return 0;
             if (typeof v === 'number') return v;
-            const str = String(v).replace('R$', '').trim();
-            // Se tiver vírgula e não for formato científico, é PT-BR
-            if (str.includes(',') && !str.includes('e')) {
-                return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
-            }
-            // Senão, assume formato float padrão
-            return parseFloat(str) || 0;
+            let s = String(v).replace('R$', '').trim();
+            // Se o Supabase enviar algo como "156000.0", parseFloat funciona direto.
+            // Se enviar "156.000,00", precisamos converter.
+            if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
+            else if (s.includes(',')) s = s.replace(',', '.');
+            return parseFloat(s) || 0;
         }
 
-        function formatBRL(v) { return cleanVal(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
+        function formatBRL(v) { return cleanNum(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
         
         function formatDate(d) { 
-            if(!d || d === '-' || d === 'None') return '-';
-            try { 
-                if(d.includes('-')) {
-                    const parts = d.split('T')[0].split('-');
-                    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-                }
-                return d; 
-            } catch(e) { return d; }
-        }
-
-        function extractMetaDates(obs) {
-            const match = obs ? obs.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
-            if (match) {
-                return { ativ: match[1], final: match[2], cleanObs: obs.replace(match[0], '').replace(/<!--CATALOGO_FASES:.*-->/, '') };
-            }
-            return { ativ: null, final: null, cleanObs: obs ? obs.replace(/<!--CATALOGO_FASES:.*-->/, '') : '' };
-        }
-
-        function parseToISO(dateStr) {
-            if (!dateStr || dateStr === '-' || dateStr === 'None') return null;
-            if (dateStr.includes('-')) return dateStr.split('T')[0];
-            const parts = dateStr.split('/');
-            if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
-            return dateStr;
+            if(!d || d === 'None') return '-';
+            const iso = String(d).split('T')[0];
+            const p = iso.split('-');
+            return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
         }
 
         function getAging(dateStr) {
-            const isoDate = parseToISO(dateStr);
-            if (!isoDate) return { label: 'N/A', class: '' };
+            if (!dateStr || dateStr === 'None') return { label: 'N/A', class: '' };
+            let iso = dateStr;
+            if (dateStr.includes('/')) { const p = dateStr.split('/'); iso = `${p[2]}-${p[1]}-${p[0]}`; }
+            const target = new Date(iso.split('T')[0]);
+            if (isNaN(target)) return { label: 'Data Inv.', class: '' };
             const today = new Date(); today.setHours(0,0,0,0);
-            const target = new Date(isoDate);
-            if (isNaN(target)) return { label: dateStr, class: '' };
-            const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil((target - today) / (86400000));
             if (diffDays < 0) return { label: `Atrasado ${Math.abs(diffDays)}d`, class: 'aging-red' };
             if (diffDays <= 2) return { label: `Vence em ${diffDays}d`, class: 'aging-yellow' };
             return { label: `No Prazo (${diffDays}d)`, class: 'aging-green' };
         }
 
-        function valorPorExtenso(valor) {
-            if (!valor || valor <= 0) return "";
-            const unidades = ["", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"];
-            const dez_a_dezenove = ["dez", "onze", "doze", "treze", "quatorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove"];
-            const dezenas = ["", "", "vinte", "trinta", "quarenta", "cinquenta", "sessenta", "setenta", "oitenta", "noventa"];
-            const centenas = ["", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"];
-            function converter_parte(n) {
-                if (n === 0) return "";
-                if (n === 100) return "cem";
-                let c = Math.floor(n / 100), d = Math.floor((n % 100) / 10), u = n % 10, res = "";
-                if (c > 0) res += centenas[c];
-                if (d > 0 || u > 0) {
-                    if (res !== "") res += " e ";
-                    if (d === 1) res += dez_a_dezenove[u];
-                    else { res += dezenas[d]; if (d > 0 && u > 0) res += " e "; res += unidades[u]; }
-                }
-                return res.trim();
+        function populateFilters(data) {
+            const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(v => v && String(v).trim() !== ""))].sort();
+            const fill = (id, items, prefix) => {
+                const el = document.getElementById(id); if(!el) return;
+                el.innerHTML = `<option value="Todos">${prefix}</option>`;
+                items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
+            };
+            
+            // Catálogo completo de 19 fases via metadado
+            let fases = getUnique('fase_atual');
+            const reg = data.find(i => i.observacoes && i.observacoes.includes('<!--CATALOGO_FASES:'));
+            if (reg) {
+                const match = reg.observacoes.match(/<!--CATALOGO_FASES:(.*)-->/);
+                if (match) fases = [...new Set([...fases, ...match[1].split('|')])].sort();
             }
-            let inteiro = Math.floor(valor), centavos = Math.round((valor - inteiro) * 100), partes = [];
-            let milhoes = Math.floor(inteiro / 1000000), milhares = Math.floor((inteiro % 1000000) / 1000), resto = inteiro % 1000;
-            if (milhoes > 0) partes.push(converter_parte(milhoes) + (milhoes === 1 ? " milhão" : " milhões"));
-            if (milhares > 0) partes.push(converter_parte(milhares) + " mil");
-            if (resto > 0 || partes.length === 0) partes.push(converter_parte(resto));
-            let porExtenso = partes.join(", ").replace(/, ([^,]*)$/, " e $1") + (inteiro === 1 ? " real" : " reais");
-            if (centavos > 0) porExtenso += " e " + converter_parte(centavos) + (centavos === 1 ? " centavo" : " centavos");
-            return porExtenso.charAt(0).toUpperCase() + porExtenso.slice(1);
+
+            fill('f-coordenacao', getUnique('coordenacao'), 'Coord.');
+            fill('f-responsavel', getUnique('responsavel'), 'Resp.');
+            fill('f-modalidade', getUnique('modalidade'), 'Modal.');
+            fill('f-fase', fases, 'Fase');
+            fill('f-prioridade', getUnique('prioridade'), 'Prior.');
+            fill('f-demandante', getUnique('demandante'), 'Demand.');
         }
 
         function applyFilters() {
-            if (!rawData || rawData.length === 0) return;
             const f = {
                 prazo: document.getElementById('f-prazo').value,
                 dem: document.getElementById('f-demandante').value,
@@ -289,16 +227,13 @@
                 coord: document.getElementById('f-coordenacao').value,
                 resp: document.getElementById('f-responsavel').value,
                 prior: document.getElementById('f-prioridade').value,
-                search: document.getElementById('searchBox').value ? document.getElementById('searchBox').value.toLowerCase().trim() : ""
+                search: document.getElementById('searchBox').value.toLowerCase().trim()
             };
+
             const filtered = rawData.filter(i => {
-                if (f.search) {
-                    const objText = String(i.objeto_resumido || "").toLowerCase();
-                    const idText = String(i.id_processo || "").toLowerCase();
-                    if (!objText.includes(f.search) && !idText.includes(f.search)) return false;
-                }
-                const aging = getAging(i.data_prevista);
+                if (f.search && !(String(i.objeto_resumido || "") + String(i.id_processo || "")).toLowerCase().includes(f.search)) return false;
                 if (f.prazo !== 'Todos') {
+                    const aging = getAging(i.data_prevista);
                     if (f.prazo === 'Atrasados' && aging.class !== 'aging-red') return false;
                     if (f.prazo === 'No Prazo' && aging.class === 'aging-red') return false;
                 }
@@ -316,88 +251,57 @@
         function updateView(data) {
             document.getElementById('totalProcessos').innerText = data.length;
             document.getElementById('rowCount').innerText = data.length + " processos";
-            const sumEst = data.reduce((acc, i) => acc + cleanVal(i.vlr_estimado_anual), 0);
-            const sumHom = data.reduce((acc, i) => acc + cleanVal(i.vlr_homologado), 0);
+            const sumEst = data.reduce((acc, i) => acc + cleanNum(i.vlr_estimado_anual), 0);
+            const sumHom = data.reduce((acc, i) => acc + cleanNum(i.vlr_homologado), 0);
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
-            document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEst);
             document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom);
-            const percSaving = sumEst > 0 ? ((sumEst - sumHom) / sumEst) * 100 : 0;
-            document.getElementById('savingBar').style.width = percSaving + '%';
+            document.getElementById('savingBar').style.width = sumEst > 0 ? ((sumEst - sumHom)/sumEst)*100 + '%' : '0%';
+            
             const atrasados = data.filter(i => getAging(i.data_prevista).class === 'aging-red');
             document.getElementById('totalAtrasados').innerText = atrasados.length;
+
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
-                const meta = extractMetaDates(i.observacoes);
+                const match = i.observacoes ? i.observacoes.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
                 const agingAtiv = getAging(i.data_prevista);
-                const agingFinal = getAging(meta.final);
+                const agingFinal = getAging(match ? match[2] : null);
                 return `
                 <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
-                    <td class="px-2 py-3 font-bold text-blue-400 truncate text-[10px]">
-                        ${i.processo_link ? `<a href="${i.processo_link}" target="_blank" onclick="event.stopPropagation()" class="hover:underline">${i.id_processo}</a>` : i.id_processo}
-                    </td>
-                    <td class="px-2 py-3">
-                        <div class="font-bold text-slate-100 truncate text-[10px]" title="${i.fase_atual}">${i.fase_atual || '-'}</div>
-                        <div class="text-[8px] text-slate-500 uppercase truncate" title="${i.objeto_resumido}">${i.objeto_resumido}</div>
-                    </td>
-                    <td class="px-2 py-3 text-center">
-                        <span class="aging-badge ${agingAtiv.class} text-[8px]">${agingAtiv.label}</span>
-                        <div class="text-[8px] text-slate-500 mt-0.5 font-medium">${formatDate(i.data_prevista)}</div>
-                    </td>
-                    <td class="px-2 py-3 text-center">
-                        <span class="font-bold text-[10px] ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(meta.final)}</span>
-                        <div class="text-[8px] ${agingFinal.class === 'aging-red' ? 'text-red-500/50' : 'text-slate-500'} mt-0.5 uppercase font-black tracking-tighter">${agingFinal.label}</div>
-                    </td>
-                    <td class="px-2 py-3 text-right font-bold text-slate-100 text-[10px]">${formatBRL(i.vlr_estimado_anual)}</td>
+                    <td class="px-2 py-3 font-bold text-blue-400 truncate">${i.processo_link ? `<a href="${i.processo_link}" target="_blank" onclick="event.stopPropagation()" class="hover:underline">${i.id_processo}</a>` : i.id_processo}</td>
+                    <td class="px-2 py-3"><div class="font-bold text-slate-100 truncate">${i.fase_atual || '-'}</div><div class="text-[8px] text-slate-500 uppercase truncate">${i.objeto_resumido}</div></td>
+                    <td class="px-2 py-3 text-center"><span class="aging-badge ${agingAtiv.class}">${agingAtiv.label}</span><div class="text-[8px] text-slate-500 mt-0.5">${formatDate(i.data_prevista)}</div></td>
+                    <td class="px-2 py-3 text-center"><span class="font-bold ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(match ? match[2] : null)}</span></td>
+                    <td class="px-2 py-3 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
             `}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest text-[10px]">Sem dados</td></tr>';
             renderCharts(data);
         }
 
         function renderCharts(data) {
-            const countBy = (key) => data.reduce((acc, i) => { let v = i[key] || 'N/I'; acc[v] = (acc[v] || 0) + 1; return acc; }, {});
+            const countBy = (k) => data.reduce((a, i) => { let v = i[k] || 'N/I'; a[v] = (a[v] || 0) + 1; return a; }, {});
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
-            const agingStats = data.reduce((acc, i) => {
-                const s = getAging(i.data_prevista).class;
-                if(s === 'aging-green') acc.green++;
-                else if(s === 'aging-yellow') acc.yellow++;
-                else if(s === 'aging-red') acc.red++;
-                return acc;
-            }, { green: 0, yellow: 0, red: 0 });
-            draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [agingStats.green, agingStats.yellow, agingStats.red], ['#10b981', '#f59e0b', '#ef4444'], true);
-            const respData = countBy('responsavel');
-            draw('chartResponsavel', 'bar', Object.keys(respData), Object.values(respData), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'], true);
+            const s = data.reduce((a, i) => { const c = getAging(i.data_prevista).class; if(c==='aging-green') a.g++; else if(c==='aging-yellow') a.y++; else if(c==='aging-red') a.r++; return a; }, {g:0,y:0,r:0});
+            draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [s.g, s.y, s.r], ['#10b981', '#f59e0b', '#ef4444'], true);
+            const r = countBy('responsavel'); draw('chartResponsavel', 'bar', Object.keys(r), Object.values(r), ['#3b82f6', '#6366f1', '#8b5cf6'], true);
         }
 
         function draw(id, type, labels, values, color, horizontal = false) {
             if (charts[id]) charts[id].destroy();
-            const canvas = document.getElementById(id);
-            if (!canvas) return;
-            charts[id] = new Chart(canvas.getContext('2d'), {
-                type: type,
-                data: { labels: labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] },
-                options: {
-                    indexAxis: horizontal ? 'y' : 'x',
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 } } },
-                    scales: { 
-                        x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } },
-                        y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } }
-                    }
-                }
-            });
+            const canvas = document.getElementById(id); if (!canvas) return;
+            charts[id] = new Chart(canvas.getContext('2d'), { type, data: { labels, datasets: [{ data: values, backgroundColor: color, borderRadius: 5 }] }, options: { indexAxis: horizontal ? 'y' : 'x', maintainAspectRatio: false, plugins: { legend: { display: type === 'doughnut', position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } }, scales: { x: { display: type !== 'doughnut', grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } }, y: { display: type !== 'doughnut', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 8 } } } } } });
         }
 
         function showDetails(id) {
-            const item = rawData.find(x => String(x.id_processo) === String(id));
-            if (!item) return;
-            const meta = extractMetaDates(item.observacoes);
+            const item = rawData.find(x => String(x.id_processo) === String(id)); if (!item) return;
+            const match = item.observacoes ? item.observacoes.match(/<!--METADATA_DATES:ATIV=(.*)\|FINAL=(.*)-->/) : null;
+            const dates = match ? { ativ: match[1], final: match[2], obs: item.observacoes.split('-->').pop() } : { ativ: null, final: null, obs: item.observacoes };
             document.getElementById('modalContent').innerHTML = `
-                <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-blue-400 uppercase mb-2">Objeto</p><p class="text-base font-bold text-slate-100">${item.objeto_resumido}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Fase Atual</p><p class="text-lg font-black text-white">${item.fase_atual || '-'}</p><p class="text-[10px] text-slate-400">Iniciado em: ${formatDate(meta.ativ)}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Prazo Atividade</p><p class="text-lg font-black text-white">${formatDate(item.data_prevista)}</p><span class="aging-badge ${getAging(item.data_prevista).class}">${getAging(item.data_prevista).label}</span></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 mb-1">Entrega Final Prevista</p><p class="text-lg font-black text-emerald-400">${formatDate(meta.final)}</p></div>
-                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Estimado</p><p class="text-lg font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
-                <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Notas Estratégicas</p><div class="text-xs text-slate-400">${meta.cleanObs || 'Sem observações.'}</div></div>
+                <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-blue-400 uppercase mb-2">Objeto</p><p class="text-sm font-bold text-slate-100">${item.objeto_resumido}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Fase Atual</p><p class="text-base font-black text-white">${item.fase_atual || '-'}</p><p class="text-[9px] text-slate-400">Início: ${dates.ativ || '-'}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Prazo Tarefa</p><p class="text-base font-black text-white">${formatDate(item.data_prevista)}</p><span class="aging-badge ${getAging(item.data_prevista).class}">${getAging(item.data_prevista).label}</span></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-emerald-500 mb-1">Entrega Final</p><p class="text-base font-black text-emerald-400">${dates.final || '-'}</p></div>
+                <div class="p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Estimado</p><p class="text-base font-black text-white">${formatBRL(item.vlr_estimado_anual)}</p></div>
+                <div class="col-span-2 p-6 glass-card"><p class="text-[9px] font-bold text-slate-500 mb-1">Notas</p><div class="text-[10px] text-slate-400">${dates.obs || 'Sem observações.'}</div></div>
             `;
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
