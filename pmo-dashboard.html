@@ -14,6 +14,7 @@
         .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem; }
         .indicator-card { transition: transform 0.2s; }
         .indicator-card:hover { transform: translateY(-4px); }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .aging-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; white-space: nowrap; }
         .aging-red { background-color: #ef4444; color: white; }
         .aging-yellow { background-color: #eab308; color: black; }
@@ -43,7 +44,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processos Totais</p><h3 id="totalProcessos" class="text-4xl font-extrabold">--</h3></div>
             <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Estimado</p><h3 id="vlrEstimadoTotal" class="text-2xl font-extrabold text-slate-100">R$ 0,00</h3></div>
-            <div class="glass-card p-6 indicator-card"><p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS</p><h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3></div>
+            <div class="glass-card p-6 indicator-card border-l-4 border-l-emerald-500"><p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Economia CCS</p><h3 id="vlrEconomizado" class="text-2xl font-extrabold text-emerald-400">R$ 0,00</h3></div>
             <div class="glass-card p-6 indicator-card border-l-4 border-l-red-500"><p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Em Atraso</p><h3 id="totalAtrasados" class="text-4xl font-extrabold text-red-100">--</h3></div>
         </div>
 
@@ -64,7 +65,7 @@
                 <div class="p-4 border-b border-white/5 flex justify-between items-center"><h2 class="text-xs font-bold uppercase text-slate-400">Fluxo de Execução</h2><span id="rowCount" class="text-[9px] font-bold bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">-- processos</span></div>
                 <div class="overflow-x-hidden overflow-y-auto max-h-[600px]">
                     <table class="w-full text-left table-fixed">
-                        <thead class="sticky top-0 bg-[#1e293b] z-10 shadow-sm"><tr class="text-[9px] font-black uppercase text-slate-500 border-b border-white/10"><th class="w-[18%] px-2 py-3">ID Processo</th><th class="w-[28%] px-2 py-3">Fase / Status</th><th class="w-[18%] px-2 py-3 text-center">Prazo Tarefa</th><th class="w-[18%] px-2 py-3 text-center">Entrega Final</th><th class="w-[18%] px-2 py-3 text-right">Vlr Estimado</th></tr></thead>
+                        <thead class="sticky top-0 bg-[#1e293b] z-10 shadow-sm"><tr class="text-[9px] font-black uppercase text-slate-500 border-b border-white/10 tracking-tighter"><th class="w-[18%] px-2 py-3">ID Processo</th><th class="w-[28%] px-2 py-3">Fase / Status</th><th class="w-[18%] px-2 py-3 text-center">Prazo Tarefa</th><th class="w-[18%] px-2 py-3 text-center">Entrega Final</th><th class="w-[18%] px-2 py-3 text-right">Vlr Estimado</th></tr></thead>
                         <tbody id="tableBody" class="text-[10px] divide-y divide-white/5"></tbody>
                     </table>
                 </div>
@@ -98,7 +99,15 @@
             applyFilters();
         }
 
-        function cleanNum(v) { if (!v) return 0; if (typeof v === 'number') return v; let s = String(v).replace('R$', '').trim(); if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.'); else if (s.includes(',')) s = s.replace(',', '.'); return parseFloat(s) || 0; }
+        function cleanNum(v) { 
+            if (!v) return 0; 
+            if (typeof v === 'number') return v; 
+            let s = String(v).replace('R$', '').trim(); 
+            if (s.includes(',') && !s.includes('e')) {
+                s = s.replace(/\./g, '').replace(',', '.');
+            }
+            return parseFloat(s) || 0; 
+        }
         function formatBRL(v) { return cleanNum(v).toLocaleString('pt-br', {style:'currency', currency:'BRL'}); }
         function formatDate(d) { if(!d || d === 'None') return '-'; const iso = String(d).split('T')[0]; const p = iso.split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d; }
         function getAging(dateStr) { if (!dateStr || dateStr === 'None') return { label: 'N/A', class: '' }; let iso = dateStr; if (dateStr.includes('/')) { const p = dateStr.split('/'); iso = `${p[2]}-${p[1]}-${p[0]}`; } const target = new Date(iso.split('T')[0]); if (isNaN(target)) return { label: 'Data Inv.', class: '' }; const today = new Date(); today.setHours(0,0,0,0); const diffDays = Math.ceil((target - today) / (86400000)); if (diffDays < 0) return { label: `Atrasado ${Math.abs(diffDays)}d`, class: 'aging-red' }; if (diffDays <= 2) return { label: `Vence em ${diffDays}d`, class: 'aging-yellow' }; return { label: `No Prazo (${diffDays}d)`, class: 'aging-green' }; }
@@ -143,10 +152,20 @@
         function updateView(data) {
             document.getElementById('totalProcessos').innerText = data.length;
             document.getElementById('rowCount').innerText = data.length + " processos";
+            
+            // LÓGICA DE CÁLCULO FINANCEIRO CORRIGIDA
             const sumEst = data.reduce((acc, i) => acc + cleanNum(i.vlr_estimado_anual), 0);
-            const sumHom = data.reduce((acc, i) => acc + cleanNum(i.vlr_homologado), 0);
+            
+            // Economia é (Estimado - Homologado) apenas onde há homologação
+            const economiaReal = data.reduce((acc, i) => {
+                const est = cleanNum(i.vlr_estimado_anual);
+                const hom = cleanNum(i.vlr_homologado);
+                if (hom > 0) return acc + (est - hom);
+                return acc;
+            }, 0);
+
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
-            document.getElementById('vlrEconomizado').innerText = formatBRL(sumEst - sumHom);
+            document.getElementById('vlrEconomizado').innerText = formatBRL(economiaReal);
             const atrasados = data.filter(i => getAging(i.data_prevista).class === 'aging-red');
             document.getElementById('totalAtrasados').innerText = atrasados.length;
 
@@ -160,7 +179,7 @@
                     <td class="px-2 py-3 text-center"><span class="aging-badge ${agA.class}">${agA.label}</span><div class="text-[8px] text-slate-500 mt-0.5">${formatDate(i.data_prevista)}</div></td>
                     <td class="px-2 py-3 text-center"><span class="font-bold ${agF.class==='aging-red'?'text-red-400':'text-slate-300'}">${formatDate(match?match[2]:null)}</span></td>
                     <td class="px-2 py-3 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
-                </tr>`}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase text-[10px]">Sem dados</td></tr>';
+                </tr>`}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest text-[10px]">Sem dados</td></tr>';
             renderCharts(rawData); 
         }
 
@@ -169,12 +188,8 @@
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
             const s = full.reduce((a, i) => { const c = getAging(i.data_prevista).class; if(c==='aging-green')a.g++; else if(c==='aging-yellow')a.y++; else if(c==='aging-red')a.r++; return a; }, {g:0,y:0,r:0});
             draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [s.g, s.y, s.r], ['#10b981', '#f59e0b', '#ef4444'], true);
-            
             const rData = countBy('responsavel');
-            const sortedLabels = Object.keys(rData).sort((a,b) => {
-                if(a==='N/I') return 1; if(b==='N/I') return -1;
-                return rData[b] - rData[a];
-            });
+            const sortedLabels = Object.keys(rData).sort((a,b) => { if(a==='N/I') return 1; if(b==='N/I') return -1; return rData[b] - rData[a]; });
             draw('chartResponsavel', 'bar', sortedLabels, sortedLabels.map(l => rData[l]), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'], true);
         }
 
