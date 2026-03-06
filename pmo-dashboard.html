@@ -170,9 +170,10 @@
         }
 
         function populateFilters(data) {
-            const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(Boolean))].sort();
+            const getUnique = (key) => [...new Set(data.map(i => i[key]).filter(v => v && String(v).trim() !== ""))].sort((a, b) => String(a).localeCompare(String(b)));
             const fill = (id, items, prefix) => {
                 const el = document.getElementById(id);
+                if (!el) return;
                 el.innerHTML = `<option value="Todos">${prefix}</option>`;
                 items.forEach(v => { const opt = document.createElement('option'); opt.value = v; opt.innerText = v; el.appendChild(opt); });
             };
