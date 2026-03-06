@@ -111,7 +111,10 @@
         function formatDate(d) { 
             if(!d || d === '-' || d === 'None') return '-';
             try { 
-                if(d.includes('-')) return new Date(d).toLocaleDateString('pt-br');
+                if(d.includes('-')) {
+                    const parts = d.split('-');
+                    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
                 return d; 
             } catch(e) { return d; }
         }
@@ -199,13 +202,13 @@
             document.getElementById('vlrEstimadoTotal').innerText = formatBRL(sumEst);
             document.getElementById('vlrEstimadoTotal').title = valorPorExtenso(sumEst);
             
-            const atrasados = data.filter(i => getAging(formatDate(i.data_prevista)).class === 'aging-red');
+            const atrasados = data.filter(i => getAging(i.data_prevista).class === 'aging-red');
             document.getElementById('totalAtrasados').innerText = atrasados.length;
 
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
                 const meta = extractMetaDates(i.observacoes);
-                const agingAtiv = getAging(formatDate(i.data_prevista));
+                const agingAtiv = getAging(i.data_prevista);
                 const agingFinal = getAging(meta.final);
                 const timeline = `Entrada: ${formatDate(i.data_entrada)}\nAtividade: ${formatDate(meta.ativ)}\nEntrega Ativ: ${formatDate(i.data_prevista)}\nEntrega Final: ${formatDate(meta.final)}`;
 
