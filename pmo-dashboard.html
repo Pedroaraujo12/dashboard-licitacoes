@@ -288,7 +288,12 @@
                 const matchCoord = (f.coord === 'Todos' || i.coordenacao === f.coord);
                 const matchResp = (f.resp === 'Todos' || i.responsavel === f.resp);
                 const matchPrior = (f.prior === 'Todos' || i.prioridade === f.prior);
-                const matchSearch = (!f.search || (i.objeto_resumido + i.id_processo).toLowerCase().includes(f.search));
+                
+                // Correção: Se a busca estiver vazia, matchSearch é true para todos
+                const objText = (i.objeto_resumido || "").toLowerCase();
+                const idText = (i.id_processo || "").toLowerCase();
+                const matchSearch = (!f.search || objText.includes(f.search) || idText.includes(f.search));
+                
                 return matchPrazo && matchDem && matchMod && matchFase && matchCoord && matchResp && matchPrior && matchSearch;
             });
             updateView(filtered);
