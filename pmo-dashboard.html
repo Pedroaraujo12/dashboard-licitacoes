@@ -297,25 +297,27 @@
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = data.map(i => {
                 const meta = extractMetaDates(i.observacoes);
+                // No PMO, 'data_prevista' agora é o prazo da atividade calculado pela planilha
                 const agingAtiv = getAging(i.data_prevista);
                 const agingFinal = getAging(meta.final);
                 return `
                 <tr class="hover:bg-white/5 transition cursor-pointer" onclick="showDetails('${i.id_processo}')">
-                    <td class="px-6 py-5 font-bold text-blue-400">
+                    <td class="px-3 md:px-6 py-5 font-bold text-blue-400">
                         ${i.id_processo}
                     </td>
-                    <td class="px-6 py-5 max-w-xs truncate text-slate-300">
+                    <td class="px-3 md:px-6 py-5 max-w-xs truncate text-slate-300">
                         <div class="font-bold text-slate-100">${i.fase_atual || '-'}</div>
                         <div class="text-[9px] text-slate-500 uppercase">${i.objeto_resumido}</div>
                     </td>
-                    <td class="px-6 py-5 text-center">
+                    <td class="px-3 md:px-6 py-5 text-center">
                         <span class="aging-badge ${agingAtiv.class}">${agingAtiv.label}</span>
-                        <div class="text-[9px] text-slate-500 mt-1">${formatDate(i.data_prevista)}</div>
+                        <div class="text-[9px] text-slate-500 mt-1 font-medium">${formatDate(i.data_prevista)}</div>
                     </td>
-                    <td class="px-6 py-5 text-center">
+                    <td class="px-3 md:px-6 py-5 text-center">
                         <span class="font-bold ${agingFinal.class === 'aging-red' ? 'text-red-400' : 'text-slate-300'}">${formatDate(meta.final)}</span>
+                        <div class="text-[9px] ${agingFinal.class === 'aging-red' ? 'text-red-500/50' : 'text-slate-500'} mt-1 uppercase font-black tracking-tighter">${agingFinal.label}</div>
                     </td>
-                    <td class="px-6 py-5 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
+                    <td class="px-3 md:px-6 py-5 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
             `}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest">Sem dados</td></tr>';
             renderCharts(data);
