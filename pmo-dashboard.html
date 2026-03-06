@@ -136,24 +136,20 @@
                 if (f.prazo !== 'Todos') { const aging = getAging(i.data_prevista); if (f.prazo === 'Atrasados' && aging.class !== 'aging-red') return false; if (f.prazo === 'No Prazo' && aging.class === 'aging-red') return false; }
                 if (f.dem !== 'Todos' && i.demandante !== f.dem) return false;
                 
-                // Lógica para Modalidade
-                if (f.mod !== 'Todos' && i.modalidade !== f.mod) return false;
+                // Lógica corrigida para Modalidade com TRIM
+                if (f.mod !== 'Todos' && String(i.modalidade || "").trim() !== String(f.mod).trim()) return false;
                 
                 if (f.fase !== 'Todos' && i.fase_atual !== f.fase) return false;
                 if (f.coord !== 'Todos' && i.coordenacao !== f.coord) return false;
-                
-                // Lógica especial para N/I e Responsável
                 if (f.resp !== 'Todos') {
                     if (f.resp === 'N/I') { if (i.responsavel && String(i.responsavel).trim() !== "") return false; }
                     else if (i.responsavel !== f.resp) return false;
                 }
-                
                 if (f.prior !== 'Todos' && i.prioridade !== f.prior) return false;
                 return true;
             });
             updateView(filtered);
-            forcedRespFilter = null; 
-            forcedModFilter = null;
+            forcedRespFilter = null; forcedModFilter = null;
         }
 
         function updateView(data) {
@@ -179,11 +175,11 @@
                     <td class="px-2 py-3 text-right font-bold text-slate-100">${formatBRL(i.vlr_estimado_anual)}</td>
                 </tr>
             `}).join('') || '<tr><td colspan="5" class="p-10 text-center opacity-30 uppercase font-black tracking-widest text-[10px]">Sem dados</td></tr>';
-            renderCharts(rawData); // SEMPRE RENDERIZA CHARTS COM BASE NO FULL DATA
+            renderCharts(rawData); 
         }
 
         function renderCharts(data) {
-            const countBy = (k) => data.reduce((a, i) => { let v = i[k] || 'N/I'; if (v.trim()==="") v="N/I"; a[v] = (a[v] || 0) + 1; return a; }, {});
+            const countBy = (k) => data.reduce((a, i) => { let v = String(i[k] || 'N/I').trim(); if (v==="") v="N/I"; a[v] = (a[v] || 0) + 1; return a; }, {});
             draw('chartModalidade', 'doughnut', Object.keys(countBy('modalidade')), Object.values(countBy('modalidade')), ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7']);
             const s = data.reduce((a, i) => { const c = getAging(i.data_prevista).class; if(c==='aging-green') a.g++; else if(c==='aging-yellow') a.y++; else if(c==='aging-red') a.r++; return a; }, {g:0,y:0,r:0});
             draw('chartStatus', 'bar', ['No Prazo', 'Alerta', 'Atrasado'], [s.g, s.y, s.r], ['#10b981', '#f59e0b', '#ef4444'], true);
